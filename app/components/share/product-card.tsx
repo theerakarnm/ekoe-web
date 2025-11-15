@@ -3,7 +3,7 @@ import { formatCurrencyFromCents } from "~/lib/formatter"
 
 function ProductCard({ product }: { product: IProduct }) {
   return (
-    <div className="shrink-0 w-3/4 sm:w-1/3 lg:w-1/4 hover:bg-gray-100 transition-all rounded-b pb-2 group cursor-pointer">
+    <div className="w-full hover:bg-gray-100 transition-all rounded-b pb-2 group cursor-pointer">
       <div className="bg-secondary-light dark:bg-secondary-dark rounded">
         <img alt={product.image.description} className="w-full h-auto object-cover rounded-t" src={product.image.url} />
       </div>
