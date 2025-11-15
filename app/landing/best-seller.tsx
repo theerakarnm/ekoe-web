@@ -91,9 +91,9 @@ const products: IProduct[] = [{
 
 function BestSellerSection() {
   return (
-    <div className="container mx-auto px-6 mt-24">
-      <h2 className="font-serif text-4xl md:text-5xl text-center mb-10 text-[#858585]">Our Best Seller</h2>
+    <div className="mx-auto *:mt-24 mb-16 container">
       <div className="relative">
+        <h2 className="font-serif text-4xl md:text-5xl text-center mb-10 text-[#858585]">Our Best Seller</h2>
         <Carousel
           opts={{
             align: "start",
@@ -109,8 +109,8 @@ function BestSellerSection() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden md:flex" />
-          <CarouselNext className="hidden md:flex" />
+          <CarouselPrevious className="hidden md:flex cursor-pointer" />
+          <CarouselNext className="hidden md:flex cursor-pointer" />
         </Carousel>
       </div>
     </div>
