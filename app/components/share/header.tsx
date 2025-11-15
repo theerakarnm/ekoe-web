@@ -7,7 +7,7 @@ export default function Header({
 }) {
   return (
     <>
-      <div className="bg-[#7c6f64] text-white text-center py-2 text-sm">
+      <div className="bg-[#6E604D] text-white text-center py-2 text-sm">
         FREE SHIPPING ON ALL ORDERS WITHIN THAILAND
       </div>
       {
