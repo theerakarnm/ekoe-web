@@ -106,14 +106,14 @@ function BestSellerSection() {
             {products.map((product) => (
               <CarouselItem
                 key={product.productId}
-                className="pl-2 sm:pl-3 md:pl-4 basis-1/2 sm:basis-1/3 md:basis-1/3 lg:basis-1/4"
+                className="pl-2 sm:pl-3 md:pl-4 basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
               >
                 <ProductCard product={product} />
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex cursor-pointer" />
-          <CarouselNext className="hidden sm:flex cursor-pointer" />
+          <CarouselPrevious className="hidden sm:flex left-2 cursor-pointer" />
+          <CarouselNext className="hidden sm:flex right-2 cursor-pointer" />
         </Carousel>
       </div>
     </div>
