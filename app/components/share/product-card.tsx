@@ -19,7 +19,7 @@ function ProductCard({ product }: { product: IProduct }) {
             {product.priceTitle}
           </p>
           <p className="text-xs sm:text-sm text-text-light/70 pt-1 bg-black text-white font-serif absolute inset-0 transition-all duration-300 translate-y-full group-hover:translate-y-0">
-            Add to cart {formatCurrencyFromCents(product.quickCartPrice)}
+            Add to cart {formatCurrencyFromCents(product.quickCartPrice, { symbol: '$' })}
           </p>
         </div>
       </div>
