@@ -29,4 +29,11 @@ export interface IProduct {
     description: string;
     subtext?: string;
   }[];
+  discountCodes?: { title: string; condition: string; code: string }[];
+  complimentaryGift?: {
+    name: string;
+    description: string;
+    image: string;
+    value?: string;
+  };
 }
