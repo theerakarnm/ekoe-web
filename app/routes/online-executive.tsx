@@ -33,7 +33,7 @@ const MOCK_DATA = {
 export default function OnlineExecutive() {
   return (
     <div className="min-h-screen bg-white font-serif">
-      <Header isLandingMagic={false} />
+      <Header />
 
       <main className="pt-20 pb-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

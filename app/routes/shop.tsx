@@ -82,7 +82,7 @@ const PRODUCTS: IProduct[] = [
 export default function Shop() {
   return (
     <div className="min-h-screen bg-white font-sans">
-      <Header isLandingMagic={false} />
+      <Header />
 
       <main className="pt-8 sm:pt-8">
         {/* Breadcrumb */}

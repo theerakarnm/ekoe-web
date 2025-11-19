@@ -24,11 +24,7 @@ export interface IProduct {
     steps: { title: string; description: string; icon?: string }[];
     note?: string;
   };
-  userStats?: {
-    percentage: number;
-    description: string;
-    subtext?: string;
-  }[];
+  userStats?: string;
   discountCodes?: { title: string; condition: string; code: string }[];
   complimentaryGift?: {
     name: string;

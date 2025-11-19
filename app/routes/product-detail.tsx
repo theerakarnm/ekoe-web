@@ -77,20 +77,7 @@ const productData: IProduct = {
     ],
     fullList: "Caprylic/Capric Triglyceride, Helianthus Annuus (Sunflower) Seed Oil, Simmondsia Chinensis (Jojoba) Seed Oil, Gevuina Avellana Seed Oil, ...",
   },
-  userStats: [
-    {
-      percentage: 98,
-      description: "รู้สึกถึงการซึมซาบอย่างรวดเร็ว",
-    },
-    {
-      percentage: 93,
-      description: "สังเกตว่าผิวดูกระจ่างใสขึ้น",
-    },
-    {
-      percentage: 96,
-      description: "รู้สึกว่าผิวชุ่มชื้นทันที",
-    },
-  ],
+  userStats: "กว่า 98% รู้สึกถึงการซึมซาบอย่างรวดเร็ว 93% สังเกตว่าผิวดูกระจ่างใสขึ้นและ 96% รู้สึกว่าผิวชุ่มชื้นทันที",
   howToUse: {
     steps: [
       {
@@ -173,7 +160,7 @@ export default function ProductDetail() {
 
   return (
     <div className="min-h-screen bg-white font-sans text-[#1a1a1a]">
-      <Header isLandingMagic={false} />
+      <Header />
 
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4 md:px-6 max-w-7xl">
@@ -470,29 +457,15 @@ export default function ProductDetail() {
               </div>
               <div className="space-y-12">
                 <h3 className="text-sm uppercase tracking-widest text-gray-500 mb-8">
-                  Consumer Perception Study
+                  เสียงจากผู้ใช้จริง
                 </h3>
                 <div className="space-y-10">
-                  {productData.userStats?.map((stat, idx) => (
-                    <div key={idx}>
-                      <div className="flex items-baseline gap-4 mb-2">
-                        <span className="text-5xl md:text-6xl font-serif text-[#D4A373]">
-                          {stat.percentage}%
-                        </span>
-                        <span className="text-xl md:text-2xl font-medium">
-                          {stat.description}
-                        </span>
-                      </div>
-                      {stat.subtext && (
-                        <p className="text-gray-500 ml-20">
-                          {stat.subtext}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                  <span className="text-xl md:text-2xl font-medium">
+                    {productData.userStats}
+                  </span>
                 </div>
                 <p className="text-xs text-gray-400 mt-8 italic">
-                  *Based on a consumer perception study of 50 participants over 4 weeks.
+                  ผลลัพธ์ที่พิสูจน์ได้ด้วยตัวเองจากการใช้จริงในทุกวัน
                 </p>
               </div>
             </div>

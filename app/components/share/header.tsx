@@ -4,7 +4,7 @@ import { Search, User, ShoppingCart, ChevronDown, Menu, X } from 'lucide-react';
 export default function Header({
   isLandingMagic
 }: {
-  isLandingMagic: boolean
+  isLandingMagic?: boolean
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   return (
