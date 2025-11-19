@@ -162,7 +162,7 @@ export default function ProductDetail() {
     <div className="min-h-screen bg-white font-sans text-[#1a1a1a]">
       <Header />
 
-      <main className="pt-24 pb-16">
+      <main className="pt-16 pb-16">
         <div className="container mx-auto px-4 md:px-6 max-w-7xl">
           {/* Breadcrumb - simplified for now */}
           <div className="text-sm text-gray-500 mb-8">
