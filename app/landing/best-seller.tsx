@@ -91,9 +91,9 @@ const products: IProduct[] = [{
 
 function BestSellerSection() {
   return (
-    <div className="mx-auto *:mt-24 mb-16 container">
+    <div className="mx-auto *:mt-16 sm:*:mt-20 md:*:mt-24 mb-8 sm:mb-12 md:mb-16 container px-4 sm:px-6">
       <div className="relative">
-        <h2 className="font-serif text-4xl md:text-5xl text-center mb-10 text-[#858585]">Our Best Seller</h2>
+        <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center mb-6 sm:mb-8 md:mb-10 text-[#858585]">Our Best Seller</h2>
         <Carousel
           opts={{
             align: "start",
@@ -102,15 +102,18 @@ function BestSellerSection() {
           }}
           className="w-full"
         >
-          <CarouselContent className="-ml-4">
+          <CarouselContent className="-ml-2 sm:-ml-3 md:-ml-4">
             {products.map((product) => (
-              <CarouselItem key={product.productId} className="pl-4 basis-1/4">
+              <CarouselItem
+                key={product.productId}
+                className="pl-2 sm:pl-3 md:pl-4 basis-1/2 sm:basis-1/3 md:basis-1/3 lg:basis-1/4"
+              >
                 <ProductCard product={product} />
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden md:flex cursor-pointer" />
-          <CarouselNext className="hidden md:flex cursor-pointer" />
+          <CarouselPrevious className="hidden sm:flex cursor-pointer" />
+          <CarouselNext className="hidden sm:flex cursor-pointer" />
         </Carousel>
       </div>
     </div>
