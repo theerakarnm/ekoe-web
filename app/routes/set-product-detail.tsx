@@ -10,8 +10,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { Star, Heart, Minus, Plus, ShoppingBag } from "lucide-react";
+import { Star, Heart, ShoppingBag } from "lucide-react";
 import { ProductCard } from "~/components/share/product-card";
+import { ProductGallery } from "~/components/product/product-gallery";
+import { QuantitySelector } from "~/components/product/quantity-selector";
+import { DiscountCodes } from "~/components/product/discount-codes";
+import { ComplimentaryGift } from "~/components/product/complimentary-gift";
 
 // Mock Data for "OWN THE GLOW" Set
 const setProductData: ISetProduct = {
@@ -124,16 +128,8 @@ export function meta({ }: Route.MetaArgs) {
 export default function SetProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(setProductData.image.url);
-  const [copiedCode, setCopiedCode] = useState<string | null>(null);
-
   const handleQuantityChange = (delta: number) => {
     setQuantity((prev) => Math.max(1, prev + delta));
-  };
-
-  const copyToClipboard = (code: string) => {
-    navigator.clipboard.writeText(code);
-    setCopiedCode(code);
-    setTimeout(() => setCopiedCode(null), 2000);
   };
 
   return (
@@ -150,36 +146,12 @@ export default function SetProductDetail() {
           {/* Hero Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-24">
             {/* Left Column - Images */}
-            <div className="flex gap-4 items-start">
-              <div className="aspect-4/5 bg-gray-100 overflow-hidden rounded-lg relative flex-1">
-                <img
-                  src={selectedImage}
-                  alt="Set Main"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-4 left-4 bg-black text-white text-xs px-2 py-1 uppercase tracking-wider">
-                  15% OFF
-                </div>
-              </div>
-              <div className="flex flex-col gap-4 w-20 shrink-0">
-                {setProductData.galleryImages?.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedImage(img.url)}
-                    className={`w-20 h-24 shrink-0 border ${selectedImage === img.url
-                      ? "border-black"
-                      : "border-transparent"
-                      }`}
-                  >
-                    <img
-                      src={img.url}
-                      alt={img.description}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            </div>
+            <ProductGallery
+              images={setProductData.galleryImages || []}
+              selectedImage={selectedImage}
+              onImageClick={(img) => setSelectedImage(img.url)}
+              badgeText="15% OFF"
+            />
 
             {/* Right Column - Product Info */}
             <div className="space-y-8">
@@ -264,23 +236,11 @@ export default function SetProductDetail() {
               <div className="space-y-6 pt-6 border-t border-gray-100">
                 {/* Quantity & Add to Cart */}
                 <div className="flex gap-4">
-                  <div className="flex items-center border border-gray-200 w-32">
-                    <button
-                      onClick={() => handleQuantityChange(-1)}
-                      className="w-10 h-12 flex items-center justify-center hover:bg-gray-50"
-                    >
-                      <Minus size={16} />
-                    </button>
-                    <div className="flex-1 text-center font-medium">
-                      {quantity}
-                    </div>
-                    <button
-                      onClick={() => handleQuantityChange(1)}
-                      className="w-10 h-12 flex items-center justify-center hover:bg-gray-50"
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
+                  <QuantitySelector
+                    quantity={quantity}
+                    onIncrease={() => handleQuantityChange(1)}
+                    onDecrease={() => handleQuantityChange(-1)}
+                  />
                   <Button className="flex-1 h-12 text-base uppercase tracking-wide bg-black hover:bg-gray-800 flex justify-between px-6">
                     <span>ADD TO CART</span>
                     <span>{setProductData.quickCartPrice * quantity} THB (4,000 THB)</span>
@@ -292,56 +252,15 @@ export default function SetProductDetail() {
                 </div>
 
                 {/* Discount Codes */}
-                {setProductData.discountCodes && setProductData.discountCodes.length > 0 && (
-                  <div className="pt-4">
-                    <div className="flex justify-between items-baseline mb-4">
-                      <h3 className="text-lg font-serif">Discount Code</h3>
-                      <button className="text-xs text-gray-500 underline hover:text-black">see all</button>
-                    </div>
-                    <div className="flex overflow-x-auto gap-4 pb-2 -mx-4 px-4 scrollbar-hide">
-                      {setProductData.discountCodes.map((code, idx) => (
-                        <div key={idx} className="flex-shrink-0 w-72 flex border-r border-gray-200 last:border-0 pr-4 mr-4 last:mr-0 last:pr-0">
-                          <div className="flex-1 pr-4">
-                            <div className="font-bold text-base mb-1">{code.title}</div>
-                            <div className="text-xs text-gray-400 mb-2">{code.condition}</div>
-                            <button className="text-xs text-gray-500 underline hover:text-black">รายละเอียด</button>
-                          </div>
-                          <div className="flex items-center">
-                            <button
-                              onClick={() => copyToClipboard(code.code)}
-                              className="h-10 px-4 border border-gray-200 text-sm font-medium hover:border-black hover:bg-black hover:text-white transition-all whitespace-nowrap"
-                            >
-                              {copiedCode === code.code ? "คัดลอกแล้ว" : "คัดลอกโค้ด"}
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                {setProductData.discountCodes && (
+                  <DiscountCodes codes={setProductData.discountCodes} />
                 )}
 
                 {/* Complimentary Gift */}
                 {setProductData.complimentaryGift && (
                   <div className="pt-4">
                     <h4 className="text-sm font-medium mb-3">Complimentary Gift for You</h4>
-                    <div className="bg-white p-4 rounded border border-gray-200 flex gap-4 items-center">
-                      <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden shrink-0">
-                        <img
-                          src={setProductData.complimentaryGift.image}
-                          alt="Gift"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-sm font-medium text-gray-900">
-                          {setProductData.complimentaryGift.name}
-                        </h4>
-                        <p className="text-xs text-gray-500">
-                          {setProductData.complimentaryGift.value}
-                        </p>
-                      </div>
-                      <div className="text-xs text-gray-400">x1</div>
-                    </div>
+                    <ComplimentaryGift gift={setProductData.complimentaryGift} />
                     <p className="text-[10px] text-gray-400 mt-2">
                       *Limited availability. Subject to change.<br />
                       *Excludes Gift Sets. T&Cs apply.<br />
