@@ -8,7 +8,7 @@ export interface IProduct {
   priceTitle: string;
   quickCartPrice: number;
   // Detail page optional fields
-  galleryImages?: { description: string; url: string }[];
+  galleryImages?: { description: string; url: string; associatedSize?: string }[];
   subtitle?: string;
   rating?: number;
   reviewCount?: number;

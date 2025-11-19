@@ -27,11 +27,23 @@ const productData: IProduct = {
   galleryImages: [
     {
       url: "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&q=80&w=800",
-      description: "The Body Oil Front",
+      description: "The Body Oil 100ml Front",
+      associatedSize: "100ml",
     },
     {
       url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=800",
-      description: "The Body Oil Texture",
+      description: "The Body Oil 100ml Texture",
+      associatedSize: "100ml",
+    },
+    {
+      url: "https://images.unsplash.com/photo-1629198688000-71f23e745b6e?auto=format&fit=crop&q=80&w=800",
+      description: "The Body Oil 200ml Front",
+      associatedSize: "200ml",
+    },
+    {
+      url: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800",
+      description: "The Body Oil 200ml Lifestyle",
+      associatedSize: "200ml",
     },
   ],
   rating: 4.9,
@@ -139,6 +151,26 @@ export default function ProductDetail() {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
+  const handleImageClick = (img: { url: string; associatedSize?: string }) => {
+    setSelectedImage(img.url);
+    if (img.associatedSize) {
+      const size = productData.sizes?.find((s) => s.value === img.associatedSize);
+      if (size) {
+        setSelectedSize(size);
+      }
+    }
+  };
+
+  const handleSizeClick = (size: { label: string; value: string; price: number }) => {
+    setSelectedSize(size);
+    const associatedImage = productData.galleryImages?.find(
+      (img) => img.associatedSize === size.value
+    );
+    if (associatedImage) {
+      setSelectedImage(associatedImage.url);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white font-sans text-[#1a1a1a]">
       <Header isLandingMagic={false} />
@@ -167,7 +199,7 @@ export default function ProductDetail() {
                 {productData.galleryImages?.map((img, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setSelectedImage(img.url)}
+                    onClick={() => handleImageClick(img)}
                     className={`w-20 h-24 shrink-0 border ${selectedImage === img.url
                       ? "border-black"
                       : "border-transparent"
@@ -255,7 +287,7 @@ export default function ProductDetail() {
                     {productData.sizes?.map((size) => (
                       <button
                         key={size.value}
-                        onClick={() => setSelectedSize(size)}
+                        onClick={() => handleSizeClick(size)}
                         className={`px-4 py-2 border text-sm transition-all ${selectedSize?.value === size.value
                           ? "border-black bg-black text-white"
                           : "border-gray-200 hover:border-gray-400"
