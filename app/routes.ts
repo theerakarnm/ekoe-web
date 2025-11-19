@@ -5,4 +5,5 @@ export default [
   route("online-executive", "routes/online-executive.tsx"),
   route("shop", "routes/shop.tsx"),
   route("product-detail", "routes/product-detail.tsx"),
+  route("set-product-detail", "routes/set-product-detail.tsx"),
 ] satisfies RouteConfig;

@@ -12,6 +12,7 @@ import {
 } from "~/components/ui/accordion";
 import { Separator } from "~/components/ui/separator";
 import { Star, Heart, Minus, Plus, ShoppingBag } from "lucide-react";
+import { ProductCard } from "~/components/share/product-card";
 
 // Mock Data
 const productData: IProduct = {
@@ -115,6 +116,39 @@ const productData: IProduct = {
   },
 };
 
+const relatedProducts = [
+  {
+    productId: 1,
+    image: {
+      url: "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&q=80&w=800",
+      description: "The Body Oil",
+    },
+    productName: "The Body Oil",
+    priceTitle: "2,590 THB",
+    quickCartPrice: 2590,
+  },
+  {
+    productId: 2,
+    image: {
+      url: "https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?auto=format&fit=crop&q=80&w=800",
+      description: "The Oil Bar",
+    },
+    productName: "The Oil Bar",
+    priceTitle: "790 THB",
+    quickCartPrice: 790,
+  },
+  {
+    productId: 3,
+    image: {
+      url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=800",
+      description: "The Serum",
+    },
+    productName: "The Serum",
+    priceTitle: "3,200 THB",
+    quickCartPrice: 3200,
+  },
+];
+
 export function meta({ }: Route.MetaArgs) {
   return [
     { title: "The Body Oil - Ekoe" },
@@ -171,8 +205,8 @@ export default function ProductDetail() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-24">
             {/* Left Column - Images */}
-            <div className="space-y-4">
-              <div className="aspect-4/5 bg-gray-100 overflow-hidden rounded-lg relative">
+            <div className="flex gap-4 items-start">
+              <div className="aspect-4/5 bg-gray-100 overflow-hidden rounded-lg relative flex-1">
                 <img
                   src={selectedImage}
                   alt="Product Main"
@@ -182,7 +216,7 @@ export default function ProductDetail() {
                   Best Seller
                 </div>
               </div>
-              <div className="flex gap-4 overflow-x-auto pb-2">
+              <div className="flex flex-col gap-4 w-20 shrink-0">
                 {productData.galleryImages?.map((img, idx) => (
                   <button
                     key={idx}
@@ -502,30 +536,15 @@ export default function ProductDetail() {
             </Button>
           </div>
 
-          {/* Newsletter Section - Matching the image */}
-          <div className="relative h-64 rounded-2xl overflow-hidden mb-24">
-            <img
-              src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1600"
-              alt="Beach"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-              <div className="w-full max-w-xl px-4 flex gap-2">
-                <div className="flex-1 bg-white/90 backdrop-blur rounded-l-full pl-6 pr-4 py-4 flex items-center">
-                  <span className="text-gray-500 text-sm mr-4">Join our newsletter</span>
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="bg-transparent border-none outline-none flex-1 text-sm"
-                  />
-                </div>
-                <button className="bg-black text-white px-8 py-4 rounded-r-full uppercase text-xs tracking-widest font-medium">
-                  Subscribe
-                </button>
-              </div>
+          {/* Recommendations */}
+          <div className="mb-24">
+            <h2 className="text-2xl font-serif mb-8">Also Loved</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {relatedProducts.map((product) => (
+                <ProductCard key={product.productId} product={product} />
+              ))}
             </div>
           </div>
-
         </div>
       </main>
 
