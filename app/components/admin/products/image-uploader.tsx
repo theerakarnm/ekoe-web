@@ -165,8 +165,8 @@ export function ImageUploader({
                 )}
               >
                 <div className="flex items-start gap-3">
-                  <GripVertical className="h-5 w-5 text-muted-foreground mt-1 flex-shrink-0" />
-                  <div className="relative flex-shrink-0">
+                  <GripVertical className="h-5 w-5 text-muted-foreground mt-1 shrink-0" />
+                  <div className="relative shrink-0">
                     <img
                       src={image.url}
                       alt={image.altText || 'Product image'}

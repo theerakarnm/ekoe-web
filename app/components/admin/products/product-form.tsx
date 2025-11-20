@@ -143,6 +143,7 @@ export function ProductForm({ product }: ProductFormProps) {
       if (isEditing && product) {
         await updateProduct(product.id, data);
         toast.success('Product updated successfully');
+        navigate('/admin/products');
       } else {
         const newProduct = await createProduct(data);
         toast.success('Product created successfully');
@@ -150,10 +151,24 @@ export function ProductForm({ product }: ProductFormProps) {
         navigate(`/admin/products/${newProduct.id}/edit`);
         return;
       }
-      navigate('/admin/products');
     } catch (error: any) {
       console.error('Failed to save product:', error);
-      toast.error(error.message || 'Failed to save product');
+      
+      // Handle validation errors
+      if (error.statusCode === 422 && error.errors) {
+        // Map API validation errors to form fields
+        Object.entries(error.errors).forEach(([field, messages]) => {
+          if (Array.isArray(messages) && messages.length > 0) {
+            form.setError(field as any, {
+              type: 'manual',
+              message: messages[0],
+            });
+          }
+        });
+        toast.error('Please fix the validation errors');
+      } else {
+        toast.error(error.message || 'Failed to save product');
+      }
     } finally {
       setIsSubmitting(false);
     }
