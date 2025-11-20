@@ -13,8 +13,8 @@ const slides = [
   {
     id: 1,
     title: "One of Everything Really Good",
-    subtitle: "ดี ในทุกอย่างที่ดีจริงแล้ว จะเป็นที่ดีอย่างแท้จริง",
-    description: "ผลิตภัณฑ์ที่ดีตามหลักธรรมชาติ เพื่อทุกคน ไม่เคยทอดทิ้งให้ใครทุกข์ และจะเป็นผลิตภัณฑ์ที่คุณภาพดีและมีความหมาย",
+    subtitle: "ที่ Ekoe - ปรัชญาที่เรียบง่ายของเราคือ การทําให้ทุกอย่างดีจริงๆ สําหรับเรา นั่นหมายถึงผลิตภัณฑ์ที่จําเป็น ไว้ใจได้และมีประสิทธิภาพสูง ให้คุณหยิบใช้ได้ทุกวัน เป็นสิ่งที่คุณรัก และกลับมาใช้ เสมอเพื่อบํารุงผิวที่ดีที่สุดของคุณ",
+    description: "",
     media: {
       type: 'video',
       url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' // Placeholder nature video
@@ -91,10 +91,10 @@ function HeroSection() {
                   <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-serif mb-4 drop-shadow-lg">
                     {slide.title}
                   </h2>
-                  <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-4 max-w-3xl mx-auto drop-shadow-md font-light">
+                  <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-4 max-w-3xl mx-auto drop-shadow-md font-light font-sans">
                     {slide.subtitle}
                   </p>
-                  <p className="text-sm sm:text-base md:text-lg mb-8 max-w-2xl mx-auto opacity-90 drop-shadow-md">
+                  <p className="text-sm sm:text-base md:text-lg mb-8 max-w-2xl mx-auto opacity-90 drop-shadow-md  font-sans">
                     {slide.description}
                   </p>
                   <button className="border-2 border-white text-white px-8 py-3 rounded-full font-serif hover:bg-white hover:text-gray-900 transition-all duration-300 text-sm sm:text-base uppercase tracking-wider backdrop-blur-sm">

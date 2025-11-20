@@ -1,10 +1,10 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inria+Serif:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+Thai:wght@100..900&display=swap');
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-sans: 'Inria Serif', 'Noto Sans Thai', 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 html,
@@ -48,9 +48,9 @@ body {
   --sidebar-accent-foreground: oklch(0.2103 0.0059 285.8835);
   --sidebar-border: oklch(0.9197 0.004 286.32);
   --sidebar-ring: oklch(0.9848 0 0);
-  --font-sans: 'Cormorant Garamond', sans-serif;
-  --font-serif: 'Cormorant Garamond', serif;
-  --font-mono: 'Space Mono', monospace;
+  --font-sans: 'Noto Sans Thai', sans-serif;
+  --font-serif: 'Inria Serif', serif;
+  --font-mono: 'Inter', monospace;
   --radius: 0rem;
   --shadow-x: 0rem;
   --shadow-y: 0.1rem;
@@ -185,6 +185,10 @@ body {
 
 body {
   letter-spacing: var(--tracking-normal);
+}
+
+.sans {
+  font-family: var(--font-sans) !important;
 }
 
 @layer base {

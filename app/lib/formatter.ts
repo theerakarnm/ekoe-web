@@ -26,6 +26,7 @@ export interface PercentageFormatterOptions extends FormatterOptions {
 export interface CurrencyFormatterOptions extends FormatterOptions {
   /** The currency symbol to prepend. Defaults to '$'. */
   symbol?: string;
+  decimals?: number;
 }
 
 /**
@@ -100,7 +101,7 @@ export function formatCurrencyFromCents(
   amountInCents: number,
   options: CurrencyFormatterOptions = {}
 ): string {
-  const { symbol = '฿', ...formatterOptions } = options;
+  const { symbol = '฿', decimals = 2, ...formatterOptions } = options;
 
   // Divide by 100 to get the main currency value
   const amountInDollars = amountInCents / 100;

@@ -7,13 +7,13 @@ function FeatureSection() {
             Glow That's Worth Obsessing Over
           </h2>
           <div className="w-20 h-0.5 bg-black my-6 mx-auto md:mx-0"></div>
-          <p className="text-gray-700 mb-2 leading-relaxed">
+          <p className="text-gray-700 mb-2 leading-relaxed sans font-light">
             ความงามของคนเรานั้น ไม่ได้ถูกสร้างด้วย ความสวยงามภายนอกเพียงอย่างเดียว
           </p>
-          <p className="text-gray-700 mb-6 leading-relaxed">
+          <p className="text-gray-700 mb-6 leading-relaxed sans font-light">
             แต่มาจากภายในหน่อยที่เปล่งประกายออกมา หากมีภายในที่ดีแล้ว ก็จะสามารถส่งผลออกภายนอกได้
           </p>
-          <p className="text-gray-700 mb-8 leading-relaxed">
+          <p className="text-gray-700 mb-8 leading-relaxed sans font-light">
             แต่อย่าลืมว่า ภายในที่สดใส่ เริ่มมันจากภายนอกได้ด้วยเช่นกัน
           </p>
           <button className="border-2 border-gray-900 text-gray-900 px-8 py-3 rounded-full hover:bg-gray-900 hover:text-white transition-all duration-300">
