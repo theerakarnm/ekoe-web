@@ -13,8 +13,12 @@ import {
 import {
   createProduct,
   updateProduct,
+  uploadProductImage,
   type Product,
+  type ProductImage,
 } from '~/lib/admin/api-client';
+import { ImageUploader } from './image-uploader';
+import { VariantManager } from './variant-manager';
 import {
   Form,
   FormControl,
@@ -45,6 +49,7 @@ interface ProductFormProps {
 export function ProductForm({ product }: ProductFormProps) {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [images, setImages] = useState<ProductImage[]>(product?.images || []);
   const isEditing = !!product;
 
   // Initialize form with default values or existing product data
@@ -64,6 +69,7 @@ export function ProductForm({ product }: ProductFormProps) {
       metaTitle: product?.metaTitle || '',
       metaDescription: product?.metaDescription || '',
       trackInventory: product?.trackInventory ?? true,
+      variants: product?.variants || [],
     },
   });
 
@@ -76,6 +82,59 @@ export function ProductForm({ product }: ProductFormProps) {
     }
   };
 
+  // Handle image upload
+  const handleImageUpload = async (files: File[]) => {
+    if (!isEditing || !product) {
+      toast.error('Please save the product first before uploading images');
+      return;
+    }
+
+    try {
+      const uploadPromises = files.map((file) =>
+        uploadProductImage(product.id, file)
+      );
+      const uploadedImages = await Promise.all(uploadPromises);
+      setImages((prev) => [...prev, ...uploadedImages]);
+      toast.success(`${files.length} image(s) uploaded successfully`);
+    } catch (error: any) {
+      console.error('Failed to upload images:', error);
+      toast.error(error.message || 'Failed to upload images');
+    }
+  };
+
+  // Handle image reorder
+  const handleImageReorder = (reorderedImages: ProductImage[]) => {
+    setImages(reorderedImages);
+    // TODO: Call API to update sort order
+  };
+
+  // Handle image delete
+  const handleImageDelete = (imageId: number) => {
+    setImages((prev) => prev.filter((img) => img.id !== imageId));
+    // TODO: Call API to delete image
+    toast.success('Image deleted');
+  };
+
+  // Handle set primary image
+  const handleSetPrimary = (imageId: number) => {
+    setImages((prev) =>
+      prev.map((img) => ({
+        ...img,
+        isPrimary: img.id === imageId,
+      }))
+    );
+    // TODO: Call API to update primary image
+    toast.success('Primary image updated');
+  };
+
+  // Handle alt text update
+  const handleAltTextUpdate = (imageId: number, altText: string) => {
+    setImages((prev) =>
+      prev.map((img) => (img.id === imageId ? { ...img, altText } : img))
+    );
+    // TODO: Call API to update alt text
+  };
+
   // Handle form submission
   const onSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true);
@@ -85,8 +144,11 @@ export function ProductForm({ product }: ProductFormProps) {
         await updateProduct(product.id, data);
         toast.success('Product updated successfully');
       } else {
-        await createProduct(data);
+        const newProduct = await createProduct(data);
         toast.success('Product created successfully');
+        // Redirect to edit page so user can upload images
+        navigate(`/admin/products/${newProduct.id}/edit`);
+        return;
       }
       navigate('/admin/products');
     } catch (error: any) {
@@ -351,6 +413,87 @@ export function ProductForm({ product }: ProductFormProps) {
                       Enable inventory tracking for this product
                     </FormDescription>
                   </div>
+                </FormItem>
+              )}
+            />
+          </div>
+        </Card>
+
+        {/* Images */}
+        {isEditing && (
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Product Images</h2>
+            <ImageUploader
+              images={images}
+              onUpload={handleImageUpload}
+              onReorder={handleImageReorder}
+              onDelete={handleImageDelete}
+              onSetPrimary={handleSetPrimary}
+              onUpdateAltText={handleAltTextUpdate}
+            />
+          </Card>
+        )}
+
+        {!isEditing && (
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Product Images</h2>
+            <p className="text-sm text-muted-foreground">
+              Save the product first to upload images
+            </p>
+          </Card>
+        )}
+
+        {/* Variants */}
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Product Variants</h2>
+          <VariantManager control={form.control} />
+        </Card>
+
+        {/* SEO */}
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">SEO</h2>
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="metaTitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Meta Title</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value || ''}
+                      placeholder="SEO title for search engines"
+                      maxLength={255}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {field.value?.length || 0}/255 characters
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="metaDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Meta Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      value={field.value || ''}
+                      placeholder="SEO description for search engines"
+                      rows={3}
+                      maxLength={500}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {field.value?.length || 0}/500 characters
+                  </FormDescription>
+                  <FormMessage />
                 </FormItem>
               )}
             />
