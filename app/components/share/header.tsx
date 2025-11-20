@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, User, ShoppingCart, ChevronDown, Menu, X } from 'lucide-react';
+import { useCartStore } from '~/store/cart';
 
 export default function Header({
   isLandingMagic
@@ -7,6 +8,14 @@ export default function Header({
   isLandingMagic?: boolean
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const totalItems = useCartStore((state) => state.getTotalItems());
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const displayCount = mounted ? totalItems : 0;
   return (
     <>
       <div className="bg-[#6E604D] text-white text-center py-1 sm:py-2 text-xs sm:text-sm">
@@ -58,7 +67,7 @@ export default function Header({
                   <button className="text-gray-700 hover:text-gray-900 relative">
                     <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
                     <span className="absolute -top-2 -right-2 bg-gray-800 text-white text-xs rounded-full h-3 w-3 sm:h-4 sm:w-4 flex items-center justify-center">
-                      0
+                      {displayCount}
                     </span>
                   </button>
                 </div>
@@ -71,7 +80,7 @@ export default function Header({
                   <button className="text-gray-700 hover:text-gray-900 relative">
                     <ShoppingCart className="h-5 w-5" />
                     <span className="absolute -top-2 -right-2 bg-gray-800 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                      0
+                      {displayCount}
                     </span>
                   </button>
                 </div>

@@ -1,7 +1,28 @@
 import type { IProduct } from "~/interface/product.interface"
 import { formatCurrencyFromCents } from "~/lib/formatter"
+import { useCartStore } from "~/store/cart"
+import { toast } from "sonner"
 
 function ProductCard({ product }: { product: IProduct }) {
+  const addItem = useCartStore((state) => state.addItem);
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation if the card is clickable
+    e.preventDefault();
+
+    addItem({
+      productId: product.productId,
+      productName: product.productName,
+      image: product.image.url,
+      price: product.quickCartPrice,
+      quantity: 1,
+      // Default to first size if available, otherwise undefined
+      size: product.sizes?.[0]?.value
+    });
+
+    toast.success(`Added ${product.productName} to cart`);
+  };
+
   return (
     <div className="w-full hover:bg-gray-100 transition-all rounded-b pb-2 group cursor-pointer">
       <div className="bg-secondary-light dark:bg-secondary-dark rounded overflow-hidden">
@@ -18,9 +39,12 @@ function ProductCard({ product }: { product: IProduct }) {
           <p className="text-xs sm:text-sm text-text-light/70 font-serif transition-all duration-300 group-hover:-translate-y-full">
             {product.priceTitle}
           </p>
-          <p className="text-xs sm:text-sm text-text-light/70 pt-1 bg-black text-white font-serif absolute inset-0 transition-all duration-300 translate-y-full group-hover:translate-y-0">
+          <button
+            className="w-full h-full text-xs sm:text-sm text-text-light/70 pt-1 bg-black text-white font-serif absolute inset-0 transition-all duration-300 translate-y-full group-hover:translate-y-0 flex items-center justify-center"
+            onClick={handleAddToCart}
+          >
             Add to cart {formatCurrencyFromCents(product.quickCartPrice, { symbol: '$' })}
-          </p>
+          </button>
         </div>
       </div>
     </div>

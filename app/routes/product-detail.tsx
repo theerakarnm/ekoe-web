@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useCartStore } from "~/store/cart";
+import { toast } from "sonner";
 import type { Route } from "./+types/product-detail";
 import { Header } from "~/components/share/header";
 import { Footer } from "~/components/share/footer";
@@ -168,6 +170,23 @@ export default function ProductDetail() {
     setQuantity((prev) => Math.max(1, prev + delta));
   };
 
+  const addItem = useCartStore((state) => state.addItem);
+
+  const handleAddToCart = () => {
+    if (!selectedSize) return;
+
+    addItem({
+      productId: productData.productId,
+      productName: productData.productName,
+      image: productData.image.url,
+      price: selectedSize.price,
+      quantity: quantity,
+      size: selectedSize.value,
+    });
+
+    toast.success(`Added ${quantity} x ${productData.productName} (${selectedSize.label}) to cart`);
+  };
+
   const handleImageClick = (img: { url: string; associatedSize?: string }) => {
     setSelectedImage(img.url);
     if (img.associatedSize) {
@@ -271,9 +290,9 @@ export default function ProductDetail() {
                 <div>
                   <div className="flex justify-between mb-2">
                     <span className="text-sm font-medium">Size</span>
-                    <button className="text-xs text-gray-500 underline">
+                    <Button variant={'link'} className="text-xs text-gray-500 underline">
                       Size Guide
-                    </button>
+                    </Button>
                   </div>
                   <div className="flex gap-3">
                     {productData.sizes?.map((size) => (
@@ -298,7 +317,10 @@ export default function ProductDetail() {
                     onIncrease={() => handleQuantityChange(1)}
                     onDecrease={() => handleQuantityChange(-1)}
                   />
-                  <Button className="flex-1 h-12 text-base uppercase tracking-wide bg-black hover:bg-gray-800">
+                  <Button
+                    className="flex-1 h-12 text-base uppercase tracking-wide bg-black hover:bg-gray-800"
+                    onClick={handleAddToCart}
+                  >
                     Add to Cart - {(selectedSize?.price || 0) * quantity} THB
                   </Button>
                 </div>
