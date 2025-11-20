@@ -1,0 +1,334 @@
+/**
+ * Admin Validation Schemas
+ * Zod schemas for validating admin forms and API requests
+ */
+
+import { z } from 'zod';
+
+// ============================================================================
+// Reusable Field Validators
+// ============================================================================
+
+export const slugValidator = z
+  .string()
+  .min(1, 'Slug is required')
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be lowercase with hyphens only');
+
+export const urlValidator = z
+  .string()
+  .url('Must be a valid URL')
+  .optional()
+  .or(z.literal(''));
+
+export const priceValidator = z
+  .number()
+  .min(0, 'Price must be positive')
+  .int('Price must be in cents (integer)');
+
+export const emailValidator = z
+  .string()
+  .email('Must be a valid email address');
+
+export const dateValidator = z
+  .string()
+  .datetime()
+  .optional()
+  .or(z.date().optional());
+
+// ============================================================================
+// Product Schemas
+// ============================================================================
+
+export const productVariantSchema = z.object({
+  id: z.number().optional(),
+  productId: z.number().optional(),
+  sku: z.string().optional(),
+  name: z.string().min(1, 'Variant name is required'),
+  value: z.string().min(1, 'Variant value is required'),
+  price: priceValidator,
+  compareAtPrice: priceValidator.optional(),
+  stockQuantity: z.number().int().min(0, 'Stock must be non-negative').default(0),
+  lowStockThreshold: z.number().int().min(0).default(10),
+  isActive: z.boolean().default(true),
+});
+
+export const productImageSchema = z.object({
+  id: z.number().optional(),
+  productId: z.number().optional(),
+  url: z.string().url('Must be a valid image URL'),
+  altText: z.string().optional(),
+  description: z.string().optional(),
+  variantId: z.number().optional(),
+  sortOrder: z.number().int().min(0).default(0),
+  isPrimary: z.boolean().default(false),
+});
+
+export const productSchema = z.object({
+  name: z.string().min(1, 'Product name is required').max(255, 'Name too long'),
+  slug: slugValidator,
+  subtitle: z.string().max(500, 'Subtitle too long').optional(),
+  description: z.string().optional(),
+  shortDescription: z.string().optional(),
+  
+  // Pricing
+  basePrice: priceValidator,
+  compareAtPrice: priceValidator.optional(),
+  
+  // Product type
+  productType: z.enum(['single', 'set', 'bundle']).default('single'),
+  
+  // Status
+  status: z.enum(['draft', 'active', 'archived']).default('draft'),
+  featured: z.boolean().default(false),
+  
+  // SEO
+  metaTitle: z.string().max(255, 'Meta title too long').optional(),
+  metaDescription: z.string().max(500, 'Meta description too long').optional(),
+  
+  // Inventory
+  trackInventory: z.boolean().default(true),
+  
+  // Relations (optional for creation)
+  images: z.array(productImageSchema).optional(),
+  variants: z.array(productVariantSchema).optional(),
+  categoryIds: z.array(z.number()).optional(),
+  tagIds: z.array(z.number()).optional(),
+}).refine(
+  (data) => {
+    // If compareAtPrice is provided, it should be greater than basePrice
+    if (data.compareAtPrice && data.compareAtPrice <= data.basePrice) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: 'Compare at price must be greater than base price',
+    path: ['compareAtPrice'],
+  }
+);
+
+export type ProductFormData = z.infer<typeof productSchema>;
+export type ProductVariantFormData = z.infer<typeof productVariantSchema>;
+export type ProductImageFormData = z.infer<typeof productImageSchema>;
+
+// ============================================================================
+// Blog Post Schemas
+// ============================================================================
+
+export const blogPostSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(500, 'Title too long'),
+  slug: slugValidator,
+  excerpt: z.string().max(1000, 'Excerpt too long').optional(),
+  content: z.string().min(1, 'Content is required'),
+  
+  // Featured image
+  featuredImageUrl: urlValidator,
+  featuredImageAlt: z.string().max(255, 'Alt text too long').optional(),
+  
+  // Author
+  authorId: z.number().optional(),
+  authorName: z.string().min(1, 'Author name is required').max(255, 'Author name too long'),
+  
+  // Category
+  categoryId: z.number().optional(),
+  categoryName: z.string().max(100, 'Category name too long').optional(),
+  
+  // SEO
+  metaTitle: z.string().max(255, 'Meta title too long').optional(),
+  metaDescription: z.string().max(500, 'Meta description too long').optional(),
+  
+  // Status
+  status: z.enum(['draft', 'published', 'archived']).default('draft'),
+}).refine(
+  (data) => {
+    // If status is published, ensure required fields are present
+    if (data.status === 'published') {
+      return data.content && data.content.length > 0;
+    }
+    return true;
+  },
+  {
+    message: 'Content is required for published posts',
+    path: ['content'],
+  }
+);
+
+export type BlogPostFormData = z.infer<typeof blogPostSchema>;
+
+// ============================================================================
+// Discount Code Schemas
+// ============================================================================
+
+export const discountCodeSchema = z.object({
+  code: z
+    .string()
+    .min(3, 'Code must be at least 3 characters')
+    .max(100, 'Code too long')
+    .regex(/^[A-Z0-9_-]+$/, 'Code must be uppercase letters, numbers, hyphens, or underscores')
+    .transform((val) => val.toUpperCase()),
+  
+  title: z.string().min(1, 'Title is required').max(255, 'Title too long'),
+  description: z.string().optional(),
+  
+  // Discount type
+  discountType: z.enum(['percentage', 'fixed_amount', 'free_shipping']),
+  
+  discountValue: z.number().min(0, 'Discount value must be positive'),
+  
+  // Conditions
+  minPurchaseAmount: priceValidator.optional(),
+  maxDiscountAmount: priceValidator.optional(),
+  
+  // Usage limits
+  usageLimit: z.number().int().min(1, 'Usage limit must be at least 1').optional(),
+  usageLimitPerCustomer: z.number().int().min(1, 'Limit per customer must be at least 1').default(1),
+  
+  // Applicability
+  applicableToProducts: z.array(z.number()).optional(),
+  applicableToCategories: z.array(z.number()).optional(),
+  
+  // Status
+  isActive: z.boolean().default(true),
+  
+  // Validity period
+  startsAt: dateValidator,
+  expiresAt: dateValidator,
+}).refine(
+  (data) => {
+    // Percentage discount should be between 0 and 100
+    if (data.discountType === 'percentage' && data.discountValue > 100) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: 'Percentage discount must be between 0 and 100',
+    path: ['discountValue'],
+  }
+).refine(
+  (data) => {
+    // Free shipping should have 0 discount value
+    if (data.discountType === 'free_shipping' && data.discountValue !== 0) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: 'Free shipping discount should have 0 value',
+    path: ['discountValue'],
+  }
+).refine(
+  (data) => {
+    // If both dates are provided, expiresAt should be after startsAt
+    if (data.startsAt && data.expiresAt) {
+      const start = new Date(data.startsAt);
+      const end = new Date(data.expiresAt);
+      return end > start;
+    }
+    return true;
+  },
+  {
+    message: 'Expiry date must be after start date',
+    path: ['expiresAt'],
+  }
+).refine(
+  (data) => {
+    // If maxDiscountAmount is provided, it should only be for percentage discounts
+    if (data.maxDiscountAmount && data.discountType !== 'percentage') {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: 'Max discount amount only applies to percentage discounts',
+    path: ['maxDiscountAmount'],
+  }
+);
+
+export type DiscountCodeFormData = z.infer<typeof discountCodeSchema>;
+
+// ============================================================================
+// Category Schema
+// ============================================================================
+
+export const categorySchema = z.object({
+  name: z.string().min(1, 'Category name is required').max(255, 'Name too long'),
+  slug: slugValidator,
+  description: z.string().optional(),
+  parentId: z.number().optional(),
+  imageUrl: urlValidator,
+  sortOrder: z.number().int().min(0).default(0),
+  isActive: z.boolean().default(true),
+  metaTitle: z.string().max(255, 'Meta title too long').optional(),
+  metaDescription: z.string().max(500, 'Meta description too long').optional(),
+});
+
+export type CategoryFormData = z.infer<typeof categorySchema>;
+
+// ============================================================================
+// Tag Schema
+// ============================================================================
+
+export const tagSchema = z.object({
+  name: z.string().min(1, 'Tag name is required').max(100, 'Name too long'),
+  slug: slugValidator,
+  description: z.string().optional(),
+});
+
+export type TagFormData = z.infer<typeof tagSchema>;
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Generate a slug from a string
+ */
+export function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/[\s_-]+/g, '-') // Replace spaces and underscores with hyphens
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+}
+
+/**
+ * Format price from cents to dollars
+ */
+export function formatPrice(cents: number): string {
+  return (cents / 100).toFixed(2);
+}
+
+/**
+ * Parse price from dollars to cents
+ */
+export function parsePrice(dollars: string | number): number {
+  const amount = typeof dollars === 'string' ? parseFloat(dollars) : dollars;
+  return Math.round(amount * 100);
+}
+
+/**
+ * Validate and parse form data with a schema
+ */
+export function validateFormData<T>(
+  schema: z.ZodSchema<T>,
+  data: unknown
+): { success: true; data: T } | { success: false; errors: Record<string, string[]> } {
+  const result = schema.safeParse(data);
+  
+  if (result.success) {
+    return { success: true, data: result.data };
+  }
+  
+  const errors: Record<string, string[]> = {};
+  result.error.issues.forEach((issue) => {
+    const path = issue.path.join('.');
+    if (!errors[path]) {
+      errors[path] = [];
+    }
+    errors[path].push(issue.message);
+  });
+  
+  return { success: false, errors };
+}
