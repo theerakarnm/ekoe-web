@@ -47,9 +47,9 @@ export const productVariantSchema = z.object({
   value: z.string().min(1, 'Variant value is required'),
   price: priceValidator,
   compareAtPrice: priceValidator.optional(),
-  stockQuantity: z.number().int().min(0, 'Stock must be non-negative').default(0),
-  lowStockThreshold: z.number().int().min(0).default(10),
-  isActive: z.boolean().default(true),
+  stockQuantity: z.number().int().min(0, 'Stock must be non-negative'),
+  lowStockThreshold: z.number().int().min(0),
+  isActive: z.boolean(),
 });
 
 export const productImageSchema = z.object({
@@ -59,8 +59,8 @@ export const productImageSchema = z.object({
   altText: z.string().optional(),
   description: z.string().optional(),
   variantId: z.number().optional(),
-  sortOrder: z.number().int().min(0).default(0),
-  isPrimary: z.boolean().default(false),
+  sortOrder: z.number().int().min(0),
+  isPrimary: z.boolean(),
 });
 
 export const productSchema = z.object({
@@ -69,25 +69,25 @@ export const productSchema = z.object({
   subtitle: z.string().max(500, 'Subtitle too long').optional(),
   description: z.string().optional(),
   shortDescription: z.string().optional(),
-  
+
   // Pricing
   basePrice: priceValidator,
   compareAtPrice: priceValidator.optional(),
-  
+
   // Product type
-  productType: z.enum(['single', 'set', 'bundle']).default('single'),
-  
+  productType: z.enum(['single', 'set', 'bundle']),
+
   // Status
-  status: z.enum(['draft', 'active', 'archived']).default('draft'),
-  featured: z.boolean().default(false),
-  
+  status: z.enum(['draft', 'active', 'archived']),
+  featured: z.boolean(),
+  trackInventory: z.boolean(),
+
   // SEO
   metaTitle: z.string().max(255, 'Meta title too long').optional(),
   metaDescription: z.string().max(500, 'Meta description too long').optional(),
-  
-  // Inventory
-  trackInventory: z.boolean().default(true),
-  
+
+  // Inventory tracking
+
   // Relations (optional for creation)
   images: z.array(productImageSchema).optional(),
   variants: z.array(productVariantSchema).optional(),
@@ -120,23 +120,23 @@ export const blogPostSchema = z.object({
   slug: slugValidator,
   excerpt: z.string().max(1000, 'Excerpt too long').optional(),
   content: z.string().min(1, 'Content is required'),
-  
+
   // Featured image
   featuredImageUrl: urlValidator,
   featuredImageAlt: z.string().max(255, 'Alt text too long').optional(),
-  
+
   // Author
   authorId: z.number().optional(),
   authorName: z.string().min(1, 'Author name is required').max(255, 'Author name too long'),
-  
+
   // Category
   categoryId: z.number().optional(),
   categoryName: z.string().max(100, 'Category name too long').optional(),
-  
+
   // SEO
   metaTitle: z.string().max(255, 'Meta title too long').optional(),
   metaDescription: z.string().max(500, 'Meta description too long').optional(),
-  
+
   // Status
   status: z.enum(['draft', 'published', 'archived']).default('draft'),
 }).refine(
@@ -166,30 +166,30 @@ export const discountCodeSchema = z.object({
     .max(100, 'Code too long')
     .regex(/^[A-Z0-9_-]+$/, 'Code must be uppercase letters, numbers, hyphens, or underscores')
     .transform((val) => val.toUpperCase()),
-  
+
   title: z.string().min(1, 'Title is required').max(255, 'Title too long'),
   description: z.string().optional(),
-  
+
   // Discount type
   discountType: z.enum(['percentage', 'fixed_amount', 'free_shipping']),
-  
+
   discountValue: z.number().min(0, 'Discount value must be positive'),
-  
+
   // Conditions
   minPurchaseAmount: priceValidator.optional(),
   maxDiscountAmount: priceValidator.optional(),
-  
+
   // Usage limits
   usageLimit: z.number().int().min(1, 'Usage limit must be at least 1').optional(),
   usageLimitPerCustomer: z.number().int().min(1, 'Limit per customer must be at least 1').default(1),
-  
+
   // Applicability
   applicableToProducts: z.array(z.number()).optional(),
   applicableToCategories: z.array(z.number()).optional(),
-  
+
   // Status
   isActive: z.boolean().default(true),
-  
+
   // Validity period
   startsAt: dateValidator,
   expiresAt: dateValidator,
@@ -316,11 +316,11 @@ export function validateFormData<T>(
   data: unknown
 ): { success: true; data: T } | { success: false; errors: Record<string, string[]> } {
   const result = schema.safeParse(data);
-  
+
   if (result.success) {
     return { success: true, data: result.data };
   }
-  
+
   const errors: Record<string, string[]> = {};
   result.error.issues.forEach((issue) => {
     const path = issue.path.join('.');
@@ -329,6 +329,6 @@ export function validateFormData<T>(
     }
     errors[path].push(issue.message);
   });
-  
+
   return { success: false, errors };
 }

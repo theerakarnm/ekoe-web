@@ -62,14 +62,25 @@ export function ProductForm({ product }: ProductFormProps) {
       description: product?.description || '',
       shortDescription: product?.shortDescription || '',
       basePrice: product?.basePrice || 0,
-      compareAtPrice: product?.compareAtPrice || undefined,
-      productType: product?.productType || 'single',
-      status: product?.status || 'draft',
-      featured: product?.featured || false,
+      compareAtPrice: product?.compareAtPrice,
+      productType: product?.productType ?? 'single',
+      status: product?.status ?? 'draft',
+      featured: product?.featured ?? false,
       metaTitle: product?.metaTitle || '',
       metaDescription: product?.metaDescription || '',
       trackInventory: product?.trackInventory ?? true,
-      variants: product?.variants || [],
+      variants: product?.variants?.map(v => ({
+        name: v.name,
+        value: v.value,
+        sku: v.sku,
+        price: v.price,
+        compareAtPrice: v.compareAtPrice,
+        stockQuantity: v.stockQuantity,
+        lowStockThreshold: v.lowStockThreshold,
+        isActive: v.isActive,
+      })) || [],
+      categoryIds: product?.categories?.map((c) => c.id) || [],
+      tagIds: product?.tags?.map((t) => t.id) || [],
     },
   });
 
@@ -140,12 +151,26 @@ export function ProductForm({ product }: ProductFormProps) {
     setIsSubmitting(true);
 
     try {
+      // Transform form data to match API expectations
+      const productData: Partial<Product> = {
+        ...data,
+        // Filter out empty values for optional fields
+        compareAtPrice: data.compareAtPrice || undefined,
+        subtitle: data.subtitle || undefined,
+        description: data.description || undefined,
+        shortDescription: data.shortDescription || undefined,
+        metaTitle: data.metaTitle || undefined,
+        metaDescription: data.metaDescription || undefined,
+        // Note: categoryIds and tagIds should be handled through separate API calls
+        // as they don't exist directly in the Product interface
+      };
+
       if (isEditing && product) {
-        await updateProduct(product.id, data);
+        await updateProduct(product.id, productData);
         toast.success('Product updated successfully');
         navigate('/admin/products');
       } else {
-        const newProduct = await createProduct(data);
+        const newProduct = await createProduct(productData);
         toast.success('Product created successfully');
         // Redirect to edit page so user can upload images
         navigate(`/admin/products/${newProduct.id}/edit`);
@@ -153,7 +178,7 @@ export function ProductForm({ product }: ProductFormProps) {
       }
     } catch (error: any) {
       console.error('Failed to save product:', error);
-      
+
       // Handle validation errors
       if (error.statusCode === 422 && error.errors) {
         // Map API validation errors to form fields
