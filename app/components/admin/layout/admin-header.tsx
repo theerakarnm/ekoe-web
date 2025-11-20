@@ -72,7 +72,7 @@ export function AdminHeader() {
       <nav className="flex items-center space-x-2 text-sm">
         <Link
           to="/admin/dashboard"
-          className="text-muted-foreground hover:text-foreground transition-colors"
+          className="text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
         >
           Admin
         </Link>
@@ -84,7 +84,7 @@ export function AdminHeader() {
             ) : (
               <Link
                 to={crumb.href}
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
               >
                 {crumb.label}
               </Link>

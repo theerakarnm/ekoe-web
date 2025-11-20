@@ -65,12 +65,12 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <header>
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <p className="text-muted-foreground mt-2">
           Overview of your e-commerce platform
         </p>
-      </div>
+      </header>
 
       <Suspense fallback={<DashboardSkeleton />}>
         {/* Metric Cards */}

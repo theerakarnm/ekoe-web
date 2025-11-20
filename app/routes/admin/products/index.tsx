@@ -96,7 +96,7 @@ export default function ProductsIndexPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <header className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Products</h1>
           <p className="text-muted-foreground mt-2">
@@ -105,11 +105,12 @@ export default function ProductsIndexPage() {
         </div>
         <button
           onClick={() => navigate('/admin/products/new')}
-          className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          aria-label="Add new product"
         >
           Add Product
         </button>
-      </div>
+      </header>
 
       <ProductTable
         products={products}

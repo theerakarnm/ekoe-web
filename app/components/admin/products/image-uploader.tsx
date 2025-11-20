@@ -181,7 +181,7 @@ export function ImageUploader({
                   <div className="flex-1 min-w-0 space-y-2">
                     <div>
                       <Label htmlFor={`alt-${image.id}`} className="text-xs">
-                        Alt Text
+                        Alt Text <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         id={`alt-${image.id}`}
@@ -189,8 +189,10 @@ export function ImageUploader({
                         onChange={(e) =>
                           onUpdateAltText(image.id, e.target.value)
                         }
-                        placeholder="Describe the image"
+                        placeholder="Describe the image for accessibility"
                         className="text-sm"
+                        aria-required="true"
+                        aria-label="Image alt text for accessibility"
                       />
                     </div>
                     <div className="flex gap-2">

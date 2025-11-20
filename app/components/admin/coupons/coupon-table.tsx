@@ -152,13 +152,33 @@ export function CouponTable({
     const notStarted = coupon.startsAt && new Date(coupon.startsAt) > now;
     
     if (!coupon.isActive) {
-      return <Badge variant="secondary">Inactive</Badge>;
+      return (
+        <Badge variant="secondary" className="gap-1">
+          <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
+          Inactive
+        </Badge>
+      );
     } else if (isExpired) {
-      return <Badge variant="outline">Expired</Badge>;
+      return (
+        <Badge variant="outline" className="gap-1">
+          <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
+          Expired
+        </Badge>
+      );
     } else if (notStarted) {
-      return <Badge variant="secondary">Scheduled</Badge>;
+      return (
+        <Badge variant="secondary" className="gap-1">
+          <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
+          Scheduled
+        </Badge>
+      );
     } else {
-      return <Badge variant="default">Active</Badge>;
+      return (
+        <Badge variant="default" className="gap-1">
+          <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
+          Active
+        </Badge>
+      );
     }
   };
 
@@ -297,17 +317,19 @@ export function CouponTable({
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <Input
             placeholder="Search by code or title..."
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             className="pl-9"
+            aria-label="Search coupons by code or title"
+            type="search"
           />
         </div>
 
         <Select value={currentStatus} onValueChange={onStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]" aria-label="Filter coupons by status">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
@@ -320,14 +342,15 @@ export function CouponTable({
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto" role="region" aria-label="Coupons table">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>
                 <button
                   onClick={() => handleSortClick('code')}
-                  className="flex items-center hover:text-foreground"
+                  className="flex items-center hover:text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+                  aria-label={`Sort by code ${currentSortBy === 'code' ? (currentSortOrder === 'asc' ? 'descending' : 'ascending') : ''}`}
                 >
                   Code
                   {getSortIcon('code')}
@@ -341,7 +364,8 @@ export function CouponTable({
               <TableHead>
                 <button
                   onClick={() => handleSortClick('expiresAt')}
-                  className="flex items-center hover:text-foreground"
+                  className="flex items-center hover:text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+                  aria-label={`Sort by expiry date ${currentSortBy === 'expiresAt' ? (currentSortOrder === 'asc' ? 'descending' : 'ascending') : ''}`}
                 >
                   Valid Dates
                   {getSortIcon('expiresAt')}
@@ -425,7 +449,7 @@ export function CouponTable({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
             Showing {(currentPage - 1) * pageSize + 1} to{' '}
             {Math.min(currentPage * pageSize, totalCount)} of {totalCount} coupons

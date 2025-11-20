@@ -115,11 +115,26 @@ export function ProductTable({
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge variant="default">Active</Badge>;
+        return (
+          <Badge variant="default" className="gap-1">
+            <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
+            Active
+          </Badge>
+        );
       case 'draft':
-        return <Badge variant="secondary">Draft</Badge>;
+        return (
+          <Badge variant="secondary" className="gap-1">
+            <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
+            Draft
+          </Badge>
+        );
       case 'archived':
-        return <Badge variant="outline">Archived</Badge>;
+        return (
+          <Badge variant="outline" className="gap-1">
+            <span className="size-1.5 rounded-full bg-current" aria-hidden="true" />
+            Archived
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -243,17 +258,19 @@ export function ProductTable({
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           <Input
             placeholder="Search products..."
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             className="pl-9"
+            aria-label="Search products"
+            type="search"
           />
         </div>
 
         <Select value={currentStatus} onValueChange={onStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]" aria-label="Filter products by status">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
@@ -266,7 +283,7 @@ export function ProductTable({
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto" role="region" aria-label="Products table">
         <Table>
           <TableHeader>
             <TableRow>
@@ -274,7 +291,8 @@ export function ProductTable({
               <TableHead>
                 <button
                   onClick={() => handleSortClick('name')}
-                  className="flex items-center hover:text-foreground"
+                  className="flex items-center hover:text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+                  aria-label={`Sort by name ${currentSortBy === 'name' ? (currentSortOrder === 'asc' ? 'descending' : 'ascending') : ''}`}
                 >
                   Name
                   {getSortIcon('name')}
@@ -284,7 +302,8 @@ export function ProductTable({
               <TableHead>
                 <button
                   onClick={() => handleSortClick('basePrice')}
-                  className="flex items-center hover:text-foreground"
+                  className="flex items-center hover:text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+                  aria-label={`Sort by price ${currentSortBy === 'basePrice' ? (currentSortOrder === 'asc' ? 'descending' : 'ascending') : ''}`}
                 >
                   Price
                   {getSortIcon('basePrice')}
@@ -294,7 +313,8 @@ export function ProductTable({
               <TableHead>
                 <button
                   onClick={() => handleSortClick('createdAt')}
-                  className="flex items-center hover:text-foreground"
+                  className="flex items-center hover:text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+                  aria-label={`Sort by created date ${currentSortBy === 'createdAt' ? (currentSortOrder === 'asc' ? 'descending' : 'ascending') : ''}`}
                 >
                   Created
                   {getSortIcon('createdAt')}
@@ -387,7 +407,7 @@ export function ProductTable({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
             Showing {(currentPage - 1) * pageSize + 1} to{' '}
             {Math.min(currentPage * pageSize, totalCount)} of {totalCount} products

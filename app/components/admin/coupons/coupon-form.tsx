@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Loader2, Info } from 'lucide-react';
 import { discountCodeSchema, type DiscountCodeFormData } from '~/lib/admin/validation';
 import type { DiscountCode } from '~/lib/admin/api-client';
+import { useKeyboardShortcuts } from '~/lib/admin/use-keyboard-shortcuts';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
@@ -25,6 +26,26 @@ interface CouponFormProps {
 
 export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts([
+    {
+      key: 's',
+      ctrlKey: true,
+      handler: (e) => {
+        e.preventDefault();
+        handleSubmit(onFormSubmit)();
+      },
+      description: 'Save coupon',
+    },
+    {
+      key: 'Escape',
+      handler: () => {
+        onCancel();
+      },
+      description: 'Cancel and return to coupons list',
+    },
+  ]);
 
   const {
     register,

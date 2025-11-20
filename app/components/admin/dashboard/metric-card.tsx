@@ -28,16 +28,16 @@ export function MetricCard({ title, value, change, icon }: MetricCardProps) {
           {change && (
             <div className="flex items-center gap-1 text-sm">
               {change.trend === 'up' ? (
-                <ArrowUp className="h-4 w-4 text-green-600" />
+                <ArrowUp className="h-4 w-4 text-green-600" aria-label="Increased" />
               ) : (
-                <ArrowDown className="h-4 w-4 text-red-600" />
+                <ArrowDown className="h-4 w-4 text-red-600" aria-label="Decreased" />
               )}
               <span
                 className={
-                  change.trend === 'up' ? 'text-green-600' : 'text-red-600'
+                  change.trend === 'up' ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'
                 }
               >
-                {Math.abs(change.value)}%
+                {change.trend === 'up' ? '+' : '-'}{Math.abs(change.value)}%
               </span>
               <span className="text-muted-foreground">from last period</span>
             </div>

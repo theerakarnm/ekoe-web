@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Loader2, Upload, X } from 'lucide-react';
 import { blogPostSchema, generateSlug, type BlogPostFormData } from '~/lib/admin/validation';
 import type { BlogPost } from '~/lib/admin/api-client';
+import { useKeyboardShortcuts } from '~/lib/admin/use-keyboard-shortcuts';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
@@ -29,6 +30,26 @@ export function BlogForm({ initialData, onSubmit, onCancel }: BlogFormProps) {
   const [featuredImagePreview, setFeaturedImagePreview] = useState<string | undefined>(
     initialData?.featuredImageUrl
   );
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts([
+    {
+      key: 's',
+      ctrlKey: true,
+      handler: (e) => {
+        e.preventDefault();
+        handleSubmit(onFormSubmit)();
+      },
+      description: 'Save blog post',
+    },
+    {
+      key: 'Escape',
+      handler: () => {
+        onCancel();
+      },
+      description: 'Cancel and return to blog list',
+    },
+  ]);
 
   const {
     register,

@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useKeyboardShortcuts } from '~/lib/admin/use-keyboard-shortcuts';
 import {
   productSchema,
   type ProductFormData,
@@ -51,6 +52,26 @@ export function ProductForm({ product }: ProductFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<ProductImage[]>(product?.images || []);
   const isEditing = !!product;
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts([
+    {
+      key: 's',
+      ctrlKey: true,
+      handler: (e) => {
+        e.preventDefault();
+        form.handleSubmit(onSubmit)();
+      },
+      description: 'Save product',
+    },
+    {
+      key: 'Escape',
+      handler: () => {
+        navigate('/admin/products');
+      },
+      description: 'Cancel and return to products list',
+    },
+  ]);
 
   // Initialize form with default values or existing product data
   const form = useForm<ProductFormData>({
