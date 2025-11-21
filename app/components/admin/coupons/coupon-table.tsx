@@ -127,7 +127,7 @@ export function CouponTable({
   const getDiscountTypeBadge = (type: string) => {
     const icon = getDiscountTypeIcon(type);
     const label = type === 'percentage' ? 'Percentage' : type === 'fixed_amount' ? 'Fixed Amount' : 'Free Shipping';
-    
+
     return (
       <Badge variant="outline" className="flex items-center gap-1 w-fit">
         {icon}
@@ -150,7 +150,7 @@ export function CouponTable({
     const now = new Date();
     const isExpired = coupon.expiresAt && new Date(coupon.expiresAt) < now;
     const notStarted = coupon.startsAt && new Date(coupon.startsAt) > now;
-    
+
     if (!coupon.isActive) {
       return (
         <Badge variant="secondary" className="gap-1">
@@ -184,8 +184,8 @@ export function CouponTable({
 
   const formatDateRange = (coupon: DiscountCode) => {
     const formatDate = (dateStr: string) => {
-      return new Date(dateStr).toLocaleDateString('en-US', { 
-        month: 'short', 
+      return new Date(dateStr).toLocaleDateString('en-US', {
+        month: 'short',
         day: 'numeric',
         year: 'numeric'
       });
@@ -375,7 +375,7 @@ export function CouponTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {coupons.length === 0 ? (
+            {coupons?.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="h-24 text-center">
                   <div className="flex flex-col items-center justify-center text-muted-foreground">
@@ -387,7 +387,7 @@ export function CouponTable({
                 </TableCell>
               </TableRow>
             ) : (
-              coupons.map((coupon) => (
+              coupons?.map((coupon) => (
                 <TableRow key={coupon.id}>
                   <TableCell>
                     <code className="font-mono font-semibold text-sm bg-muted px-2 py-1 rounded">

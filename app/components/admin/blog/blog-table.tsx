@@ -311,7 +311,7 @@ export function BlogTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {posts.length === 0 ? (
+            {posts?.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="h-24 text-center">
                   <div className="flex flex-col items-center justify-center text-muted-foreground">
@@ -323,7 +323,7 @@ export function BlogTable({
                 </TableCell>
               </TableRow>
             ) : (
-              posts.map((post) => (
+              posts?.map((post) => (
                 <TableRow key={post.id}>
                   <TableCell>
                     <div className="flex flex-col max-w-md">

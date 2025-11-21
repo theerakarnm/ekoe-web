@@ -326,8 +326,8 @@ export async function getProducts(
 
 export async function getProduct(id: string, headers?: HeadersInit): Promise<Product> {
   try {
-    const response = await apiClient.get<Product>(`/api/admin/products/${id}`, getAxiosConfig(headers));
-    return response.data;
+    const response = await apiClient.get<SuccessResponseWrapper<Product>>(`/api/admin/products/${id}`, getAxiosConfig(headers));
+    return response.data.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
@@ -335,8 +335,8 @@ export async function getProduct(id: string, headers?: HeadersInit): Promise<Pro
 
 export async function createProduct(data: Partial<Product>, headers?: HeadersInit): Promise<Product> {
   try {
-    const response = await apiClient.post<Product>('/api/admin/products', data, getAxiosConfig(headers));
-    return response.data;
+    const response = await apiClient.post<SuccessResponseWrapper<Product>>('/api/admin/products', data, getAxiosConfig(headers));
+    return response.data.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
@@ -348,8 +348,8 @@ export async function updateProduct(
   headers?: HeadersInit
 ): Promise<Product> {
   try {
-    const response = await apiClient.put<Product>(`/api/admin/products/${id}`, data, getAxiosConfig(headers));
-    return response.data;
+    const response = await apiClient.put<SuccessResponseWrapper<Product>>(`/api/admin/products/${id}`, data, getAxiosConfig(headers));
+    return response.data.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
@@ -378,8 +378,8 @@ export async function uploadProductImage(
       'Content-Type': 'multipart/form-data',
     };
 
-    const response = await apiClient.post<ProductImage>(`/api/admin/products/${productId}/images`, formData, config);
-    return response.data;
+    const response = await apiClient.post<SuccessResponseWrapper<ProductImage>>(`/api/admin/products/${productId}/images`, formData, config);
+    return response.data.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
@@ -403,11 +403,11 @@ export async function getBlogPosts(
   headers?: HeadersInit
 ): Promise<PaginatedResponse<BlogPost>> {
   try {
-    const response = await apiClient.get<PaginatedResponse<BlogPost>>('/api/admin/blog', {
+    const response = await apiClient.get<SuccessResponseWrapper<PaginatedResponse<BlogPost>>>('/api/admin/blog', {
       params,
       ...getAxiosConfig(headers)
     });
-    return response.data;
+    return response.data.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
@@ -415,8 +415,8 @@ export async function getBlogPosts(
 
 export async function getBlogPost(id: number, headers?: HeadersInit): Promise<BlogPost> {
   try {
-    const response = await apiClient.get<BlogPost>(`/api/admin/blog/${id}`, getAxiosConfig(headers));
-    return response.data;
+    const response = await apiClient.get<SuccessResponseWrapper<BlogPost>>(`/api/admin/blog/${id}`, getAxiosConfig(headers));
+    return response.data.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
@@ -424,8 +424,8 @@ export async function getBlogPost(id: number, headers?: HeadersInit): Promise<Bl
 
 export async function createBlogPost(data: Partial<BlogPost>, headers?: HeadersInit): Promise<BlogPost> {
   try {
-    const response = await apiClient.post<BlogPost>('/api/admin/blog', data, getAxiosConfig(headers));
-    return response.data;
+    const response = await apiClient.post<SuccessResponseWrapper<BlogPost>>('/api/admin/blog', data, getAxiosConfig(headers));
+    return response.data.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
@@ -437,8 +437,8 @@ export async function updateBlogPost(
   headers?: HeadersInit
 ): Promise<BlogPost> {
   try {
-    const response = await apiClient.put<BlogPost>(`/api/admin/blog/${id}`, data, getAxiosConfig(headers));
-    return response.data;
+    const response = await apiClient.put<SuccessResponseWrapper<BlogPost>>(`/api/admin/blog/${id}`, data, getAxiosConfig(headers));
+    return response.data.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
@@ -470,11 +470,11 @@ export async function getDiscountCodes(
   headers?: HeadersInit
 ): Promise<PaginatedResponse<DiscountCode>> {
   try {
-    const response = await apiClient.get<PaginatedResponse<DiscountCode>>('/api/admin/coupons', {
+    const response = await apiClient.get<SuccessResponseWrapper<PaginatedResponse<DiscountCode>>>('/api/admin/coupons', {
       params,
       ...getAxiosConfig(headers)
     });
-    return response.data;
+    return response.data.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
@@ -482,8 +482,8 @@ export async function getDiscountCodes(
 
 export async function getDiscountCode(id: number, headers?: HeadersInit): Promise<DiscountCode> {
   try {
-    const response = await apiClient.get<DiscountCode>(`/api/admin/coupons/${id}`, getAxiosConfig(headers));
-    return response.data;
+    const response = await apiClient.get<SuccessResponseWrapper<DiscountCode>>(`/api/admin/coupons/${id}`, getAxiosConfig(headers));
+    return response.data.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
@@ -494,8 +494,8 @@ export async function createDiscountCode(
   headers?: HeadersInit
 ): Promise<DiscountCode> {
   try {
-    const response = await apiClient.post<DiscountCode>('/api/admin/coupons', data, getAxiosConfig(headers));
-    return response.data;
+    const response = await apiClient.post<SuccessResponseWrapper<DiscountCode>>('/api/admin/coupons', data, getAxiosConfig(headers));
+    return response.data.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
@@ -507,8 +507,8 @@ export async function updateDiscountCode(
   headers?: HeadersInit
 ): Promise<DiscountCode> {
   try {
-    const response = await apiClient.put<DiscountCode>(`/api/admin/coupons/${id}`, data, getAxiosConfig(headers));
-    return response.data;
+    const response = await apiClient.put<SuccessResponseWrapper<DiscountCode>>(`/api/admin/coupons/${id}`, data, getAxiosConfig(headers));
+    return response.data.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
@@ -524,8 +524,8 @@ export async function deactivateDiscountCode(id: number, headers?: HeadersInit):
 
 export async function getCouponUsageStats(id: number, headers?: HeadersInit): Promise<CouponUsageStats> {
   try {
-    const response = await apiClient.get<CouponUsageStats>(`/api/admin/coupons/${id}/stats`, getAxiosConfig(headers));
-    return response.data;
+    const response = await apiClient.get<SuccessResponseWrapper<CouponUsageStats>>(`/api/admin/coupons/${id}/stats`, getAxiosConfig(headers));
+    return response.data.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
