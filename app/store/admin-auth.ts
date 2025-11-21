@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-
-const baseUrl = import.meta.env.VITE_API_URL;
+import { authClient } from '../lib/auth-client';
 
 interface AdminUser {
   id: string;
@@ -26,27 +25,31 @@ export const useAdminAuthStore = create<AdminAuthState>()(
 
       login: async (email: string, password: string) => {
         try {
-          const response = await fetch(baseUrl + '/api/auth/sign-in/email', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email,
-              password,
-            }),
-            credentials: 'include',
+          const { data, error } = await authClient.signIn.email({
+            email,
+            password,
           });
 
-          if (!response.ok) {
-            const error = await response.json();
+          if (error) {
             throw new Error(error.message || 'Authentication failed');
           }
 
-          const data = await response.json();
+          if (!data) {
+            throw new Error('Authentication failed: No data returned');
+          }
+
+          const session = await authClient.getSession();
+
+          // We need to fetch the session to get the user role because signIn might not return full user details depending on config
+          // However, better-auth usually returns session and user on sign in.
+          // Let's double check if we need to fetch session or if data contains it.
+          // The data object from signIn.email typically contains { user: User, session: Session }
 
           // Check if user has admin role
-          if (data.user.role !== 'admin') {
+          // @ts-ignore - better-auth types might need to be inferred or casted if not fully set up yet
+          if (session.data?.user.role !== 'admin') {
+            // If not admin, sign out immediately
+            await authClient.signOut();
             throw new Error('Unauthorized: Admin access required');
           }
 
@@ -55,6 +58,7 @@ export const useAdminAuthStore = create<AdminAuthState>()(
               id: data.user.id,
               email: data.user.email,
               name: data.user.name || 'Admin User',
+              // @ts-ignore
               role: data.user.role,
             },
             isAuthenticated: true,
@@ -67,13 +71,9 @@ export const useAdminAuthStore = create<AdminAuthState>()(
           throw error;
         }
       },
-
       logout: async () => {
         try {
-          await fetch(baseUrl + '/api/auth/sign-out', {
-            method: 'POST',
-            credentials: 'include',
-          });
+          await authClient.signOut();
         } catch (error) {
           console.error('Logout error:', error);
         } finally {
@@ -86,25 +86,15 @@ export const useAdminAuthStore = create<AdminAuthState>()(
 
       checkAuth: async () => {
         try {
-          const response = await fetch(baseUrl + '/api/auth/get-session', {
-            method: 'GET',
-            credentials: 'include',
-          });
+          const { data } = await authClient.getSession();
 
-          if (!response.ok) {
-            set({ user: null, isAuthenticated: false });
-            return;
-          }
-
-          const data = await response.json();
-
-          if (data.user && data.user.role === 'admin') {
+          if (data && data.user && (data.user as any).role === 'admin') {
             set({
               user: {
                 id: data.user.id,
                 email: data.user.email,
                 name: data.user.name || 'Admin User',
-                role: data.user.role,
+                role: (data.user as any).role,
               },
               isAuthenticated: true,
             });
