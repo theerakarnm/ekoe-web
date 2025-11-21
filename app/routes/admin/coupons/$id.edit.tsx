@@ -1,18 +1,19 @@
 import { useNavigate, useLoaderData, useNavigation } from 'react-router';
 import type { Route } from './+types/$id.edit';
-import { getDiscountCode, updateDiscountCode } from '~/lib/admin/api-client';
+import { updateDiscountCode, createAdminClient } from '~/lib/admin/api-client';
 import { CouponForm } from '~/components/admin/coupons/coupon-form';
 import { FormSkeleton } from '~/components/admin/layout/form-skeleton';
 import { showSuccess, showError } from '~/lib/admin/toast';
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function loader({ params, request }: Route.LoaderArgs) {
   const id = parseInt(params.id, 10);
-  
+
   if (isNaN(id)) {
     throw new Response('Invalid coupon ID', { status: 400 });
   }
-  
-  const coupon = await getDiscountCode(id);
+
+  const api = createAdminClient(request);
+  const coupon = await api.getDiscountCode(id);
   return { coupon };
 }
 
@@ -29,7 +30,7 @@ export default function EditCouponPage() {
       navigate('/admin/coupons');
     } catch (error: any) {
       console.error('Failed to update coupon:', error);
-      
+
       // Handle duplicate code error
       if (error.statusCode === 422 && error.field === 'code') {
         showError('This coupon code already exists', 'Please use a different code');
@@ -60,10 +61,10 @@ export default function EditCouponPage() {
       {isLoading ? (
         <FormSkeleton />
       ) : (
-        <CouponForm 
-          initialData={coupon} 
-          onSubmit={handleSubmit} 
-          onCancel={handleCancel} 
+        <CouponForm
+          initialData={coupon}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
         />
       )}
     </div>

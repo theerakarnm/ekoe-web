@@ -10,9 +10,9 @@ interface ImageUploaderProps {
   images: ProductImage[];
   onUpload: (files: File[]) => Promise<void>;
   onReorder: (images: ProductImage[]) => void;
-  onDelete: (imageId: number) => void;
-  onSetPrimary: (imageId: number) => void;
-  onUpdateAltText: (imageId: number, altText: string) => void;
+  onDelete: (imageId: string) => void;
+  onSetPrimary: (imageId: string) => void;
+  onUpdateAltText: (imageId: string, altText: string) => void;
 }
 
 export function ImageUploader({

@@ -1,16 +1,13 @@
 import { useState } from 'react';
 import { useLoaderData, useSearchParams, useNavigate, useRevalidator, useNavigation } from 'react-router';
 import type { Route } from './+types/index';
-import { getProducts, deleteProduct, type Product } from '~/lib/admin/api-client';
+import { deleteProduct, type Product, createAdminClient } from '~/lib/admin/api-client';
 import { ProductTable } from '~/components/admin/products/product-table';
 import { TableSkeleton } from '~/components/admin/layout/table-skeleton';
 import { showSuccess, showError } from '~/lib/admin/toast';
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
-  const headers = {
-    Cookie: request.headers.get('Cookie') || '',
-  };
   const page = parseInt(url.searchParams.get('page') || '1', 10);
   const limit = parseInt(url.searchParams.get('limit') || '20', 10);
   const search = url.searchParams.get('search') || undefined;
@@ -18,14 +15,15 @@ export async function loader({ request }: Route.LoaderArgs) {
   const sortBy = url.searchParams.get('sortBy') || undefined;
   const sortOrder = (url.searchParams.get('sortOrder') as 'asc' | 'desc') || undefined;
 
-  const response = await getProducts({
+  const api = createAdminClient(request);
+  const response = await api.getProducts({
     page,
     limit,
     search,
     status,
     sortBy,
     sortOrder,
-  }, headers);
+  });
 
   console.log(response);
 
@@ -83,11 +81,11 @@ export default function ProductsIndexPage() {
     navigate(`?${params.toString()}`);
   };
 
-  const handleEdit = (id: number) => {
+  const handleEdit = (id: string) => {
     navigate(`/admin/products/${id}/edit`);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (isDeleting) return;
 
     setIsDeleting(true);

@@ -2,17 +2,18 @@ import type { Route } from './+types/$id.edit';
 import { useNavigation } from 'react-router';
 import { ProductForm } from '~/components/admin/products/product-form';
 import { FormSkeleton } from '~/components/admin/layout/form-skeleton';
-import { getProduct } from '~/lib/admin/api-client';
+import { createAdminClient } from '~/lib/admin/api-client';
 
-export async function loader({ params }: Route.LoaderArgs) {
-  const productId = parseInt(params.id, 10);
-  
-  if (isNaN(productId)) {
+export async function loader({ params, request }: Route.LoaderArgs) {
+  const productId = params.id;
+
+  if (!productId) {
     throw new Response('Invalid product ID', { status: 400 });
   }
-  
+
   try {
-    const product = await getProduct(productId);
+    const api = createAdminClient(request);
+    const product = await api.getProduct(productId);
     return { product };
   } catch (error) {
     throw new Response('Product not found', { status: 404 });
@@ -30,7 +31,7 @@ export default function EditProductPage({ loaderData }: Route.ComponentProps) {
   const { product } = loaderData;
   const navigation = useNavigation();
   const isLoading = navigation.state === 'loading';
-  
+
   return (
     <div className="container mx-auto py-6 px-4">
       <div className="mb-6">
@@ -39,7 +40,7 @@ export default function EditProductPage({ loaderData }: Route.ComponentProps) {
           Update product information for {product.name}
         </p>
       </div>
-      
+
       {isLoading ? <FormSkeleton /> : <ProductForm product={product} />}
     </div>
   );

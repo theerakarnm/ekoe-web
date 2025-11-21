@@ -1,6 +1,6 @@
 import { type LoaderFunctionArgs } from 'react-router';
 import { useLoaderData } from 'react-router';
-import { getDashboardMetrics, type DashboardMetrics } from '~/lib/admin/api-client';
+import { type DashboardMetrics, createAdminClient } from '~/lib/admin/api-client';
 import { MetricCard } from '~/components/admin/dashboard/metric-card';
 import { RevenueChart } from '~/components/admin/dashboard/revenue-chart';
 import { OrderStatusChart } from '~/components/admin/dashboard/order-status-chart';
@@ -14,10 +14,8 @@ import { Suspense } from 'react';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
-    const headers = {
-      Cookie: request.headers.get('Cookie') || '',
-    };
-    const metrics = await getDashboardMetrics(headers);
+    const api = createAdminClient(request);
+    const metrics = await api.getDashboardMetrics();
 
     console.log(metrics);
 

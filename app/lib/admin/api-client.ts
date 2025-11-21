@@ -37,7 +37,7 @@ export interface DashboardMetrics {
 }
 
 export interface Product {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   subtitle?: string;
@@ -65,8 +65,8 @@ export interface Product {
 }
 
 export interface ProductImage {
-  id: number;
-  productId: number;
+  id: string;
+  productId: string;
   url: string;
   altText?: string;
   description?: string;
@@ -77,8 +77,8 @@ export interface ProductImage {
 }
 
 export interface ProductVariant {
-  id: number;
-  productId: number;
+  id: string;
+  productId: string;
   sku?: string;
   name: string;
   value: string;
@@ -92,11 +92,11 @@ export interface ProductVariant {
 }
 
 export interface Category {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   description?: string;
-  parentId?: number;
+  parentId?: string;
   imageUrl?: string;
   sortOrder: number;
   isActive: boolean;
@@ -107,7 +107,7 @@ export interface Category {
 }
 
 export interface Tag {
-  id: number;
+  id: string;
   name: string;
   slug: string;
   description?: string;
@@ -324,7 +324,7 @@ export async function getProducts(
   }
 }
 
-export async function getProduct(id: number, headers?: HeadersInit): Promise<Product> {
+export async function getProduct(id: string, headers?: HeadersInit): Promise<Product> {
   try {
     const response = await apiClient.get<Product>(`/api/admin/products/${id}`, getAxiosConfig(headers));
     return response.data;
@@ -333,9 +333,9 @@ export async function getProduct(id: number, headers?: HeadersInit): Promise<Pro
   }
 }
 
-export async function createProduct(data: Partial<Product>): Promise<Product> {
+export async function createProduct(data: Partial<Product>, headers?: HeadersInit): Promise<Product> {
   try {
-    const response = await apiClient.post<Product>('/api/admin/products', data);
+    const response = await apiClient.post<Product>('/api/admin/products', data, getAxiosConfig(headers));
     return response.data;
   } catch (error) {
     throw handleAxiosError(error);
@@ -343,38 +343,42 @@ export async function createProduct(data: Partial<Product>): Promise<Product> {
 }
 
 export async function updateProduct(
-  id: number,
-  data: Partial<Product>
+  id: string,
+  data: Partial<Product>,
+  headers?: HeadersInit
 ): Promise<Product> {
   try {
-    const response = await apiClient.put<Product>(`/api/admin/products/${id}`, data);
+    const response = await apiClient.put<Product>(`/api/admin/products/${id}`, data, getAxiosConfig(headers));
     return response.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
 }
 
-export async function deleteProduct(id: number): Promise<void> {
+export async function deleteProduct(id: string, headers?: HeadersInit): Promise<void> {
   try {
-    await apiClient.delete(`/api/admin/products/${id}`);
+    await apiClient.delete(`/api/admin/products/${id}`, getAxiosConfig(headers));
   } catch (error) {
     throw handleAxiosError(error);
   }
 }
 
 export async function uploadProductImage(
-  productId: number,
-  file: File
+  productId: string,
+  file: File,
+  headers?: HeadersInit
 ): Promise<ProductImage> {
   try {
     const formData = new FormData();
     formData.append('image', file);
 
-    const response = await apiClient.post<ProductImage>(`/api/admin/products/${productId}/images`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const config = getAxiosConfig(headers);
+    config.headers = {
+      ...config.headers,
+      'Content-Type': 'multipart/form-data',
+    };
+
+    const response = await apiClient.post<ProductImage>(`/api/admin/products/${productId}/images`, formData, config);
     return response.data;
   } catch (error) {
     throw handleAxiosError(error);
@@ -418,9 +422,9 @@ export async function getBlogPost(id: number, headers?: HeadersInit): Promise<Bl
   }
 }
 
-export async function createBlogPost(data: Partial<BlogPost>): Promise<BlogPost> {
+export async function createBlogPost(data: Partial<BlogPost>, headers?: HeadersInit): Promise<BlogPost> {
   try {
-    const response = await apiClient.post<BlogPost>('/api/admin/blog', data);
+    const response = await apiClient.post<BlogPost>('/api/admin/blog', data, getAxiosConfig(headers));
     return response.data;
   } catch (error) {
     throw handleAxiosError(error);
@@ -429,19 +433,20 @@ export async function createBlogPost(data: Partial<BlogPost>): Promise<BlogPost>
 
 export async function updateBlogPost(
   id: number,
-  data: Partial<BlogPost>
+  data: Partial<BlogPost>,
+  headers?: HeadersInit
 ): Promise<BlogPost> {
   try {
-    const response = await apiClient.put<BlogPost>(`/api/admin/blog/${id}`, data);
+    const response = await apiClient.put<BlogPost>(`/api/admin/blog/${id}`, data, getAxiosConfig(headers));
     return response.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
 }
 
-export async function deleteBlogPost(id: number): Promise<void> {
+export async function deleteBlogPost(id: number, headers?: HeadersInit): Promise<void> {
   try {
-    await apiClient.delete(`/api/admin/blog/${id}`);
+    await apiClient.delete(`/api/admin/blog/${id}`, getAxiosConfig(headers));
   } catch (error) {
     throw handleAxiosError(error);
   }
@@ -485,10 +490,11 @@ export async function getDiscountCode(id: number, headers?: HeadersInit): Promis
 }
 
 export async function createDiscountCode(
-  data: Partial<DiscountCode>
+  data: Partial<DiscountCode>,
+  headers?: HeadersInit
 ): Promise<DiscountCode> {
   try {
-    const response = await apiClient.post<DiscountCode>('/api/admin/coupons', data);
+    const response = await apiClient.post<DiscountCode>('/api/admin/coupons', data, getAxiosConfig(headers));
     return response.data;
   } catch (error) {
     throw handleAxiosError(error);
@@ -497,19 +503,20 @@ export async function createDiscountCode(
 
 export async function updateDiscountCode(
   id: number,
-  data: Partial<DiscountCode>
+  data: Partial<DiscountCode>,
+  headers?: HeadersInit
 ): Promise<DiscountCode> {
   try {
-    const response = await apiClient.put<DiscountCode>(`/api/admin/coupons/${id}`, data);
+    const response = await apiClient.put<DiscountCode>(`/api/admin/coupons/${id}`, data, getAxiosConfig(headers));
     return response.data;
   } catch (error) {
     throw handleAxiosError(error);
   }
 }
 
-export async function deactivateDiscountCode(id: number): Promise<void> {
+export async function deactivateDiscountCode(id: number, headers?: HeadersInit): Promise<void> {
   try {
-    await apiClient.patch(`/api/admin/coupons/${id}/deactivate`);
+    await apiClient.patch(`/api/admin/coupons/${id}/deactivate`, {}, getAxiosConfig(headers));
   } catch (error) {
     throw handleAxiosError(error);
   }
@@ -522,4 +529,33 @@ export async function getCouponUsageStats(id: number, headers?: HeadersInit): Pr
   } catch (error) {
     throw handleAxiosError(error);
   }
+}
+
+// ============================================================================
+// Factory
+// ============================================================================
+
+export function createAdminClient(requestOrHeaders: Request | HeadersInit) {
+  const headers = requestOrHeaders instanceof Request ? requestOrHeaders.headers : requestOrHeaders;
+
+  return {
+    getDashboardMetrics: () => getDashboardMetrics(headers),
+    getProducts: (params?: GetProductsParams) => getProducts(params, headers),
+    getProduct: (id: string) => getProduct(id, headers),
+    createProduct: (data: Partial<Product>) => createProduct(data, headers),
+    updateProduct: (id: string, data: Partial<Product>) => updateProduct(id, data, headers),
+    deleteProduct: (id: string) => deleteProduct(id, headers),
+    uploadProductImage: (productId: string, file: File) => uploadProductImage(productId, file, headers),
+    getBlogPosts: (params?: GetBlogPostsParams) => getBlogPosts(params, headers),
+    getBlogPost: (id: number) => getBlogPost(id, headers),
+    createBlogPost: (data: Partial<BlogPost>) => createBlogPost(data, headers),
+    updateBlogPost: (id: number, data: Partial<BlogPost>) => updateBlogPost(id, data, headers),
+    deleteBlogPost: (id: number) => deleteBlogPost(id, headers),
+    getDiscountCodes: (params?: GetDiscountCodesParams) => getDiscountCodes(params, headers),
+    getDiscountCode: (id: number) => getDiscountCode(id, headers),
+    createDiscountCode: (data: Partial<DiscountCode>) => createDiscountCode(data, headers),
+    updateDiscountCode: (id: number, data: Partial<DiscountCode>) => updateDiscountCode(id, data, headers),
+    deactivateDiscountCode: (id: number) => deactivateDiscountCode(id, headers),
+    getCouponUsageStats: (id: number) => getCouponUsageStats(id, headers),
+  };
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLoaderData, useSearchParams, useNavigate, useRevalidator, useNavigation } from 'react-router';
 import type { Route } from './+types/index';
-import { getBlogPosts, deleteBlogPost, type BlogPost } from '~/lib/admin/api-client';
+import { deleteBlogPost, type BlogPost, createAdminClient } from '~/lib/admin/api-client';
 import { BlogTable } from '~/components/admin/blog/blog-table';
 import { TableSkeleton } from '~/components/admin/layout/table-skeleton';
 import { showSuccess, showError } from '~/lib/admin/toast';
@@ -15,7 +15,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   const sortBy = url.searchParams.get('sortBy') || undefined;
   const sortOrder = (url.searchParams.get('sortOrder') as 'asc' | 'desc') || undefined;
 
-  const response = await getBlogPosts({
+  const api = createAdminClient(request);
+  const response = await api.getBlogPosts({
     page,
     limit,
     search,
@@ -39,7 +40,7 @@ export default function BlogIndexPage() {
   const revalidator = useRevalidator();
   const navigation = useNavigation();
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   const isLoading = navigation.state === 'loading' || revalidator.state === 'loading';
 
   const handlePageChange = (newPage: number) => {
@@ -83,7 +84,7 @@ export default function BlogIndexPage() {
 
   const handleDelete = async (id: number) => {
     if (isDeleting) return;
-    
+
     setIsDeleting(true);
     try {
       await deleteBlogPost(id);

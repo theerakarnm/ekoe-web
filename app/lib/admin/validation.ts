@@ -40,8 +40,8 @@ export const dateValidator = z
 // ============================================================================
 
 export const productVariantSchema = z.object({
-  id: z.number().optional(),
-  productId: z.number().optional(),
+  id: z.string().optional(),
+  productId: z.string().optional(),
   sku: z.string().optional(),
   name: z.string().min(1, 'Variant name is required'),
   value: z.string().min(1, 'Variant value is required'),
@@ -53,12 +53,12 @@ export const productVariantSchema = z.object({
 });
 
 export const productImageSchema = z.object({
-  id: z.number().optional(),
-  productId: z.number().optional(),
+  id: z.string().optional(),
+  productId: z.string().optional(),
   url: z.string().url('Must be a valid image URL'),
   altText: z.string().optional(),
   description: z.string().optional(),
-  variantId: z.number().optional(),
+  variantId: z.string().optional(),
   sortOrder: z.number().int().min(0),
   isPrimary: z.boolean(),
 });
@@ -91,8 +91,8 @@ export const productSchema = z.object({
   // Relations (optional for creation)
   images: z.array(productImageSchema).optional(),
   variants: z.array(productVariantSchema).optional(),
-  categoryIds: z.array(z.number()).optional(),
-  tagIds: z.array(z.number()).optional(),
+  categoryIds: z.array(z.string()).optional(),
+  tagIds: z.array(z.string()).optional(),
 }).refine(
   (data) => {
     // If compareAtPrice is provided, it should be greater than basePrice
@@ -126,11 +126,11 @@ export const blogPostSchema = z.object({
   featuredImageAlt: z.string().max(255, 'Alt text too long').optional(),
 
   // Author
-  authorId: z.number().optional(),
+  authorId: z.string().optional(),
   authorName: z.string().min(1, 'Author name is required').max(255, 'Author name too long'),
 
   // Category
-  categoryId: z.number().optional(),
+  categoryId: z.string().optional(),
   categoryName: z.string().max(100, 'Category name too long').optional(),
 
   // SEO
@@ -184,8 +184,8 @@ export const discountCodeSchema = z.object({
   usageLimitPerCustomer: z.number().int().min(1, 'Limit per customer must be at least 1').default(1),
 
   // Applicability
-  applicableToProducts: z.array(z.number()).optional(),
-  applicableToCategories: z.array(z.number()).optional(),
+  applicableToProducts: z.array(z.string()).optional(),
+  applicableToCategories: z.array(z.string()).optional(),
 
   // Status
   isActive: z.boolean().default(true),
@@ -255,7 +255,7 @@ export const categorySchema = z.object({
   name: z.string().min(1, 'Category name is required').max(255, 'Name too long'),
   slug: slugValidator,
   description: z.string().optional(),
-  parentId: z.number().optional(),
+  parentId: z.string().optional(),
   imageUrl: urlValidator,
   sortOrder: z.number().int().min(0).default(0),
   isActive: z.boolean().default(true),

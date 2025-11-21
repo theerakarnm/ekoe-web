@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLoaderData, useSearchParams, useNavigate, useRevalidator, useNavigation } from 'react-router';
 import type { Route } from './+types/index';
-import { getDiscountCodes, deactivateDiscountCode, type DiscountCode } from '~/lib/admin/api-client';
+import { deactivateDiscountCode, type DiscountCode, createAdminClient } from '~/lib/admin/api-client';
 import { CouponTable } from '~/components/admin/coupons/coupon-table';
 import { TableSkeleton } from '~/components/admin/layout/table-skeleton';
 import { showSuccess, showError } from '~/lib/admin/toast';
@@ -15,7 +15,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   const sortBy = url.searchParams.get('sortBy') || undefined;
   const sortOrder = (url.searchParams.get('sortOrder') as 'asc' | 'desc') || undefined;
 
-  const response = await getDiscountCodes({
+  const api = createAdminClient(request);
+  const response = await api.getDiscountCodes({
     page,
     limit,
     search,
@@ -39,7 +40,7 @@ export default function CouponsIndexPage() {
   const revalidator = useRevalidator();
   const navigation = useNavigation();
   const [isDeactivating, setIsDeactivating] = useState(false);
-  
+
   const isLoading = navigation.state === 'loading' || revalidator.state === 'loading';
 
   const handlePageChange = (newPage: number) => {
@@ -83,7 +84,7 @@ export default function CouponsIndexPage() {
 
   const handleDeactivate = async (id: number) => {
     if (isDeactivating) return;
-    
+
     setIsDeactivating(true);
     try {
       await deactivateDiscountCode(id);

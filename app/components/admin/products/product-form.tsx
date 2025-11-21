@@ -141,14 +141,14 @@ export function ProductForm({ product }: ProductFormProps) {
   };
 
   // Handle image delete
-  const handleImageDelete = (imageId: number) => {
+  const handleImageDelete = (imageId: string) => {
     setImages((prev) => prev.filter((img) => img.id !== imageId));
     // TODO: Call API to delete image
     showSuccess('Image deleted');
   };
 
   // Handle set primary image
-  const handleSetPrimary = (imageId: number) => {
+  const handleSetPrimary = (imageId: string) => {
     setImages((prev) =>
       prev.map((img) => ({
         ...img,
@@ -160,7 +160,7 @@ export function ProductForm({ product }: ProductFormProps) {
   };
 
   // Handle alt text update
-  const handleAltTextUpdate = (imageId: number, altText: string) => {
+  const handleAltTextUpdate = (imageId: string, altText: string) => {
     setImages((prev) =>
       prev.map((img) => (img.id === imageId ? { ...img, altText } : img))
     );
@@ -175,7 +175,7 @@ export function ProductForm({ product }: ProductFormProps) {
       // Transform form data to match API expectations
       // Exclude fields that don't exist in Product type or are managed separately
       const { categoryIds, tagIds, variants, images: _images, ...productFields } = data;
-      
+
       const productData: Partial<Product> = {
         ...productFields,
         // Filter out empty values for optional fields
