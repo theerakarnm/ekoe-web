@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router';
 import type { Route } from './+types/new';
 import { createDiscountCode } from '~/lib/admin/api-client';
 import { CouponForm } from '~/components/admin/coupons/coupon-form';
-import { toast } from 'sonner';
+import { showSuccess, showError } from '~/lib/admin/toast';
 
 export default function NewCouponPage() {
   const navigate = useNavigate();
@@ -10,20 +10,20 @@ export default function NewCouponPage() {
   const handleSubmit = async (data: any) => {
     try {
       await createDiscountCode(data);
-      toast.success('Coupon created successfully');
+      showSuccess('Coupon created successfully');
       navigate('/admin/coupons');
     } catch (error: any) {
       console.error('Failed to create coupon:', error);
       
       // Handle duplicate code error
       if (error.statusCode === 422 && error.field === 'code') {
-        toast.error('This coupon code already exists. Please use a different code.');
+        showError('This coupon code already exists', 'Please use a different code');
       } else if (error.errors) {
         // Handle validation errors
         const errorMessages = Object.values(error.errors).flat();
-        toast.error(errorMessages[0] || 'Validation failed. Please check your inputs.');
+        showError(errorMessages[0] as string || 'Validation failed', 'Please check your inputs');
       } else {
-        toast.error(error.message || 'Failed to create coupon. Please try again.');
+        showError(error.message || 'Failed to create coupon');
       }
       throw error;
     }

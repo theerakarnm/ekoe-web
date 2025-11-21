@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useLoaderData, useSearchParams, useNavigate, useRevalidator } from 'react-router';
+import { useLoaderData, useSearchParams, useNavigate, useRevalidator, useNavigation } from 'react-router';
 import type { Route } from './+types/index';
 import { getDiscountCodes, deactivateDiscountCode, type DiscountCode } from '~/lib/admin/api-client';
 import { CouponTable } from '~/components/admin/coupons/coupon-table';
-import { toast } from 'sonner';
+import { TableSkeleton } from '~/components/admin/layout/table-skeleton';
+import { showSuccess, showError } from '~/lib/admin/toast';
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
@@ -36,7 +37,10 @@ export default function CouponsIndexPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const revalidator = useRevalidator();
+  const navigation = useNavigation();
   const [isDeactivating, setIsDeactivating] = useState(false);
+  
+  const isLoading = navigation.state === 'loading' || revalidator.state === 'loading';
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
@@ -83,12 +87,12 @@ export default function CouponsIndexPage() {
     setIsDeactivating(true);
     try {
       await deactivateDiscountCode(id);
-      toast.success('Coupon deactivated successfully');
+      showSuccess('Coupon deactivated successfully');
       // Revalidate to refresh the data
       revalidator.revalidate();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to deactivate coupon:', error);
-      toast.error('Failed to deactivate coupon. Please try again.');
+      showError(error.message || 'Failed to deactivate coupon');
     } finally {
       setIsDeactivating(false);
     }
@@ -111,22 +115,26 @@ export default function CouponsIndexPage() {
         </button>
       </div>
 
-      <CouponTable
-        coupons={coupons}
-        totalCount={total}
-        currentPage={page}
-        pageSize={limit}
-        onPageChange={handlePageChange}
-        onSearch={handleSearch}
-        onStatusFilter={handleStatusFilter}
-        onSort={handleSort}
-        onEdit={handleEdit}
-        onDeactivate={handleDeactivate}
-        currentSearch={searchParams.get('search') || ''}
-        currentStatus={searchParams.get('status') || 'all'}
-        currentSortBy={searchParams.get('sortBy') || ''}
-        currentSortOrder={(searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc'}
-      />
+      {isLoading ? (
+        <TableSkeleton columns={8} rows={10} />
+      ) : (
+        <CouponTable
+          coupons={coupons}
+          totalCount={total}
+          currentPage={page}
+          pageSize={limit}
+          onPageChange={handlePageChange}
+          onSearch={handleSearch}
+          onStatusFilter={handleStatusFilter}
+          onSort={handleSort}
+          onEdit={handleEdit}
+          onDeactivate={handleDeactivate}
+          currentSearch={searchParams.get('search') || ''}
+          currentStatus={searchParams.get('status') || 'all'}
+          currentSortBy={searchParams.get('sortBy') || ''}
+          currentSortOrder={(searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc'}
+        />
+      )}
     </div>
   );
 }

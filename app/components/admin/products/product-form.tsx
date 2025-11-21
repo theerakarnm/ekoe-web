@@ -2,8 +2,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router';
 import { useState } from 'react';
-import { toast } from 'sonner';
 import { useKeyboardShortcuts } from '~/lib/admin/use-keyboard-shortcuts';
+import { showSuccess, showError } from '~/lib/admin/toast';
 import {
   productSchema,
   type ProductFormData,
@@ -117,7 +117,7 @@ export function ProductForm({ product }: ProductFormProps) {
   // Handle image upload
   const handleImageUpload = async (files: File[]) => {
     if (!isEditing || !product) {
-      toast.error('Please save the product first before uploading images');
+      showError('Please save the product first before uploading images');
       return;
     }
 
@@ -127,10 +127,10 @@ export function ProductForm({ product }: ProductFormProps) {
       );
       const uploadedImages = await Promise.all(uploadPromises);
       setImages((prev) => [...prev, ...uploadedImages]);
-      toast.success(`${files.length} image(s) uploaded successfully`);
+      showSuccess(`${files.length} image(s) uploaded successfully`);
     } catch (error: any) {
       console.error('Failed to upload images:', error);
-      toast.error(error.message || 'Failed to upload images');
+      showError(error.message || 'Failed to upload images');
     }
   };
 
@@ -144,7 +144,7 @@ export function ProductForm({ product }: ProductFormProps) {
   const handleImageDelete = (imageId: number) => {
     setImages((prev) => prev.filter((img) => img.id !== imageId));
     // TODO: Call API to delete image
-    toast.success('Image deleted');
+    showSuccess('Image deleted');
   };
 
   // Handle set primary image
@@ -156,7 +156,7 @@ export function ProductForm({ product }: ProductFormProps) {
       }))
     );
     // TODO: Call API to update primary image
-    toast.success('Primary image updated');
+    showSuccess('Primary image updated');
   };
 
   // Handle alt text update
@@ -173,8 +173,11 @@ export function ProductForm({ product }: ProductFormProps) {
 
     try {
       // Transform form data to match API expectations
+      // Exclude fields that don't exist in Product type or are managed separately
+      const { categoryIds, tagIds, variants, images: _images, ...productFields } = data;
+      
       const productData: Partial<Product> = {
-        ...data,
+        ...productFields,
         // Filter out empty values for optional fields
         compareAtPrice: data.compareAtPrice || undefined,
         subtitle: data.subtitle || undefined,
@@ -182,17 +185,17 @@ export function ProductForm({ product }: ProductFormProps) {
         shortDescription: data.shortDescription || undefined,
         metaTitle: data.metaTitle || undefined,
         metaDescription: data.metaDescription || undefined,
-        // Note: categoryIds and tagIds should be handled through separate API calls
-        // as they don't exist directly in the Product interface
+        // Note: categoryIds, tagIds, variants, and images should be handled through separate API calls
+        // as they don't exist directly in the Product interface or have different structures
       };
 
       if (isEditing && product) {
         await updateProduct(product.id, productData);
-        toast.success('Product updated successfully');
+        showSuccess('Product updated successfully');
         navigate('/admin/products');
       } else {
         const newProduct = await createProduct(productData);
-        toast.success('Product created successfully');
+        showSuccess('Product created successfully', 'You can now upload images for this product');
         // Redirect to edit page so user can upload images
         navigate(`/admin/products/${newProduct.id}/edit`);
         return;
@@ -211,9 +214,9 @@ export function ProductForm({ product }: ProductFormProps) {
             });
           }
         });
-        toast.error('Please fix the validation errors');
+        showError('Please fix the validation errors');
       } else {
-        toast.error(error.message || 'Failed to save product');
+        showError(error.message || 'Failed to save product');
       }
     } finally {
       setIsSubmitting(false);

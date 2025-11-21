@@ -1,8 +1,9 @@
-import { useNavigate, useLoaderData } from 'react-router';
+import { useNavigate, useLoaderData, useNavigation } from 'react-router';
 import type { Route } from './+types/$id.edit';
 import { getDiscountCode, updateDiscountCode } from '~/lib/admin/api-client';
 import { CouponForm } from '~/components/admin/coupons/coupon-form';
-import { toast } from 'sonner';
+import { FormSkeleton } from '~/components/admin/layout/form-skeleton';
+import { showSuccess, showError } from '~/lib/admin/toast';
 
 export async function loader({ params }: Route.LoaderArgs) {
   const id = parseInt(params.id, 10);
@@ -18,24 +19,26 @@ export async function loader({ params }: Route.LoaderArgs) {
 export default function EditCouponPage() {
   const { coupon } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const navigation = useNavigation();
+  const isLoading = navigation.state === 'loading';
 
   const handleSubmit = async (data: any) => {
     try {
       await updateDiscountCode(coupon.id, data);
-      toast.success('Coupon updated successfully');
+      showSuccess('Coupon updated successfully');
       navigate('/admin/coupons');
     } catch (error: any) {
       console.error('Failed to update coupon:', error);
       
       // Handle duplicate code error
       if (error.statusCode === 422 && error.field === 'code') {
-        toast.error('This coupon code already exists. Please use a different code.');
+        showError('This coupon code already exists', 'Please use a different code');
       } else if (error.errors) {
         // Handle validation errors
         const errorMessages = Object.values(error.errors).flat();
-        toast.error(errorMessages[0] || 'Validation failed. Please check your inputs.');
+        showError(errorMessages[0] as string || 'Validation failed', 'Please check your inputs');
       } else {
-        toast.error(error.message || 'Failed to update coupon. Please try again.');
+        showError(error.message || 'Failed to update coupon');
       }
       throw error;
     }
@@ -54,11 +57,15 @@ export default function EditCouponPage() {
         </p>
       </div>
 
-      <CouponForm 
-        initialData={coupon} 
-        onSubmit={handleSubmit} 
-        onCancel={handleCancel} 
-      />
+      {isLoading ? (
+        <FormSkeleton />
+      ) : (
+        <CouponForm 
+          initialData={coupon} 
+          onSubmit={handleSubmit} 
+          onCancel={handleCancel} 
+        />
+      )}
     </div>
   );
 }

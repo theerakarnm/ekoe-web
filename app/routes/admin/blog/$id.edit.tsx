@@ -1,9 +1,10 @@
 import type { Route } from './+types/$id.edit';
-import { useNavigate } from 'react-router';
+import { useNavigate, useNavigation } from 'react-router';
 import { BlogForm } from '~/components/admin/blog/blog-form';
+import { FormSkeleton } from '~/components/admin/layout/form-skeleton';
 import { getBlogPost, updateBlogPost } from '~/lib/admin/api-client';
 import type { BlogPostFormData } from '~/lib/admin/validation';
-import { toast } from 'sonner';
+import { showSuccess, showError } from '~/lib/admin/toast';
 
 export async function loader({ params }: Route.LoaderArgs) {
   const id = parseInt(params.id, 10);
@@ -29,19 +30,17 @@ export function meta({ data }: Route.MetaArgs) {
 
 export default function EditBlogPost({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
+  const navigation = useNavigation();
   const { post } = loaderData;
+  const isLoading = navigation.state === 'loading';
 
   const handleSubmit = async (data: BlogPostFormData) => {
     try {
       await updateBlogPost(post.id, data);
-      toast.success('Blog post updated successfully');
+      showSuccess('Blog post updated successfully');
       navigate('/admin/blog');
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message || 'Failed to update blog post');
-      } else {
-        toast.error('Failed to update blog post');
-      }
+    } catch (error: any) {
+      showError(error.message || 'Failed to update blog post');
       throw error;
     }
   };
@@ -59,11 +58,15 @@ export default function EditBlogPost({ loaderData }: Route.ComponentProps) {
         </p>
       </div>
 
-      <BlogForm 
-        initialData={post} 
-        onSubmit={handleSubmit} 
-        onCancel={handleCancel} 
-      />
+      {isLoading ? (
+        <FormSkeleton />
+      ) : (
+        <BlogForm 
+          initialData={post} 
+          onSubmit={handleSubmit} 
+          onCancel={handleCancel} 
+        />
+      )}
     </div>
   );
 }

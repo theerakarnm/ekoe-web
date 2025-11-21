@@ -1,5 +1,7 @@
 import type { Route } from './+types/$id.edit';
+import { useNavigation } from 'react-router';
 import { ProductForm } from '~/components/admin/products/product-form';
+import { FormSkeleton } from '~/components/admin/layout/form-skeleton';
 import { getProduct } from '~/lib/admin/api-client';
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -26,6 +28,8 @@ export function meta({ data }: Route.MetaArgs) {
 
 export default function EditProductPage({ loaderData }: Route.ComponentProps) {
   const { product } = loaderData;
+  const navigation = useNavigation();
+  const isLoading = navigation.state === 'loading';
   
   return (
     <div className="container mx-auto py-6 px-4">
@@ -36,7 +40,7 @@ export default function EditProductPage({ loaderData }: Route.ComponentProps) {
         </p>
       </div>
       
-      <ProductForm product={product} />
+      {isLoading ? <FormSkeleton /> : <ProductForm product={product} />}
     </div>
   );
 }

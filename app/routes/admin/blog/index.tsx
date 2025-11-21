@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useLoaderData, useSearchParams, useNavigate, useRevalidator } from 'react-router';
+import { useLoaderData, useSearchParams, useNavigate, useRevalidator, useNavigation } from 'react-router';
 import type { Route } from './+types/index';
 import { getBlogPosts, deleteBlogPost, type BlogPost } from '~/lib/admin/api-client';
 import { BlogTable } from '~/components/admin/blog/blog-table';
-import { toast } from 'sonner';
+import { TableSkeleton } from '~/components/admin/layout/table-skeleton';
+import { showSuccess, showError } from '~/lib/admin/toast';
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
@@ -36,7 +37,10 @@ export default function BlogIndexPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const revalidator = useRevalidator();
+  const navigation = useNavigation();
   const [isDeleting, setIsDeleting] = useState(false);
+  
+  const isLoading = navigation.state === 'loading' || revalidator.state === 'loading';
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
@@ -83,12 +87,12 @@ export default function BlogIndexPage() {
     setIsDeleting(true);
     try {
       await deleteBlogPost(id);
-      toast.success('Blog post deleted successfully');
+      showSuccess('Blog post deleted successfully');
       // Revalidate to refresh the data
       revalidator.revalidate();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete blog post:', error);
-      toast.error('Failed to delete blog post. Please try again.');
+      showError(error.message || 'Failed to delete blog post');
     } finally {
       setIsDeleting(false);
     }
@@ -111,22 +115,26 @@ export default function BlogIndexPage() {
         </button>
       </div>
 
-      <BlogTable
-        posts={posts}
-        totalCount={total}
-        currentPage={page}
-        pageSize={limit}
-        onPageChange={handlePageChange}
-        onSearch={handleSearch}
-        onStatusFilter={handleStatusFilter}
-        onSort={handleSort}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        currentSearch={searchParams.get('search') || ''}
-        currentStatus={searchParams.get('status') || 'all'}
-        currentSortBy={searchParams.get('sortBy') || ''}
-        currentSortOrder={(searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc'}
-      />
+      {isLoading ? (
+        <TableSkeleton columns={6} rows={10} />
+      ) : (
+        <BlogTable
+          posts={posts}
+          totalCount={total}
+          currentPage={page}
+          pageSize={limit}
+          onPageChange={handlePageChange}
+          onSearch={handleSearch}
+          onStatusFilter={handleStatusFilter}
+          onSort={handleSort}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          currentSearch={searchParams.get('search') || ''}
+          currentStatus={searchParams.get('status') || 'all'}
+          currentSortBy={searchParams.get('sortBy') || ''}
+          currentSortOrder={(searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc'}
+        />
+      )}
     </div>
   );
 }

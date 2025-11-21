@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { BlogForm } from '~/components/admin/blog/blog-form';
 import { createBlogPost } from '~/lib/admin/api-client';
 import type { BlogPostFormData } from '~/lib/admin/validation';
-import { toast } from 'sonner';
+import { showSuccess, showError } from '~/lib/admin/toast';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -18,14 +18,10 @@ export default function NewBlogPost() {
   const handleSubmit = async (data: BlogPostFormData) => {
     try {
       await createBlogPost(data);
-      toast.success('Blog post created successfully');
+      showSuccess('Blog post created successfully');
       navigate('/admin/blog');
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message || 'Failed to create blog post');
-      } else {
-        toast.error('Failed to create blog post');
-      }
+    } catch (error: any) {
+      showError(error.message || 'Failed to create blog post');
       throw error;
     }
   };

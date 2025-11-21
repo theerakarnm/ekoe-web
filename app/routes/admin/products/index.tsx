@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useLoaderData, useSearchParams, useNavigate, useRevalidator } from 'react-router';
+import { useLoaderData, useSearchParams, useNavigate, useRevalidator, useNavigation } from 'react-router';
 import type { Route } from './+types/index';
 import { getProducts, deleteProduct, type Product } from '~/lib/admin/api-client';
 import { ProductTable } from '~/components/admin/products/product-table';
-import { toast } from 'sonner';
+import { TableSkeleton } from '~/components/admin/layout/table-skeleton';
+import { showSuccess, showError } from '~/lib/admin/toast';
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
@@ -36,7 +37,10 @@ export default function ProductsIndexPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const revalidator = useRevalidator();
+  const navigation = useNavigation();
   const [isDeleting, setIsDeleting] = useState(false);
+  
+  const isLoading = navigation.state === 'loading' || revalidator.state === 'loading';
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams);
@@ -83,12 +87,12 @@ export default function ProductsIndexPage() {
     setIsDeleting(true);
     try {
       await deleteProduct(id);
-      toast.success('Product deleted successfully');
+      showSuccess('Product deleted successfully');
       // Revalidate to refresh the data
       revalidator.revalidate();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to delete product:', error);
-      toast.error('Failed to delete product. Please try again.');
+      showError(error.message || 'Failed to delete product');
     } finally {
       setIsDeleting(false);
     }
@@ -112,22 +116,26 @@ export default function ProductsIndexPage() {
         </button>
       </header>
 
-      <ProductTable
-        products={products}
-        totalCount={total}
-        currentPage={page}
-        pageSize={limit}
-        onPageChange={handlePageChange}
-        onSearch={handleSearch}
-        onStatusFilter={handleStatusFilter}
-        onSort={handleSort}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        currentSearch={searchParams.get('search') || ''}
-        currentStatus={searchParams.get('status') || 'all'}
-        currentSortBy={searchParams.get('sortBy') || ''}
-        currentSortOrder={(searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc'}
-      />
+      {isLoading ? (
+        <TableSkeleton columns={7} rows={10} />
+      ) : (
+        <ProductTable
+          products={products}
+          totalCount={total}
+          currentPage={page}
+          pageSize={limit}
+          onPageChange={handlePageChange}
+          onSearch={handleSearch}
+          onStatusFilter={handleStatusFilter}
+          onSort={handleSort}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          currentSearch={searchParams.get('search') || ''}
+          currentStatus={searchParams.get('status') || 'all'}
+          currentSortBy={searchParams.get('sortBy') || ''}
+          currentSortOrder={(searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc'}
+        />
+      )}
     </div>
   );
 }
