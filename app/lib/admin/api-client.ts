@@ -3,6 +3,10 @@
  * Provides wrapper functions for all admin CRUD operations with error handling and authentication
  */
 
+import { redirect } from "react-router";
+
+const baseUrl = import.meta.env.VITE_API_URL;
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -183,16 +187,20 @@ export class ApiClientError extends Error {
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const contentType = response.headers.get('content-type');
-    
+
     if (contentType?.includes('application/json')) {
       const errorData: ApiError = await response.json();
-      
+
       // Handle authentication errors
       if (response.status === 401) {
-        window.location.href = '/admin/login';
-        throw new ApiClientError('Unauthorized', 401);
+        if (typeof window === 'undefined') {
+          throw redirect("/admin/login");
+        } else {
+          window.location.href = '/admin/login';
+          throw new ApiClientError('Unauthorized', 401);
+        }
       }
-      
+
       // Handle validation errors
       if (response.status === 422) {
         throw new ApiClientError(
@@ -203,7 +211,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
           errorData.errors
         );
       }
-      
+
       // Generic error
       throw new ApiClientError(
         errorData.message || 'An error occurred',
@@ -211,14 +219,14 @@ async function handleResponse<T>(response: Response): Promise<T> {
         errorData.code
       );
     }
-    
+
     // Non-JSON error response
     throw new ApiClientError(
       `Request failed with status ${response.status}`,
       response.status
     );
   }
-  
+
   return response.json();
 }
 
@@ -227,14 +235,14 @@ async function handleResponse<T>(response: Response): Promise<T> {
 // ============================================================================
 
 export async function getDashboardMetrics(): Promise<DashboardMetrics> {
-  const response = await fetch('/api/admin/dashboard/metrics', {
+  const response = await fetch(baseUrl + '/api/admin/dashboard/metrics', {
     method: 'GET',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
   });
-  
+
   return handleResponse<DashboardMetrics>(response);
 }
 
@@ -255,14 +263,14 @@ export async function getProducts(
   params: GetProductsParams = {}
 ): Promise<PaginatedResponse<Product>> {
   const searchParams = new URLSearchParams();
-  
+
   if (params.page) searchParams.set('page', params.page.toString());
   if (params.limit) searchParams.set('limit', params.limit.toString());
   if (params.search) searchParams.set('search', params.search);
   if (params.status) searchParams.set('status', params.status);
   if (params.sortBy) searchParams.set('sortBy', params.sortBy);
   if (params.sortOrder) searchParams.set('sortOrder', params.sortOrder);
-  
+
   const response = await fetch(`/api/admin/products?${searchParams}`, {
     method: 'GET',
     credentials: 'include',
@@ -270,7 +278,7 @@ export async function getProducts(
       'Content-Type': 'application/json',
     },
   });
-  
+
   return handleResponse<PaginatedResponse<Product>>(response);
 }
 
@@ -282,12 +290,12 @@ export async function getProduct(id: number): Promise<Product> {
       'Content-Type': 'application/json',
     },
   });
-  
+
   return handleResponse<Product>(response);
 }
 
 export async function createProduct(data: Partial<Product>): Promise<Product> {
-  const response = await fetch('/api/admin/products', {
+  const response = await fetch(baseUrl + '/api/admin/products', {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -295,7 +303,7 @@ export async function createProduct(data: Partial<Product>): Promise<Product> {
     },
     body: JSON.stringify(data),
   });
-  
+
   return handleResponse<Product>(response);
 }
 
@@ -311,7 +319,7 @@ export async function updateProduct(
     },
     body: JSON.stringify(data),
   });
-  
+
   return handleResponse<Product>(response);
 }
 
@@ -323,7 +331,7 @@ export async function deleteProduct(id: number): Promise<void> {
       'Content-Type': 'application/json',
     },
   });
-  
+
   return handleResponse<void>(response);
 }
 
@@ -333,13 +341,13 @@ export async function uploadProductImage(
 ): Promise<ProductImage> {
   const formData = new FormData();
   formData.append('image', file);
-  
+
   const response = await fetch(`/api/admin/products/${productId}/images`, {
     method: 'POST',
     credentials: 'include',
     body: formData,
   });
-  
+
   return handleResponse<ProductImage>(response);
 }
 
@@ -360,14 +368,14 @@ export async function getBlogPosts(
   params: GetBlogPostsParams = {}
 ): Promise<PaginatedResponse<BlogPost>> {
   const searchParams = new URLSearchParams();
-  
+
   if (params.page) searchParams.set('page', params.page.toString());
   if (params.limit) searchParams.set('limit', params.limit.toString());
   if (params.search) searchParams.set('search', params.search);
   if (params.status) searchParams.set('status', params.status);
   if (params.sortBy) searchParams.set('sortBy', params.sortBy);
   if (params.sortOrder) searchParams.set('sortOrder', params.sortOrder);
-  
+
   const response = await fetch(`/api/admin/blog?${searchParams}`, {
     method: 'GET',
     credentials: 'include',
@@ -375,7 +383,7 @@ export async function getBlogPosts(
       'Content-Type': 'application/json',
     },
   });
-  
+
   return handleResponse<PaginatedResponse<BlogPost>>(response);
 }
 
@@ -387,12 +395,12 @@ export async function getBlogPost(id: number): Promise<BlogPost> {
       'Content-Type': 'application/json',
     },
   });
-  
+
   return handleResponse<BlogPost>(response);
 }
 
 export async function createBlogPost(data: Partial<BlogPost>): Promise<BlogPost> {
-  const response = await fetch('/api/admin/blog', {
+  const response = await fetch(baseUrl + '/api/admin/blog', {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -400,7 +408,7 @@ export async function createBlogPost(data: Partial<BlogPost>): Promise<BlogPost>
     },
     body: JSON.stringify(data),
   });
-  
+
   return handleResponse<BlogPost>(response);
 }
 
@@ -416,7 +424,7 @@ export async function updateBlogPost(
     },
     body: JSON.stringify(data),
   });
-  
+
   return handleResponse<BlogPost>(response);
 }
 
@@ -428,7 +436,7 @@ export async function deleteBlogPost(id: number): Promise<void> {
       'Content-Type': 'application/json',
     },
   });
-  
+
   return handleResponse<void>(response);
 }
 
@@ -449,14 +457,14 @@ export async function getDiscountCodes(
   params: GetDiscountCodesParams = {}
 ): Promise<PaginatedResponse<DiscountCode>> {
   const searchParams = new URLSearchParams();
-  
+
   if (params.page) searchParams.set('page', params.page.toString());
   if (params.limit) searchParams.set('limit', params.limit.toString());
   if (params.search) searchParams.set('search', params.search);
   if (params.status) searchParams.set('status', params.status);
   if (params.sortBy) searchParams.set('sortBy', params.sortBy);
   if (params.sortOrder) searchParams.set('sortOrder', params.sortOrder);
-  
+
   const response = await fetch(`/api/admin/coupons?${searchParams}`, {
     method: 'GET',
     credentials: 'include',
@@ -464,7 +472,7 @@ export async function getDiscountCodes(
       'Content-Type': 'application/json',
     },
   });
-  
+
   return handleResponse<PaginatedResponse<DiscountCode>>(response);
 }
 
@@ -476,14 +484,14 @@ export async function getDiscountCode(id: number): Promise<DiscountCode> {
       'Content-Type': 'application/json',
     },
   });
-  
+
   return handleResponse<DiscountCode>(response);
 }
 
 export async function createDiscountCode(
   data: Partial<DiscountCode>
 ): Promise<DiscountCode> {
-  const response = await fetch('/api/admin/coupons', {
+  const response = await fetch(baseUrl + '/api/admin/coupons', {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -491,7 +499,7 @@ export async function createDiscountCode(
     },
     body: JSON.stringify(data),
   });
-  
+
   return handleResponse<DiscountCode>(response);
 }
 
@@ -507,7 +515,7 @@ export async function updateDiscountCode(
     },
     body: JSON.stringify(data),
   });
-  
+
   return handleResponse<DiscountCode>(response);
 }
 
@@ -519,7 +527,7 @@ export async function deactivateDiscountCode(id: number): Promise<void> {
       'Content-Type': 'application/json',
     },
   });
-  
+
   return handleResponse<void>(response);
 }
 
@@ -531,6 +539,6 @@ export async function getCouponUsageStats(id: number): Promise<CouponUsageStats>
       'Content-Type': 'application/json',
     },
   });
-  
+
   return handleResponse<CouponUsageStats>(response);
 }

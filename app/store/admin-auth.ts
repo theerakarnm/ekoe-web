@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+const baseUrl = import.meta.env.VITE_API_URL;
+
 interface AdminUser {
   id: string;
   email: string;
@@ -21,10 +23,10 @@ export const useAdminAuthStore = create<AdminAuthState>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
-      
+
       login: async (email: string, password: string) => {
         try {
-          const response = await fetch('/api/auth/sign-in/email', {
+          const response = await fetch(baseUrl + '/api/auth/sign-in/email', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -42,7 +44,7 @@ export const useAdminAuthStore = create<AdminAuthState>()(
           }
 
           const data = await response.json();
-          
+
           // Check if user has admin role
           if (data.user.role !== 'admin') {
             throw new Error('Unauthorized: Admin access required');
@@ -65,10 +67,10 @@ export const useAdminAuthStore = create<AdminAuthState>()(
           throw error;
         }
       },
-      
+
       logout: async () => {
         try {
-          await fetch('/api/auth/sign-out', {
+          await fetch(baseUrl + '/api/auth/sign-out', {
             method: 'POST',
             credentials: 'include',
           });
@@ -81,10 +83,10 @@ export const useAdminAuthStore = create<AdminAuthState>()(
           });
         }
       },
-      
+
       checkAuth: async () => {
         try {
-          const response = await fetch('/api/auth/get-session', {
+          const response = await fetch(baseUrl + '/api/auth/get-session', {
             method: 'GET',
             credentials: 'include',
           });
@@ -95,7 +97,7 @@ export const useAdminAuthStore = create<AdminAuthState>()(
           }
 
           const data = await response.json();
-          
+
           if (data.user && data.user.role === 'admin') {
             set({
               user: {

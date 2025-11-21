@@ -15,8 +15,12 @@ import { Suspense } from 'react';
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
     const metrics = await getDashboardMetrics();
+
     return { metrics };
   } catch (error) {
+    if (error instanceof Response) {
+      throw error;
+    }
     console.error('Failed to load dashboard metrics:', error);
     throw new Response('Failed to load dashboard metrics', { status: 500 });
   }
