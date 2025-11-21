@@ -15,6 +15,7 @@ interface AdminAuthState {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
+  isLoading: boolean;
 }
 
 export const useAdminAuthStore = create<AdminAuthState>()(
@@ -22,7 +23,7 @@ export const useAdminAuthStore = create<AdminAuthState>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
-
+      isLoading: true,
       login: async (email: string, password: string) => {
         try {
           const { data, error } = await authClient.signIn.email({
@@ -55,11 +56,10 @@ export const useAdminAuthStore = create<AdminAuthState>()(
 
           set({
             user: {
-              id: data.user.id,
-              email: data.user.email,
-              name: data.user.name || 'Admin User',
-              // @ts-ignore
-              role: data.user.role,
+              id: session.data.user.id,
+              email: session.data.user.email,
+              name: session.data.user.name || 'Admin User',
+              role: session.data.user.role,
             },
             isAuthenticated: true,
           });
@@ -85,31 +85,37 @@ export const useAdminAuthStore = create<AdminAuthState>()(
       },
 
       checkAuth: async () => {
+        set({ isLoading: true });
         try {
           const { data } = await authClient.getSession();
 
-          if (data && data.user && (data.user as any).role === 'admin') {
-            set({
-              user: {
-                id: data.user.id,
-                email: data.user.email,
-                name: data.user.name || 'Admin User',
-                role: (data.user as any).role,
-              },
-              isAuthenticated: true,
-            });
-          } else {
-            set({ user: null, isAuthenticated: false });
+          if (!data) {
+            set({ user: null, isAuthenticated: false, isLoading: false });
+            return
           }
+          set({
+            user: {
+              id: data.user.id,
+              email: data.user.email,
+              name: data.user.name || 'Admin User',
+              role: data.user.role || 'user',
+            },
+            isAuthenticated: true,
+            isLoading: false,
+          });
         } catch (error) {
           console.error('Auth check error:', error);
-          set({ user: null, isAuthenticated: false });
+          set({ user: null, isAuthenticated: false, isLoading: false });
         }
       },
     }),
     {
       name: 'admin-auth-storage',
       storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
 );

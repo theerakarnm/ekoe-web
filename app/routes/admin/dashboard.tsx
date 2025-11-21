@@ -14,7 +14,13 @@ import { Suspense } from 'react';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
-    const metrics = await getDashboardMetrics();
+    const headers = {
+      Cookie: request.headers.get('Cookie') || '',
+    };
+    const metrics = await getDashboardMetrics(headers);
+
+    console.log(metrics);
+
 
     return { metrics };
   } catch (error) {

@@ -4,8 +4,18 @@
  */
 
 import { redirect } from "react-router";
+import axios, { type AxiosRequestConfig } from "axios";
 
 const baseUrl = import.meta.env.VITE_API_URL;
+
+// Create Axios instance
+const apiClient = axios.create({
+  baseURL: baseUrl,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
 // ============================================================================
 // Types
@@ -184,15 +194,23 @@ export class ApiClientError extends Error {
   }
 }
 
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const contentType = response.headers.get('content-type');
+// Helper to handle Axios errors
+function handleAxiosError(error: unknown): never {
+  if (axios.isAxiosError(error)) {
+    const response = error.response;
 
-    if (contentType?.includes('application/json')) {
-      const errorData: ApiError = await response.json();
+    if (response) {
+      const status = response.status;
+      const data = response.data as ApiError;
+
+      console.log({
+        status,
+        data
+      });
+
 
       // Handle authentication errors
-      if (response.status === 401) {
+      if (status === 401) {
         if (typeof window === 'undefined') {
           throw redirect("/admin/login");
         } else {
@@ -202,48 +220,72 @@ async function handleResponse<T>(response: Response): Promise<T> {
       }
 
       // Handle validation errors
-      if (response.status === 422) {
+      if (status === 422) {
         throw new ApiClientError(
-          errorData.message || 'Validation failed',
+          data.message || 'Validation failed',
           422,
-          errorData.code,
-          errorData.field,
-          errorData.errors
+          data.code,
+          data.field,
+          data.errors
         );
       }
 
       // Generic error
       throw new ApiClientError(
-        errorData.message || 'An error occurred',
-        response.status,
-        errorData.code
+        data.message || error.message || 'An error occurred',
+        status,
+        data.code
       );
     }
 
-    // Non-JSON error response
+    // Network error or no response
     throw new ApiClientError(
-      `Request failed with status ${response.status}`,
-      response.status
+      error.message || 'Network error',
+      0
     );
   }
 
-  return response.json();
+  // Non-Axios error
+  if (error instanceof Error) {
+    throw new ApiClientError(error.message, 500);
+  }
+
+  throw new ApiClientError('An unknown error occurred', 500);
+}
+
+// Helper to merge headers
+function getAxiosConfig(headers?: HeadersInit): AxiosRequestConfig {
+  if (!headers) return {};
+
+  // Convert HeadersInit to Axios headers
+  const axiosHeaders: Record<string, string> = {};
+
+  if (headers instanceof Headers) {
+    headers.forEach((value, key) => {
+      axiosHeaders[key] = value;
+    });
+  } else if (Array.isArray(headers)) {
+    headers.forEach(([key, value]) => {
+      axiosHeaders[key] = value;
+    });
+  } else {
+    Object.assign(axiosHeaders, headers);
+  }
+
+  return { headers: axiosHeaders };
 }
 
 // ============================================================================
 // Dashboard API
 // ============================================================================
 
-export async function getDashboardMetrics(): Promise<DashboardMetrics> {
-  const response = await fetch(baseUrl + '/api/admin/dashboard/metrics', {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  return handleResponse<DashboardMetrics>(response);
+export async function getDashboardMetrics(headers?: HeadersInit): Promise<DashboardMetrics> {
+  try {
+    const response = await apiClient.get<DashboardMetrics>('/api/admin/dashboard/metrics', getAxiosConfig(headers));
+    return response.data;
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
 // ============================================================================
@@ -260,95 +302,75 @@ export interface GetProductsParams {
 }
 
 export async function getProducts(
-  params: GetProductsParams = {}
+  params: GetProductsParams = {},
+  headers?: HeadersInit
 ): Promise<PaginatedResponse<Product>> {
-  const searchParams = new URLSearchParams();
-
-  if (params.page) searchParams.set('page', params.page.toString());
-  if (params.limit) searchParams.set('limit', params.limit.toString());
-  if (params.search) searchParams.set('search', params.search);
-  if (params.status) searchParams.set('status', params.status);
-  if (params.sortBy) searchParams.set('sortBy', params.sortBy);
-  if (params.sortOrder) searchParams.set('sortOrder', params.sortOrder);
-
-  const response = await fetch(`/api/admin/products?${searchParams}`, {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  return handleResponse<PaginatedResponse<Product>>(response);
+  try {
+    const response = await apiClient.get<PaginatedResponse<Product>>('/api/admin/products', {
+      params,
+      ...getAxiosConfig(headers)
+    });
+    return response.data;
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
-export async function getProduct(id: number): Promise<Product> {
-  const response = await fetch(`/api/admin/products/${id}`, {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  return handleResponse<Product>(response);
+export async function getProduct(id: number, headers?: HeadersInit): Promise<Product> {
+  try {
+    const response = await apiClient.get<Product>(`/api/admin/products/${id}`, getAxiosConfig(headers));
+    return response.data;
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
 export async function createProduct(data: Partial<Product>): Promise<Product> {
-  const response = await fetch(baseUrl + '/api/admin/products', {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-
-  return handleResponse<Product>(response);
+  try {
+    const response = await apiClient.post<Product>('/api/admin/products', data);
+    return response.data;
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
 export async function updateProduct(
   id: number,
   data: Partial<Product>
 ): Promise<Product> {
-  const response = await fetch(`/api/admin/products/${id}`, {
-    method: 'PUT',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-
-  return handleResponse<Product>(response);
+  try {
+    const response = await apiClient.put<Product>(`/api/admin/products/${id}`, data);
+    return response.data;
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
 export async function deleteProduct(id: number): Promise<void> {
-  const response = await fetch(`/api/admin/products/${id}`, {
-    method: 'DELETE',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  return handleResponse<void>(response);
+  try {
+    await apiClient.delete(`/api/admin/products/${id}`);
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
 export async function uploadProductImage(
   productId: number,
   file: File
 ): Promise<ProductImage> {
-  const formData = new FormData();
-  formData.append('image', file);
+  try {
+    const formData = new FormData();
+    formData.append('image', file);
 
-  const response = await fetch(`/api/admin/products/${productId}/images`, {
-    method: 'POST',
-    credentials: 'include',
-    body: formData,
-  });
-
-  return handleResponse<ProductImage>(response);
+    const response = await apiClient.post<ProductImage>(`/api/admin/products/${productId}/images`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
 // ============================================================================
@@ -365,79 +387,56 @@ export interface GetBlogPostsParams {
 }
 
 export async function getBlogPosts(
-  params: GetBlogPostsParams = {}
+  params: GetBlogPostsParams = {},
+  headers?: HeadersInit
 ): Promise<PaginatedResponse<BlogPost>> {
-  const searchParams = new URLSearchParams();
-
-  if (params.page) searchParams.set('page', params.page.toString());
-  if (params.limit) searchParams.set('limit', params.limit.toString());
-  if (params.search) searchParams.set('search', params.search);
-  if (params.status) searchParams.set('status', params.status);
-  if (params.sortBy) searchParams.set('sortBy', params.sortBy);
-  if (params.sortOrder) searchParams.set('sortOrder', params.sortOrder);
-
-  const response = await fetch(`/api/admin/blog?${searchParams}`, {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  return handleResponse<PaginatedResponse<BlogPost>>(response);
+  try {
+    const response = await apiClient.get<PaginatedResponse<BlogPost>>('/api/admin/blog', {
+      params,
+      ...getAxiosConfig(headers)
+    });
+    return response.data;
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
-export async function getBlogPost(id: number): Promise<BlogPost> {
-  const response = await fetch(`/api/admin/blog/${id}`, {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  return handleResponse<BlogPost>(response);
+export async function getBlogPost(id: number, headers?: HeadersInit): Promise<BlogPost> {
+  try {
+    const response = await apiClient.get<BlogPost>(`/api/admin/blog/${id}`, getAxiosConfig(headers));
+    return response.data;
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
 export async function createBlogPost(data: Partial<BlogPost>): Promise<BlogPost> {
-  const response = await fetch(baseUrl + '/api/admin/blog', {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-
-  return handleResponse<BlogPost>(response);
+  try {
+    const response = await apiClient.post<BlogPost>('/api/admin/blog', data);
+    return response.data;
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
 export async function updateBlogPost(
   id: number,
   data: Partial<BlogPost>
 ): Promise<BlogPost> {
-  const response = await fetch(`/api/admin/blog/${id}`, {
-    method: 'PUT',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-
-  return handleResponse<BlogPost>(response);
+  try {
+    const response = await apiClient.put<BlogPost>(`/api/admin/blog/${id}`, data);
+    return response.data;
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
 export async function deleteBlogPost(id: number): Promise<void> {
-  const response = await fetch(`/api/admin/blog/${id}`, {
-    method: 'DELETE',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  return handleResponse<void>(response);
+  try {
+    await apiClient.delete(`/api/admin/blog/${id}`);
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
 // ============================================================================
@@ -454,91 +453,65 @@ export interface GetDiscountCodesParams {
 }
 
 export async function getDiscountCodes(
-  params: GetDiscountCodesParams = {}
+  params: GetDiscountCodesParams = {},
+  headers?: HeadersInit
 ): Promise<PaginatedResponse<DiscountCode>> {
-  const searchParams = new URLSearchParams();
-
-  if (params.page) searchParams.set('page', params.page.toString());
-  if (params.limit) searchParams.set('limit', params.limit.toString());
-  if (params.search) searchParams.set('search', params.search);
-  if (params.status) searchParams.set('status', params.status);
-  if (params.sortBy) searchParams.set('sortBy', params.sortBy);
-  if (params.sortOrder) searchParams.set('sortOrder', params.sortOrder);
-
-  const response = await fetch(`/api/admin/coupons?${searchParams}`, {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  return handleResponse<PaginatedResponse<DiscountCode>>(response);
+  try {
+    const response = await apiClient.get<PaginatedResponse<DiscountCode>>('/api/admin/coupons', {
+      params,
+      ...getAxiosConfig(headers)
+    });
+    return response.data;
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
-export async function getDiscountCode(id: number): Promise<DiscountCode> {
-  const response = await fetch(`/api/admin/coupons/${id}`, {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  return handleResponse<DiscountCode>(response);
+export async function getDiscountCode(id: number, headers?: HeadersInit): Promise<DiscountCode> {
+  try {
+    const response = await apiClient.get<DiscountCode>(`/api/admin/coupons/${id}`, getAxiosConfig(headers));
+    return response.data;
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
 export async function createDiscountCode(
   data: Partial<DiscountCode>
 ): Promise<DiscountCode> {
-  const response = await fetch(baseUrl + '/api/admin/coupons', {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-
-  return handleResponse<DiscountCode>(response);
+  try {
+    const response = await apiClient.post<DiscountCode>('/api/admin/coupons', data);
+    return response.data;
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
 export async function updateDiscountCode(
   id: number,
   data: Partial<DiscountCode>
 ): Promise<DiscountCode> {
-  const response = await fetch(`/api/admin/coupons/${id}`, {
-    method: 'PUT',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-
-  return handleResponse<DiscountCode>(response);
+  try {
+    const response = await apiClient.put<DiscountCode>(`/api/admin/coupons/${id}`, data);
+    return response.data;
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
 export async function deactivateDiscountCode(id: number): Promise<void> {
-  const response = await fetch(`/api/admin/coupons/${id}/deactivate`, {
-    method: 'PATCH',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  return handleResponse<void>(response);
+  try {
+    await apiClient.patch(`/api/admin/coupons/${id}/deactivate`);
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }
 
-export async function getCouponUsageStats(id: number): Promise<CouponUsageStats> {
-  const response = await fetch(`/api/admin/coupons/${id}/stats`, {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  return handleResponse<CouponUsageStats>(response);
+export async function getCouponUsageStats(id: number, headers?: HeadersInit): Promise<CouponUsageStats> {
+  try {
+    const response = await apiClient.get<CouponUsageStats>(`/api/admin/coupons/${id}/stats`, getAxiosConfig(headers));
+    return response.data;
+  } catch (error) {
+    throw handleAxiosError(error);
+  }
 }

@@ -37,7 +37,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
   };
 
   // Transform data for chart
-  const chartData = data.map((item) => ({
+  const chartData = data?.map((item) => ({
     date: formatDate(item.date),
     revenue: item.revenue / 100, // Convert from cents to baht
   }));

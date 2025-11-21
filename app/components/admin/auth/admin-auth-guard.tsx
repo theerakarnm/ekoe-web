@@ -8,7 +8,7 @@ interface AdminAuthGuardProps {
 
 export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
   const navigate = useNavigate();
-  const { isAuthenticated, user, checkAuth } = useAdminAuthStore();
+  const { isAuthenticated, user, checkAuth, isLoading } = useAdminAuthStore();
 
   useEffect(() => {
     // Check authentication status on mount
@@ -16,6 +16,10 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
   }, [checkAuth]);
 
   useEffect(() => {
+    if (isLoading) return;
+
+    console.log('Auth Guard User:', user);
+
     // Redirect to login if not authenticated
     if (!isAuthenticated) {
       navigate('/admin/login', { replace: true });
@@ -23,10 +27,19 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
     }
 
     // Check if user has admin role
-    if (user && user.role !== 'admin') {
+    if (user?.role !== 'admin') {
       navigate('/admin/login', { replace: true });
     }
-  }, [isAuthenticated, user, navigate]);
+  }, [isAuthenticated, user, navigate, isLoading]);
+
+  // Show loading state while checking auth
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   // Don't render children until authentication is verified
   if (!isAuthenticated || !user || user.role !== 'admin') {

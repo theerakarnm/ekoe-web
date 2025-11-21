@@ -27,14 +27,14 @@ const STATUS_COLORS: Record<string, string> = {
 
 export function OrderStatusChart({ data }: OrderStatusChartProps) {
   // Transform data for chart
-  const chartData = data.map((item) => ({
+  const chartData = data?.map((item) => ({
     name: item.status.charAt(0).toUpperCase() + item.status.slice(1),
     value: item.count,
     color: STATUS_COLORS[item.status] || '#6b7280',
   }));
 
   // Calculate total for percentage display
-  const total = data.reduce((sum, item) => sum + item.count, 0);
+  const total = data?.reduce((sum, item) => sum + item.count, 0);
 
   // Custom label renderer
   const renderCustomLabel = ({
@@ -83,7 +83,7 @@ export function OrderStatusChart({ data }: OrderStatusChartProps) {
               fill="#8884d8"
               dataKey="value"
             >
-              {chartData.map((entry, index) => (
+              {chartData?.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
