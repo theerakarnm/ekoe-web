@@ -8,6 +8,9 @@ import { showSuccess, showError } from '~/lib/admin/toast';
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
+  const headers = {
+    Cookie: request.headers.get('Cookie') || '',
+  };
   const page = parseInt(url.searchParams.get('page') || '1', 10);
   const limit = parseInt(url.searchParams.get('limit') || '20', 10);
   const search = url.searchParams.get('search') || undefined;
@@ -22,7 +25,10 @@ export async function loader({ request }: Route.LoaderArgs) {
     status,
     sortBy,
     sortOrder,
-  });
+  }, headers);
+
+  console.log(response);
+
 
   return {
     products: response.data,
@@ -39,7 +45,7 @@ export default function ProductsIndexPage() {
   const revalidator = useRevalidator();
   const navigation = useNavigation();
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   const isLoading = navigation.state === 'loading' || revalidator.state === 'loading';
 
   const handlePageChange = (newPage: number) => {
@@ -83,7 +89,7 @@ export default function ProductsIndexPage() {
 
   const handleDelete = async (id: number) => {
     if (isDeleting) return;
-    
+
     setIsDeleting(true);
     try {
       await deleteProduct(id);

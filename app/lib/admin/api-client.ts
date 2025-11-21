@@ -170,6 +170,14 @@ export interface PaginatedResponse<T> {
   limit: number;
 }
 
+export interface SuccessResponseWrapper<T> {
+  success: boolean;
+  data: T;
+  meta: {
+    timestamp: string;
+  }
+}
+
 export interface ApiError {
   message: string;
   code?: string;
@@ -306,11 +314,11 @@ export async function getProducts(
   headers?: HeadersInit
 ): Promise<PaginatedResponse<Product>> {
   try {
-    const response = await apiClient.get<PaginatedResponse<Product>>('/api/admin/products', {
+    const response = await apiClient.get<SuccessResponseWrapper<PaginatedResponse<Product>>>('/api/admin/products', {
       params,
       ...getAxiosConfig(headers)
     });
-    return response.data;
+    return response.data.data;
   } catch (error) {
     throw handleAxiosError(error);
   }

@@ -141,7 +141,7 @@ export function ProductTable({
   };
 
   const getTotalStock = (product: Product) => {
-    if (!product.variants || product.variants.length === 0) {
+    if (!product.variants || product.variants?.length === 0) {
       return 'N/A';
     }
     const total = product.variants.reduce(
@@ -324,7 +324,7 @@ export function ProductTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products.length === 0 ? (
+            {products?.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center">
                   <div className="flex flex-col items-center justify-center text-muted-foreground">
@@ -336,10 +336,10 @@ export function ProductTable({
                 </TableCell>
               </TableRow>
             ) : (
-              products.map((product) => (
+              products?.map((product) => (
                 <TableRow key={product.id}>
                   <TableCell>
-                    {product.images && product.images.length > 0 ? (
+                    {product.images && product.images?.length > 0 ? (
                       <img
                         src={product.images.find((img) => img.isPrimary)?.url || product.images[0].url}
                         alt={product.name}
