@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 function FeatureSection() {
   return (
     <section className="grid md:grid-cols-2 gap-0">
@@ -16,9 +18,9 @@ function FeatureSection() {
           <p className="text-gray-700 mb-8 leading-relaxed sans font-light">
             แต่อย่าลืมว่า ภายในที่สดใส่ เริ่มมันจากภายนอกได้ด้วยเช่นกัน
           </p>
-          <button className="border-2 border-gray-900 text-gray-900 px-8 py-3 rounded-full hover:bg-gray-900 hover:text-white transition-all duration-300">
+          <Link to={'/shop'} className="border-2 border-gray-900 text-gray-900 px-8 py-3 rounded-full hover:bg-gray-900 hover:text-white transition-all duration-300">
             Keep Me Glowing
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -53,9 +55,9 @@ function FeatureSection() {
           <p className="text-gray-900 font-medium mb-8">
             ตอบคำที่จำ "ช่วงดี เริ่มง่ายเกินกล่องชีวิตดีขึ้นๆ"
           </p>
-          <button className="border-2 border-gray-900 text-gray-900 px-8 py-3 rounded-full hover:bg-gray-900 hover:text-white transition-all duration-300">
+          <Link to={'/shop'} className="border-2 border-gray-900 text-gray-900 px-8 py-3 rounded-full hover:bg-gray-900 hover:text-white transition-all duration-300">
             Begin Your Glow
-          </button>
+          </Link>
         </div>
       </div>
     </section>

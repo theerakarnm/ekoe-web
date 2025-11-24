@@ -13,6 +13,9 @@ export default [
   // Admin routes
   route("admin/login", "routes/admin/login.tsx"),
 
+  // Date Picker Demo
+  route("date-picker-demo", "routes/date-picker-demo.tsx"),
+
   layout("routes/admin/_layout.tsx", [
     route("admin/dashboard", "routes/admin/dashboard.tsx"),
 

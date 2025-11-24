@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useEffect } from 'react';
 import { Loader2, Info } from 'lucide-react';
@@ -9,6 +9,7 @@ import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Textarea } from '~/components/ui/textarea';
+import { DateTimePicker } from '~/components/ui/date-picker';
 import {
   Select,
   SelectContent,
@@ -53,45 +54,46 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
     formState: { errors },
     setValue,
     watch,
+    control,
   } = useForm({
     resolver: zodResolver(discountCodeSchema),
     defaultValues: initialData
       ? {
-          code: initialData.code,
-          title: initialData.title,
-          description: initialData.description || '',
-          discountType: initialData.discountType,
-          // Convert cents to dollars for fixed_amount discounts
-          discountValue: initialData.discountType === 'fixed_amount'
-            ? initialData.discountValue / 100
-            : initialData.discountValue,
-          // Convert cents to dollars for monetary fields
-          minPurchaseAmount: initialData.minPurchaseAmount 
-            ? initialData.minPurchaseAmount / 100
-            : undefined,
-          maxDiscountAmount: initialData.maxDiscountAmount 
-            ? initialData.maxDiscountAmount / 100
-            : undefined,
-          usageLimit: initialData.usageLimit,
-          usageLimitPerCustomer: initialData.usageLimitPerCustomer,
-          isActive: initialData.isActive,
-          startsAt: initialData.startsAt ? new Date(initialData.startsAt).toISOString().slice(0, 16) : undefined,
-          expiresAt: initialData.expiresAt ? new Date(initialData.expiresAt).toISOString().slice(0, 16) : undefined,
-        }
+        code: initialData.code,
+        title: initialData.title,
+        description: initialData.description || '',
+        discountType: initialData.discountType,
+        // Convert cents to dollars for fixed_amount discounts
+        discountValue: initialData.discountType === 'fixed_amount'
+          ? initialData.discountValue / 100
+          : initialData.discountValue,
+        // Convert cents to dollars for monetary fields
+        minPurchaseAmount: initialData.minPurchaseAmount
+          ? initialData.minPurchaseAmount / 100
+          : undefined,
+        maxDiscountAmount: initialData.maxDiscountAmount
+          ? initialData.maxDiscountAmount / 100
+          : undefined,
+        usageLimit: initialData.usageLimit,
+        usageLimitPerCustomer: initialData.usageLimitPerCustomer,
+        isActive: initialData.isActive,
+        startsAt: initialData.startsAt ? new Date(initialData.startsAt) : undefined,
+        expiresAt: initialData.expiresAt ? new Date(initialData.expiresAt) : undefined,
+      }
       : {
-          code: '',
-          title: '',
-          description: '',
-          discountType: 'percentage' as const,
-          discountValue: 0,
-          minPurchaseAmount: undefined,
-          maxDiscountAmount: undefined,
-          usageLimit: undefined,
-          usageLimitPerCustomer: 1,
-          isActive: true,
-          startsAt: undefined,
-          expiresAt: undefined,
-        },
+        code: '',
+        title: '',
+        description: '',
+        discountType: 'percentage' as const,
+        discountValue: 0,
+        minPurchaseAmount: undefined,
+        maxDiscountAmount: undefined,
+        usageLimit: undefined,
+        usageLimitPerCustomer: 1,
+        isActive: true,
+        startsAt: undefined,
+        expiresAt: undefined,
+      },
   });
 
   const discountType = watch('discountType');
@@ -107,23 +109,23 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
   const onFormSubmit = async (data: any) => {
     setIsSubmitting(true);
     try {
-      // Convert datetime-local strings to ISO strings
+      // Convert Date objects to ISO strings
       // Convert dollar amounts to cents for monetary fields
       const submitData = {
         ...data,
         // Convert fixed_amount discount from dollars to cents
-        discountValue: data.discountType === 'fixed_amount' 
+        discountValue: data.discountType === 'fixed_amount'
           ? Math.round(data.discountValue * 100)
           : data.discountValue,
         // Convert min/max amounts from dollars to cents
-        minPurchaseAmount: data.minPurchaseAmount 
+        minPurchaseAmount: data.minPurchaseAmount
           ? Math.round(data.minPurchaseAmount * 100)
           : undefined,
-        maxDiscountAmount: data.maxDiscountAmount 
+        maxDiscountAmount: data.maxDiscountAmount
           ? Math.round(data.maxDiscountAmount * 100)
           : undefined,
-        startsAt: data.startsAt ? new Date(data.startsAt).toISOString() : undefined,
-        expiresAt: data.expiresAt ? new Date(data.expiresAt).toISOString() : undefined,
+        startsAt: data.startsAt instanceof Date ? data.startsAt.toISOString() : undefined,
+        expiresAt: data.expiresAt instanceof Date ? data.expiresAt.toISOString() : undefined,
       };
       await onSubmit(submitData);
     } catch (error) {
@@ -310,7 +312,7 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
                   id="minPurchaseAmount"
                   type="number"
                   step="0.01"
-                  {...register('minPurchaseAmount', { 
+                  {...register('minPurchaseAmount', {
                     valueAsNumber: true,
                     setValueAs: (v) => v === '' || v === undefined ? undefined : Number(v)
                   })}
@@ -338,7 +340,7 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
                     id="maxDiscountAmount"
                     type="number"
                     step="0.01"
-                    {...register('maxDiscountAmount', { 
+                    {...register('maxDiscountAmount', {
                       valueAsNumber: true,
                       setValueAs: (v) => v === '' || v === undefined ? undefined : Number(v)
                     })}
@@ -374,7 +376,7 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
               <Input
                 id="usageLimit"
                 type="number"
-                {...register('usageLimit', { 
+                {...register('usageLimit', {
                   valueAsNumber: true,
                   setValueAs: (v) => v === '' || v === undefined ? undefined : Number(v)
                 })}
@@ -423,11 +425,16 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="startsAt">Start Date & Time</Label>
-              <Input
-                id="startsAt"
-                type="datetime-local"
-                {...register('startsAt')}
-                disabled={isSubmitting}
+              <Controller
+                name="startsAt"
+                control={control}
+                render={({ field }) => (
+                  <DateTimePicker
+                    date={field.value instanceof Date ? field.value : field.value ? new Date(field.value) : undefined}
+                    onDateChange={field.onChange}
+                    disabled={isSubmitting}
+                  />
+                )}
               />
               {errors.startsAt && (
                 <p className="text-sm text-destructive">{errors.startsAt.message}</p>
@@ -439,11 +446,16 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
 
             <div className="space-y-2">
               <Label htmlFor="expiresAt">Expiry Date & Time</Label>
-              <Input
-                id="expiresAt"
-                type="datetime-local"
-                {...register('expiresAt')}
-                disabled={isSubmitting}
+              <Controller
+                name="expiresAt"
+                control={control}
+                render={({ field }) => (
+                  <DateTimePicker
+                    date={field.value instanceof Date ? field.value : field.value ? new Date(field.value) : undefined}
+                    onDateChange={field.onChange}
+                    disabled={isSubmitting}
+                  />
+                )}
               />
               {errors.expiresAt && (
                 <p className="text-sm text-destructive">{errors.expiresAt.message}</p>
@@ -452,6 +464,7 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
                 When the coupon expires (leave empty for no expiry)
               </p>
             </div>
+
           </div>
         </CardContent>
       </Card>
