@@ -48,8 +48,8 @@ interface CouponTableProps {
   onSearch: (search: string) => void;
   onStatusFilter: (status: string) => void;
   onSort: (sortBy: string, sortOrder: 'asc' | 'desc') => void;
-  onEdit: (id: number) => void;
-  onDeactivate: (id: number) => Promise<void>;
+  onEdit: (id: string) => void;
+  onDeactivate: (id: string) => Promise<void>;
   currentSearch: string;
   currentStatus: string;
   currentSortBy: string;

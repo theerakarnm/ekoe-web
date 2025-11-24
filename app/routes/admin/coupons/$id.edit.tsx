@@ -6,9 +6,9 @@ import { FormSkeleton } from '~/components/admin/layout/form-skeleton';
 import { showSuccess, showError } from '~/lib/admin/toast';
 
 export async function loader({ params, request }: Route.LoaderArgs) {
-  const id = parseInt(params.id, 10);
+  const id = params.id;
 
-  if (isNaN(id)) {
+  if (!id) {
     throw new Response('Invalid coupon ID', { status: 400 });
   }
 

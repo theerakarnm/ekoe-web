@@ -136,7 +136,7 @@ export interface BlogPost {
 }
 
 export interface DiscountCode {
-  id: number;
+  id: string;
   code: string;
   title: string;
   description?: string;
@@ -147,8 +147,8 @@ export interface DiscountCode {
   usageLimit?: number;
   usageLimitPerCustomer: number;
   currentUsageCount: number;
-  applicableToProducts?: number[];
-  applicableToCategories?: number[];
+  applicableToProducts?: string[];
+  applicableToCategories?: string[];
   isActive: boolean;
   startsAt?: string;
   expiresAt?: string;
@@ -480,7 +480,7 @@ export async function getDiscountCodes(
   }
 }
 
-export async function getDiscountCode(id: number, headers?: HeadersInit): Promise<DiscountCode> {
+export async function getDiscountCode(id: string, headers?: HeadersInit): Promise<DiscountCode> {
   try {
     const response = await apiClient.get<SuccessResponseWrapper<DiscountCode>>(`/api/admin/coupons/${id}`, getAxiosConfig(headers));
     return response.data.data;
@@ -502,7 +502,7 @@ export async function createDiscountCode(
 }
 
 export async function updateDiscountCode(
-  id: number,
+  id: string,
   data: Partial<DiscountCode>,
   headers?: HeadersInit
 ): Promise<DiscountCode> {
@@ -514,7 +514,7 @@ export async function updateDiscountCode(
   }
 }
 
-export async function deactivateDiscountCode(id: number, headers?: HeadersInit): Promise<void> {
+export async function deactivateDiscountCode(id: string, headers?: HeadersInit): Promise<void> {
   try {
     await apiClient.patch(`/api/admin/coupons/${id}/deactivate`, {}, getAxiosConfig(headers));
   } catch (error) {
@@ -522,7 +522,7 @@ export async function deactivateDiscountCode(id: number, headers?: HeadersInit):
   }
 }
 
-export async function getCouponUsageStats(id: number, headers?: HeadersInit): Promise<CouponUsageStats> {
+export async function getCouponUsageStats(id: string, headers?: HeadersInit): Promise<CouponUsageStats> {
   try {
     const response = await apiClient.get<SuccessResponseWrapper<CouponUsageStats>>(`/api/admin/coupons/${id}/stats`, getAxiosConfig(headers));
     return response.data.data;
@@ -552,10 +552,10 @@ export function createAdminClient(requestOrHeaders: Request | HeadersInit) {
     updateBlogPost: (id: number, data: Partial<BlogPost>) => updateBlogPost(id, data, headers),
     deleteBlogPost: (id: number) => deleteBlogPost(id, headers),
     getDiscountCodes: (params?: GetDiscountCodesParams) => getDiscountCodes(params, headers),
-    getDiscountCode: (id: number) => getDiscountCode(id, headers),
+    getDiscountCode: (id: string) => getDiscountCode(id, headers),
     createDiscountCode: (data: Partial<DiscountCode>) => createDiscountCode(data, headers),
-    updateDiscountCode: (id: number, data: Partial<DiscountCode>) => updateDiscountCode(id, data, headers),
-    deactivateDiscountCode: (id: number) => deactivateDiscountCode(id, headers),
-    getCouponUsageStats: (id: number) => getCouponUsageStats(id, headers),
+    updateDiscountCode: (id: string, data: Partial<DiscountCode>) => updateDiscountCode(id, data, headers),
+    deactivateDiscountCode: (id: string) => deactivateDiscountCode(id, headers),
+    getCouponUsageStats: (id: string) => getCouponUsageStats(id, headers),
   };
 }
