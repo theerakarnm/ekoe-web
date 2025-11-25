@@ -24,26 +24,26 @@ function ProductCard({ product }: { product: IProduct }) {
   };
 
   return (
-    <div className="w-full hover:bg-gray-100 transition-all rounded-b pb-2 group cursor-pointer">
-      <div className="bg-secondary-light dark:bg-secondary-dark rounded overflow-hidden">
+    <div className="w-full bg-white border border-gray-200 group cursor-pointer transition-all duration-300 hover:shadow-lg">
+      <div className="w-full aspect-4/5 overflow-hidden relative">
         <img
           alt={product.image.description}
-          className="w-full h-48 sm:h-56 object-cover rounded-t"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           src={product.image.url}
         />
       </div>
-      <div className="mt-3 sm:mt-4 text-center px-2">
-        <h3 className="font-serif text-lg sm:text-xl mb-1 truncate">{product.productName}</h3>
-        <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-400 mb-2">50 ml. / 120 ml.</p>
-        <div className="relative h-6 sm:h-8 overflow-hidden">
-          <p className="text-xs sm:text-sm text-text-light/70 font-serif transition-all duration-300 group-hover:-translate-y-full">
+      <div className="border-t border-gray-200 p-4 text-left">
+        <h3 className="font-serif text-lg text-gray-900 mb-1 truncate">{product.productName}</h3>
+        <p className="text-sm text-gray-400 mb-4">50 ml. / 120 ml.</p>
+        <div className="relative h-6 overflow-hidden">
+          <p className="text-sm text-gray-900 font-serif transition-all duration-300 group-hover:-translate-y-full">
             {product.priceTitle}
           </p>
           <button
-            className="w-full h-full text-xs sm:text-sm text-text-light/70 pt-1 bg-black text-white font-serif absolute inset-0 transition-all duration-300 translate-y-full group-hover:translate-y-0 flex items-center justify-center"
+            className="w-full h-full text-sm text-gray-900 font-serif absolute inset-0 transition-all duration-300 translate-y-full group-hover:translate-y-0 flex items-center justify-start underline decoration-1 underline-offset-4"
             onClick={handleAddToCart}
           >
-            Add to cart {formatCurrencyFromCents(product.quickCartPrice, { symbol: '$' })}
+            Add to cart — {formatCurrencyFromCents(product.quickCartPrice, { symbol: '$' })}
           </button>
         </div>
       </div>

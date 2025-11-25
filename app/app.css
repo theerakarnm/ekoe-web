@@ -1,10 +1,11 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@import url('https://fonts.googleapis.com/css2?family=Inria+Serif:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Noto+Sans+Thai:wght@100..900&display=swap');
 @custom-variant dark (&:is(.dark *));
 
 @theme {
   --font-sans: 'Inria Serif', 'Noto Sans Thai', 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-serif: 'Inria Serif', serif;
+  --font-thai: 'Noto Sans Thai', sans-serif;
 }
 
 html,
@@ -15,6 +16,278 @@ body {
     color-scheme: dark;
   }
 }
+
+/* Thin */
+@font-face {
+  font-family: 'Noto Sans Thai';
+  src: url('/fonts/Noto_Sans_Thai/static/NotoSansThai-Thin.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ExtraLight */
+@font-face {
+  font-family: 'Noto Sans Thai';
+  src: url('/fonts/Noto_Sans_Thai/static/NotoSansThai-ExtraLight.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Light */
+@font-face {
+  font-family: 'Noto Sans Thai';
+  src: url('/fonts/Noto_Sans_Thai/static/NotoSansThai-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Regular */
+@font-face {
+  font-family: 'Noto Sans Thai';
+  src: url('/fonts/Noto_Sans_Thai/static/NotoSansThai-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Medium */
+@font-face {
+  font-family: 'Noto Sans Thai';
+  src: url('/fonts/Noto_Sans_Thai/static/NotoSansThai-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* SemiBold */
+@font-face {
+  font-family: 'Noto Sans Thai';
+  src: url('/fonts/Noto_Sans_Thai/static/NotoSansThai-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Bold */
+@font-face {
+  font-family: 'Noto Sans Thai';
+  src: url('/fonts/Noto_Sans_Thai/static/NotoSansThai-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ExtraBold */
+@font-face {
+  font-family: 'Noto Sans Thai';
+  src: url('/fonts/Noto_Sans_Thai/static/NotoSansThai-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Black */
+@font-face {
+  font-family: 'Noto Sans Thai';
+  src: url('/fonts/Noto_Sans_Thai/static/NotoSansThai-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+/* Inria Serif */
+@font-face {
+  font-family: 'Inria Serif';
+  src: url('/fonts/Inria_Serif/InriaSerif-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inria Serif';
+  src: url('/fonts/Inria_Serif/InriaSerif-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inria Serif';
+  src: url('/fonts/Inria_Serif/InriaSerif-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inria Serif';
+  src: url('/fonts/Inria_Serif/InriaSerif-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inria Serif';
+  src: url('/fonts/Inria_Serif/InriaSerif-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inria Serif';
+  src: url('/fonts/Inria_Serif/InriaSerif-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Inter */
+/* Thin */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-Thin.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-ThinItalic.ttf') format('truetype');
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ExtraLight */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-ExtraLight.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-ExtraLightItalic.ttf') format('truetype');
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Light */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Regular */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Medium */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* SemiBold */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-SemiBoldItalic.ttf') format('truetype');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Bold */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ExtraBold */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-ExtraBoldItalic.ttf') format('truetype');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Black */
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter/static/Inter_18pt-BlackItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.1405 0.0044 285.8238);
@@ -48,9 +321,20 @@ body {
   --sidebar-accent-foreground: oklch(0.2103 0.0059 285.8835);
   --sidebar-border: oklch(0.9197 0.004 286.32);
   --sidebar-ring: oklch(0.9848 0 0);
-  --font-sans: 'Noto Sans Thai', sans-serif;
+  /* Default to Inria Serif (English) */
+  --font-sans: 'Inria Serif', 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-serif: 'Inria Serif', serif;
   --font-mono: 'Inter', monospace;
+}
+
+:root:has(html[lang="th"]),
+:root:lang(th) {
+  --font-sans: 'Noto Sans Thai', sans-serif;
+}
+
+:root:has(html[lang="en"]),
+:root:lang(en) {
+  --font-sans: 'Inria Serif', serif;
   --radius: 0rem;
   --shadow-x: 0rem;
   --shadow-y: 0.1rem;
@@ -68,59 +352,6 @@ body {
   --shadow-2xl: 0rem 0.1rem 0.5rem 0.1rem hsl(240 3.8% 46.1% / 0.25);
   --tracking-normal: 0.025em;
   --spacing: 0.25rem;
-}
-
-.dark {
-  --background: oklch(0.1405 0.0044 285.8238);
-  --foreground: oklch(0.9848 0 0);
-  --card: oklch(0.1405 0.0044 285.8238);
-  --card-foreground: oklch(0.9848 0 0);
-  --popover: oklch(0.1405 0.0044 285.8238);
-  --popover-foreground: oklch(0.9848 0 0);
-  --primary: oklch(0.9848 0 0);
-  --primary-foreground: oklch(0.2103 0.0059 285.8835);
-  --secondary: oklch(0.2741 0.0055 286.0329);
-  --secondary-foreground: oklch(0.9848 0 0);
-  --muted: oklch(0.2741 0.0055 286.0329);
-  --muted-foreground: oklch(0.7119 0.0129 286.0684);
-  --accent: oklch(0.2741 0.0055 286.0329);
-  --accent-foreground: oklch(0.9848 0 0);
-  --destructive: oklch(0.3959 0.1331 25.7205);
-  --destructive-foreground: oklch(0.9848 0 0);
-  --border: oklch(0.2741 0.0055 286.0329);
-  --input: oklch(0.2741 0.0055 286.0329);
-  --ring: oklch(0.9848 0 0);
-  --chart-1: oklch(0.5382 0.1413 262.6152);
-  --chart-2: oklch(0.7099 0.2008 143.0946);
-  --chart-3: oklch(0.6929 0.1139 82.0789);
-  --chart-4: oklch(0.5982 0.2163 327.8661);
-  --chart-5: oklch(0.7822 0.1461 109.3492);
-  --sidebar: oklch(0.9848 0 0);
-  --sidebar-foreground: oklch(0.2103 0.0059 285.8835);
-  --sidebar-primary: oklch(0.2103 0.0059 285.8835);
-  --sidebar-primary-foreground: oklch(0.9848 0 0);
-  --sidebar-accent: oklch(0.2741 0.0055 286.0329);
-  --sidebar-accent-foreground: oklch(0.9848 0 0);
-  --sidebar-border: oklch(0.2741 0.0055 286.0329);
-  --sidebar-ring: oklch(0.2103 0.0059 285.8835);
-  --font-sans: 'Lora', sans-serif;
-  --font-serif: 'Lora', serif;
-  --font-mono: 'Space Mono', monospace;
-  --radius: 0rem;
-  --shadow-x: 0rem;
-  --shadow-y: 0.1rem;
-  --shadow-blur: 0.5rem;
-  --shadow-spread: 0.1rem;
-  --shadow-opacity: 0.1;
-  --shadow-color: hsl(240 3.8% 46.1%);
-  --shadow-2xs: 0rem 0.1rem 0.5rem 0.1rem hsl(240 3.8% 46.1% / 0.05);
-  --shadow-xs: 0rem 0.1rem 0.5rem 0.1rem hsl(240 3.8% 46.1% / 0.05);
-  --shadow-sm: 0rem 0.1rem 0.5rem 0.1rem hsl(240 3.8% 46.1% / 0.1), 0rem 1px 2px -0.9px hsl(240 3.8% 46.1% / 0.1);
-  --shadow: 0rem 0.1rem 0.5rem 0.1rem hsl(240 3.8% 46.1% / 0.1), 0rem 1px 2px -0.9px hsl(240 3.8% 46.1% / 0.1);
-  --shadow-md: 0rem 0.1rem 0.5rem 0.1rem hsl(240 3.8% 46.1% / 0.1), 0rem 2px 4px -0.9px hsl(240 3.8% 46.1% / 0.1);
-  --shadow-lg: 0rem 0.1rem 0.5rem 0.1rem hsl(240 3.8% 46.1% / 0.1), 0rem 4px 6px -0.9px hsl(240 3.8% 46.1% / 0.1);
-  --shadow-xl: 0rem 0.1rem 0.5rem 0.1rem hsl(240 3.8% 46.1% / 0.1), 0rem 8px 10px -0.9px hsl(240 3.8% 46.1% / 0.1);
-  --shadow-2xl: 0rem 0.1rem 0.5rem 0.1rem hsl(240 3.8% 46.1% / 0.25);
 }
 
 @theme inline {

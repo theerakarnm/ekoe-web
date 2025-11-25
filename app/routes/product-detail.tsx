@@ -120,6 +120,8 @@ const productData: IProduct = {
     image: "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&q=80&w=800",
     value: "390 THB",
   },
+  whyItWorks: "การทำงานร่วมกันของ The Oil Bar ที่ทำความสะอาดพร้อมคงความชุ่มชื้น และ The Body Oil ที่ช่วยล็อคความชุ่มชื้นและบำรุงล้ำลึก ทำให้ผิวได้รับการดูแลอย่างเต็มประสิทธิภาพในทุกขั้นตอน",
+  goodFor: "เหมาะสำหรับทุกสภาพผิว โดยเฉพาะผิวแห้งที่ต้องการความชุ่มชื้นเป็นพิเศษ และผู้ที่ต้องการผิวโกลว์สวยอย่างเป็นธรรมชาติ",
 };
 
 const relatedProducts = [
@@ -284,6 +286,30 @@ export default function ProductDetail() {
                   ))}
                 </ul>
               </div>
+
+              {/* Accordions: Why it works / Good for */}
+              <Accordion type="single" collapsible className="w-full border-t border-gray-100 mt-6">
+                {
+                  productData.whyItWorks && (
+                    <AccordionItem value="why-it-works">
+                      <AccordionTrigger className="text-sm font-medium">Why it works</AccordionTrigger>
+                      <AccordionContent className="text-gray-600 text-sm">
+                        {productData.whyItWorks}
+                      </AccordionContent>
+                    </AccordionItem>
+                  )
+                }
+                {
+                  productData.goodFor && (
+                    <AccordionItem value="good-for">
+                      <AccordionTrigger className="text-sm font-medium">Good for</AccordionTrigger>
+                      <AccordionContent className="text-gray-600 text-sm">
+                        {productData.goodFor}
+                      </AccordionContent>
+                    </AccordionItem>
+                  )
+                }
+              </Accordion>
 
               <div className="space-y-6 pt-6 border-t border-gray-100">
                 {/* Size Selection */}

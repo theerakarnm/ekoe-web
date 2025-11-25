@@ -7,8 +7,6 @@ export interface ISetProduct extends Omit<IProduct, "sizes" | "ingredients" | "h
     image: string;
     size: string;
   }[];
-  whyItWorks: string;
-  goodFor: string;
   about: string;
-  setBenefits: string[]; // Renamed from benefits to avoid conflict if needed, or just use benefits
+  setBenefits: string[];
 }

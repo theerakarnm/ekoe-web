@@ -32,4 +32,6 @@ export interface IProduct {
     image: string;
     value?: string;
   };
+  whyItWorks?: string;
+  goodFor?: string;
 }

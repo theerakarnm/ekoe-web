@@ -8,6 +8,14 @@ import {
   type CarouselApi,
 } from "~/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
+import { Link } from 'react-router';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '~/components/ui/dropdown-menu';
+import { useCartStore } from '~/store/cart';
 
 const slides = [
   {
@@ -36,6 +44,10 @@ function HeroSection() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  const totalItems = useCartStore((state) => state.getTotalItems());
+  const displayCount = mounted ? totalItems : 0;
 
   // Update current slide index when carousel changes
   if (api) {
@@ -107,7 +119,7 @@ function HeroSection() {
         </Carousel>
 
         {/* Header / Navigation Overlay */}
-        <header data-hero-nav className="absolute top-0 left-0 right-0 z-10">
+        <header data-hero-nav className="absolute top-0 left-0 right-0 z-10 font-mono">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-20">
               {/* Mobile menu button */}
@@ -119,16 +131,50 @@ function HeroSection() {
               </button>
 
               {/* Desktop navigation */}
-              <nav className="hidden lg:flex items-center space-x-8">
-                <a href="/online-executive" className="text-white hover:text-gray-200 text-sm font-medium tracking-wide transition-colors">
+              <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
+                <Link to="/online-executive" className="text-white hover:text-gray-200 text-sm font-medium">
                   ONLINE EXECUTIVE
-                </a>
-                <button className="flex items-center text-white hover:text-gray-200 text-sm font-medium tracking-wide transition-colors">
-                  SHOP <ChevronDown className="ml-1 h-4 w-4" />
-                </button>
-                <button className="flex items-center text-white hover:text-gray-200 text-sm font-medium tracking-wide transition-colors">
-                  DISCOVER <ChevronDown className="ml-1 h-4 w-4" />
-                </button>
+                </Link>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center text-white hover:text-gray-200 text-sm font-medium outline-none">
+                    SHOP <ChevronDown className="ml-1 h-4 w-4" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-48 bg-white">
+                    <DropdownMenuItem asChild>
+                      <Link to="/shop?category=new-arrivals" className="w-full cursor-pointer">New Arrivals</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/shop?category=best-sellers" className="w-full cursor-pointer">Best Sellers</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/shop?category=skincare" className="w-full cursor-pointer">Skincare</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/shop?category=sets" className="w-full cursor-pointer">Sets & Bundles</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/shop" className="w-full cursor-pointer">View All</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center text-white hover:text-gray-200 text-sm font-medium outline-none">
+                    DISCOVER <ChevronDown className="ml-1 h-4 w-4" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-48 bg-white">
+                    <DropdownMenuItem asChild>
+                      <Link to="/about" className="w-full cursor-pointer">Our Story</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/ingredients" className="w-full cursor-pointer">Ingredients</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/blog" className="w-full cursor-pointer">Blog</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </nav>
 
               {/* Centered logo */}
@@ -144,15 +190,15 @@ function HeroSection() {
                 <a href="#" className="text-white hover:text-gray-200 text-sm tracking-wide transition-colors">
                   SEARCH
                 </a>
-                <a href="#" className="text-white hover:text-gray-200 text-sm tracking-wide transition-colors">
+                <Link to="/admin/login" className="text-white hover:text-gray-200 text-sm hidden xl:block">
                   LOGIN/REGISTER
-                </a>
-                <button className="text-white hover:text-gray-200 relative transition-colors">
-                  <ShoppingCart className="h-5 w-5" />
-                  <span className="absolute -top-2 -right-2 bg-white text-black text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
-                    0
+                </Link>
+                <Link to="/cart" className="text-white hover:text-gray-200 relative">
+                  <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full h-3 w-3 sm:h-4 sm:w-4 flex items-center justify-center">
+                    {displayCount}
                   </span>
-                </button>
+                </Link>
               </div>
 
               {/* Mobile right-side icons */}

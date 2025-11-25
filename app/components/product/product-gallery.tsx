@@ -14,8 +14,8 @@ export function ProductGallery({
   badgeText = "Best Seller",
 }: ProductGalleryProps) {
   return (
-    <div className="flex gap-4 items-start">
-      <div className="aspect-4/5 bg-gray-100 overflow-hidden rounded-lg relative flex-1">
+    <div className="flex flex-col gap-4 w-full">
+      <div className="aspect-4/5 bg-gray-100 overflow-hidden rounded-lg relative w-full">
         <img
           src={selectedImage}
           alt="Product Main"
@@ -25,7 +25,7 @@ export function ProductGallery({
           {badgeText}
         </div>
       </div>
-      <div className="flex flex-col gap-4 w-20 shrink-0">
+      <div className="flex gap-4 overflow-x-auto w-full pb-2">
         {images.map((img, idx) => (
           <button
             key={idx}

@@ -33,7 +33,7 @@ export default function Header({
       </div>
       {
         !isLandingMagic ? <>
-          <header className={`bg-white shadow-sm fixed top-0 left-0 right-0 z-50 transform transition-all duration-300 ease-in-out ${isLandingMagic ? '-translate-y-full' : 'translate-y-0'}`}>
+          <header className={`bg-white font-mono shadow-sm fixed top-0 left-0 right-0 z-50 transform transition-all duration-300 ease-in-out ${isLandingMagic ? '-translate-y-full' : 'translate-y-0'}`}>
             <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
               <div className="flex items-center justify-between h-14 sm:h-16">
                 {/* Mobile menu button */}
