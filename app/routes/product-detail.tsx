@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCartStore } from "~/store/cart";
 import { toast } from "sonner";
+import { useLoaderData } from "react-router";
 import type { Route } from "./+types/product-detail";
 import { Header } from "~/components/share/header";
 import { Footer } from "~/components/share/footer";
@@ -19,9 +20,11 @@ import { ProductGallery } from "~/components/product/product-gallery";
 import { QuantitySelector } from "~/components/product/quantity-selector";
 import { DiscountCodes } from "~/components/product/discount-codes";
 import { ComplimentaryGift } from "~/components/product/complimentary-gift";
+import { getProduct, getProducts, type Product } from "~/lib/api-client";
+import { formatNumber } from "~/lib/formatter";
 
-// Mock Data
-const productData: IProduct = {
+// Mock Data used as defaults for missing API fields
+const MOCK_DEFAULTS: IProduct = {
   productId: 1,
   productName: "THE BODY OIL",
   subtitle: "Absolute Rebalance Revitalizing",
@@ -124,47 +127,68 @@ const productData: IProduct = {
   goodFor: "เหมาะสำหรับทุกสภาพผิว โดยเฉพาะผิวแห้งที่ต้องการความชุ่มชื้นเป็นพิเศษ และผู้ที่ต้องการผิวโกลว์สวยอย่างเป็นธรรมชาติ",
 };
 
-const relatedProducts = [
-  {
-    productId: 1,
-    image: {
-      url: "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&q=80&w=800",
-      description: "The Body Oil",
-    },
-    productName: "The Body Oil",
-    priceTitle: "2,590 THB",
-    quickCartPrice: 2590,
-  },
-  {
-    productId: 2,
-    image: {
-      url: "https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?auto=format&fit=crop&q=80&w=800",
-      description: "The Oil Bar",
-    },
-    productName: "The Oil Bar",
-    priceTitle: "790 THB",
-    quickCartPrice: 790,
-  },
-  {
-    productId: 3,
-    image: {
-      url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=800",
-      description: "The Serum",
-    },
-    productName: "The Serum",
-    priceTitle: "3,200 THB",
-    quickCartPrice: 3200,
-  },
-];
+export async function loader({ params }: Route.LoaderArgs) {
+  try {
+    const { id } = params as { id: string };
+    if (!id) throw new Error("Product ID is required");
+    const [productResponse, relatedResponse] = await Promise.all([
+      getProduct(id),
+      getProducts({ limit: 4 })
+    ]);
+    return { product: productResponse, relatedProducts: relatedResponse.data };
+  } catch (error) {
+    throw new Response("Not Found", { status: 404 });
+  }
+}
 
-export function meta({ }: Route.MetaArgs) {
+function mapApiProductToDetail(apiProduct: Product): IProduct {
+  const primaryImage = apiProduct.images?.find(img => img.isPrimary) || apiProduct.images?.[0];
+  const galleryImages = apiProduct.images?.map(img => ({
+    url: img.url,
+    description: img.altText || img.description || apiProduct.name,
+    associatedSize: img.variantId ? apiProduct.variants?.find(v => v.id === img.variantId?.toString())?.value : undefined
+  })) || MOCK_DEFAULTS.galleryImages;
+
+  const sizes = apiProduct.variants?.map(v => ({
+    label: v.name,
+    value: v.value,
+    price: v.price
+  })) || MOCK_DEFAULTS.sizes;
+
+  return {
+    ...MOCK_DEFAULTS, // Use defaults for missing fields
+    productId: apiProduct.id,
+    productName: apiProduct.name,
+    subtitle: apiProduct.subtitle || MOCK_DEFAULTS.subtitle,
+    priceTitle: sizes && sizes.length > 0
+      ? `${formatNumber(Math.min(...sizes.map(s => s.price)), { decimalPlaces: 0 })} - ${formatNumber(Math.max(...sizes.map(s => s.price)), { decimalPlaces: 0 })} THB`
+      : `${formatNumber(apiProduct.basePrice, { decimalPlaces: 0 })} THB`,
+    quickCartPrice: apiProduct.basePrice,
+    image: {
+      url: primaryImage?.url || MOCK_DEFAULTS.image.url,
+      description: primaryImage?.altText || MOCK_DEFAULTS.image.description,
+    },
+    galleryImages: galleryImages?.length ? galleryImages : MOCK_DEFAULTS.galleryImages,
+    rating: parseFloat(apiProduct.rating) || MOCK_DEFAULTS.rating,
+    reviewCount: apiProduct.reviewCount || MOCK_DEFAULTS.reviewCount,
+    description: apiProduct.description ? [apiProduct.description] : MOCK_DEFAULTS.description,
+    sizes: sizes?.length ? sizes : MOCK_DEFAULTS.sizes,
+  };
+}
+
+
+
+export function meta({ data }: Route.MetaArgs) {
   return [
-    { title: "The Body Oil - Ekoe" },
-    { name: "description", content: "Absolute Rebalance Revitalizing Body Oil" },
+    { title: `${data?.product.name || 'Product'} - Ekoe` },
+    { name: "description", content: data?.product.metaDescription || data?.product.shortDescription || "Product Detail" },
   ];
 }
 
-export default function ProductDetail() {
+export default function ProductDetail({ loaderData }: Route.ComponentProps) {
+  const { product: apiProduct, relatedProducts: apiRelatedProducts } = loaderData;
+  const productData = mapApiProductToDetail(apiProduct);
+  const relatedProducts = apiRelatedProducts?.map(p => mapApiProductToDetail(p)) || [];
   const [selectedSize, setSelectedSize] = useState(productData.sizes?.[0]);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(productData.image.url);
@@ -178,7 +202,7 @@ export default function ProductDetail() {
     if (!selectedSize) return;
 
     addItem({
-      productId: productData.productId,
+      productId: +productData.productId,
       productName: productData.productName,
       image: productData.image.url,
       price: selectedSize.price,

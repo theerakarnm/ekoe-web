@@ -19,7 +19,7 @@ function mapProductToIProduct(product: Product): IProduct {
   }));
 
   return {
-    productId: parseInt(product.id) || 0, // Convert UUID to number for compatibility
+    productId: product.id,
     image: {
       description: primaryImage?.altText || product.name,
       url: primaryImage?.url || 'https://images.unsplash.com/photo-1615397349754-cfa2066a298e?q=80&w=800&auto=format&fit=crop',
