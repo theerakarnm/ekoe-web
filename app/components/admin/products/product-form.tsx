@@ -408,6 +408,19 @@ export function ProductForm({ product }: ProductFormProps) {
               )}
             />
           </div>
+
+          {/* Price Preview */}
+          <div className="mt-4 p-4 bg-muted/50 rounded-lg flex items-center justify-center gap-3">
+            <span className="text-sm text-muted-foreground">Preview:</span>
+            {form.watch('compareAtPrice') && form.watch('compareAtPrice')! > (form.watch('basePrice') || 0) && (
+              <span className="text-lg text-muted-foreground line-through">
+                ${formatPrice(form.watch('compareAtPrice')!)}
+              </span>
+            )}
+            <span className="text-xl font-bold">
+              ${formatPrice(form.watch('basePrice') || 0)}
+            </span>
+          </div>
         </Card>
 
         {/* Product Settings */}
