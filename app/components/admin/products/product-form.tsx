@@ -20,6 +20,9 @@ import {
 } from '~/lib/admin/api-client';
 import { ImageUploader } from './image-uploader';
 import { VariantManager } from './variant-manager';
+import { IngredientsManager } from './ingredients-manager';
+import { HowToUseManager } from './how-to-use-manager';
+import { ComplimentaryGiftForm } from './complimentary-gift-form';
 import {
   Form,
   FormControl,
@@ -82,7 +85,7 @@ export function ProductForm({ product }: ProductFormProps) {
       subtitle: product?.subtitle || '',
       description: product?.description || '',
       shortDescription: product?.shortDescription || '',
-      basePrice: product?.basePrice || 0,
+      basePrice: product?.basePrice,
       compareAtPrice: product?.compareAtPrice,
       productType: product?.productType ?? 'single',
       status: product?.status ?? 'draft',
@@ -102,6 +105,22 @@ export function ProductForm({ product }: ProductFormProps) {
       })) || [],
       categoryIds: product?.categories?.map((c) => c.id) || [],
       tagIds: product?.tags?.map((t) => t.id) || [],
+      ingredients: {
+        keyIngredients: product?.ingredients?.keyIngredients || [],
+        fullList: product?.ingredients?.fullList || '',
+      },
+      goodFor: product?.goodFor || '',
+      whyItWorks: product?.whyItWorks || '',
+      howToUse: {
+        steps: product?.howToUse?.steps || [],
+        note: product?.howToUse?.note || '',
+      },
+      complimentaryGift: {
+        name: product?.complimentaryGift?.name || '',
+        description: product?.complimentaryGift?.description || '',
+        image: product?.complimentaryGift?.image || '',
+        value: product?.complimentaryGift?.value || '',
+      },
     },
   });
 
@@ -174,10 +193,18 @@ export function ProductForm({ product }: ProductFormProps) {
     try {
       // Transform form data to match API expectations
       // Exclude fields that don't exist in Product type or are managed separately
-      const { categoryIds, tagIds, variants, images: _images, ...productFields } = data;
+      const { categoryIds, tagIds, variants, images: _images, ingredients, howToUse, ...productFields } = data;
 
       const productData: Partial<Product> = {
         ...productFields,
+        ingredients: ingredients ? {
+          keyIngredients: ingredients.keyIngredients || [],
+          fullList: ingredients.fullList || '',
+        } : undefined,
+        howToUse: howToUse ? {
+          steps: howToUse.steps || [],
+          note: howToUse.note,
+        } : undefined,
         // Filter out empty values for optional fields
         compareAtPrice: data.compareAtPrice || undefined,
         subtitle: data.subtitle || undefined,
@@ -507,6 +534,70 @@ export function ProductForm({ product }: ProductFormProps) {
           </Card>
         )}
 
+
+
+        {/* Additional Details */}
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Additional Details</h2>
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="goodFor"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Good For</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      value={field.value || ''}
+                      placeholder="Who is this product good for?"
+                      rows={3}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="whyItWorks"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Why It Works</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      value={field.value || ''}
+                      placeholder="Explain the science or benefits..."
+                      rows={3}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </Card>
+
+        {/* Ingredients */}
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Ingredients</h2>
+          <IngredientsManager control={form.control} />
+        </Card>
+
+        {/* How To Use */}
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">How To Use</h2>
+          <HowToUseManager control={form.control} />
+        </Card>
+
+        {/* Complimentary Gift */}
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Complimentary Gift</h2>
+          <ComplimentaryGiftForm control={form.control} />
+        </Card>
+
         {/* Variants */}
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4">Product Variants</h2>
@@ -580,6 +671,6 @@ export function ProductForm({ product }: ProductFormProps) {
           </Button>
         </div>
       </form>
-    </Form>
+    </Form >
   );
 }

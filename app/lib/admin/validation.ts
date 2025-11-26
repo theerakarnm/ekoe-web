@@ -63,6 +63,30 @@ export const productImageSchema = z.object({
   isPrimary: z.boolean(),
 });
 
+export const productIngredientSchema = z.object({
+  keyIngredients: z.array(z.object({
+    name: z.string().min(1, 'Ingredient name is required'),
+    description: z.string().min(1, 'Ingredient description is required'),
+  })).optional(),
+  fullList: z.string().optional(),
+});
+
+export const productHowToUseSchema = z.object({
+  steps: z.array(z.object({
+    title: z.string().min(1, 'Step title is required'),
+    description: z.string().min(1, 'Step description is required'),
+    icon: z.string().optional(),
+  })).optional(),
+  note: z.string().optional(),
+});
+
+export const productComplimentaryGiftSchema = z.object({
+  name: z.string().min(1, 'Gift name is required'),
+  description: z.string().min(1, 'Gift description is required'),
+  image: z.string().url('Must be a valid image URL'),
+  value: z.string().optional(),
+});
+
 export const productSchema = z.object({
   name: z.string().min(1, 'Product name is required').max(255, 'Name too long'),
   slug: slugValidator,
@@ -93,6 +117,13 @@ export const productSchema = z.object({
   variants: z.array(productVariantSchema).optional(),
   categoryIds: z.array(z.string()).optional(),
   tagIds: z.array(z.string()).optional(),
+
+  // New fields
+  ingredients: productIngredientSchema.optional(),
+  goodFor: z.string().optional(),
+  whyItWorks: z.string().optional(),
+  howToUse: productHowToUseSchema.optional(),
+  complimentaryGift: productComplimentaryGiftSchema.optional(),
 }).refine(
   (data) => {
     // If compareAtPrice is provided, it should be greater than basePrice

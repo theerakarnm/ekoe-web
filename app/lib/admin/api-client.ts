@@ -62,6 +62,22 @@ export interface Product {
   variants?: ProductVariant[];
   categories?: Category[];
   tags?: Tag[];
+  ingredients?: {
+    keyIngredients: { name: string; description: string }[];
+    fullList: string;
+  };
+  howToUse?: {
+    steps: { title: string; description: string; icon?: string }[];
+    note?: string;
+  };
+  complimentaryGift?: {
+    name: string;
+    description: string;
+    image: string;
+    value?: string;
+  };
+  whyItWorks?: string;
+  goodFor?: string;
 }
 
 export interface ProductImage {

@@ -6,17 +6,17 @@ import { AdminHeader } from '~/components/admin/layout/admin-header';
 export default function AdminLayout() {
   return (
     <AdminAuthGuard>
-      <div className="flex h-screen overflow-hidden bg-background">
+      <div className="fixed inset-0 flex overflow-hidden bg-background">
         {/* Sidebar */}
         <AdminSidebar />
-        
+
         {/* Main content area */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Header */}
           <AdminHeader />
-          
+
           {/* Page content */}
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+          <main className="flex-1 overflow-y-auto bg-muted/40 p-4 md:p-6 lg:p-8">
             <Outlet />
           </main>
         </div>
