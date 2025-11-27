@@ -3,8 +3,10 @@ import { useNavigate, useSearchParams, Link } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCustomerAuthStore } from '~/store/customer-auth';
+import { useCartStore } from '~/store/cart';
 import { loginSchema, type LoginFormData } from '~/lib/auth-validation';
 import { setReturnUrl } from '~/lib/auth-utils';
+import { restoreCartBackup, clearCartBackup, mergeCartItems } from '~/lib/cart-utils';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
@@ -16,6 +18,7 @@ export default function CustomerLogin() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { signIn, signInWithGoogle, isAuthenticated } = useCustomerAuthStore();
+  const { items: cartItems, addItem } = useCartStore();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -30,9 +33,27 @@ export default function CustomerLogin() {
     resolver: zodResolver(loginSchema),
   });
 
+  // Restore cart from backup after authentication
+  const restoreCart = () => {
+    const backup = restoreCartBackup();
+    if (backup && backup.length > 0) {
+      // Merge backup with current cart
+      const merged = mergeCartItems(cartItems, backup);
+      
+      // Clear current cart and add merged items
+      merged.forEach(item => {
+        addItem(item);
+      });
+      
+      // Clear backup after restoration
+      clearCartBackup();
+    }
+  };
+
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
+      restoreCart();
       navigate(returnUrl, { replace: true });
     }
   }, [isAuthenticated, navigate, returnUrl]);
@@ -43,6 +64,7 @@ export default function CustomerLogin() {
 
     try {
       await signIn(data.email, data.password);
+      restoreCart();
       navigate(returnUrl, { replace: true });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Authentication failed';

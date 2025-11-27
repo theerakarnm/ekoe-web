@@ -28,9 +28,30 @@ interface CustomerProfile {
   updatedAt: Date;
 }
 
+interface CustomerAddress {
+  id: string;
+  userId: string;
+  label: string | null;
+  firstName: string;
+  lastName: string;
+  company: string | null;
+  addressLine1: string;
+  addressLine2: string | null;
+  city: string;
+  province: string;
+  postalCode: string;
+  country: string;
+  phone: string;
+  isDefault: boolean;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 interface CustomerAuthState {
   user: CustomerUser | null;
   profile: CustomerProfile | null;
+  addresses: CustomerAddress[];
   isAuthenticated: boolean;
   isLoading: boolean;
   isEmailVerified: boolean;
@@ -46,6 +67,9 @@ interface CustomerAuthState {
   loadProfile: () => Promise<void>;
   updateProfile: (data: Partial<CustomerProfile>) => Promise<void>;
   
+  // Address actions
+  loadAddresses: () => Promise<void>;
+  
   // Password reset actions
   sendVerificationEmail: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -56,6 +80,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
     (set, get) => ({
       user: null,
       profile: null,
+      addresses: [],
       isAuthenticated: false,
       isLoading: true,
       isEmailVerified: false,
@@ -99,6 +124,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
           set({
             user: null,
             profile: null,
+            addresses: [],
             isAuthenticated: false,
             isEmailVerified: false,
           });
@@ -143,6 +169,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
           set({
             user: null,
             profile: null,
+            addresses: [],
             isAuthenticated: false,
             isEmailVerified: false,
           });
@@ -162,6 +189,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
           set({
             user: null,
             profile: null,
+            addresses: [],
             isAuthenticated: false,
             isEmailVerified: false,
           });
@@ -178,6 +206,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
           set({
             user: null,
             profile: null,
+            addresses: [],
             isAuthenticated: false,
             isEmailVerified: false,
           });
@@ -220,6 +249,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
           set({ 
             user: null, 
             profile: null,
+            addresses: [],
             isAuthenticated: false, 
             isEmailVerified: false,
             isLoading: false 
@@ -284,6 +314,35 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
         } catch (error) {
           console.error('Update profile error:', error);
           throw error;
+        }
+      },
+
+      loadAddresses: async () => {
+        try {
+          const state = get();
+          if (!state.isAuthenticated || !state.user) {
+            return;
+          }
+
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/customers/me/addresses`, {
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to load addresses');
+          }
+
+          const result = await response.json();
+          
+          set({
+            addresses: result.data,
+          });
+        } catch (error) {
+          console.error('Load addresses error:', error);
+          // Don't throw - address loading is optional
         }
       },
 

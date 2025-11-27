@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useCustomerAuthStore } from "~/store/customer-auth";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
@@ -44,6 +46,8 @@ const formSchema = z.object({
 });
 
 export function CheckoutForm() {
+  const { user, profile, addresses, loadProfile, loadAddresses } = useCustomerAuthStore();
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,6 +67,55 @@ export function CheckoutForm() {
       billingSameAsShipping: true,
     },
   });
+
+  // Load profile and addresses on mount
+  useEffect(() => {
+    loadProfile();
+    loadAddresses();
+  }, [loadProfile, loadAddresses]);
+
+  // Pre-fill form when profile or addresses are loaded
+  useEffect(() => {
+    if (user || profile || addresses.length > 0) {
+      const defaultAddress = addresses.find(addr => addr.isDefault) || addresses[0];
+      
+      // Pre-fill email from user
+      if (user?.email) {
+        form.setValue('email', user.email);
+      }
+      
+      // Pre-fill name from profile or default address
+      if (profile?.firstName || defaultAddress?.firstName) {
+        form.setValue('firstName', profile?.firstName || defaultAddress?.firstName || '');
+      }
+      if (profile?.lastName || defaultAddress?.lastName) {
+        form.setValue('lastName', profile?.lastName || defaultAddress?.lastName || '');
+      }
+      
+      // Pre-fill phone from profile or default address
+      if (profile?.phone || defaultAddress?.phone) {
+        form.setValue('phone', profile?.phone || defaultAddress?.phone || '');
+      }
+      
+      // Pre-fill address from default address
+      if (defaultAddress) {
+        form.setValue('country', defaultAddress.country || 'Thailand');
+        form.setValue('address', defaultAddress.addressLine1 || '');
+        form.setValue('apartment', defaultAddress.addressLine2 || '');
+        form.setValue('city', defaultAddress.city || '');
+        form.setValue('province', defaultAddress.province || 'Bangkok');
+        form.setValue('postalCode', defaultAddress.postalCode || '');
+        if (defaultAddress.company) {
+          form.setValue('company', defaultAddress.company);
+        }
+      }
+      
+      // Pre-fill newsletter preference from profile
+      if (profile?.newsletterSubscribed !== undefined) {
+        form.setValue('newsletter', profile.newsletterSubscribed);
+      }
+    }
+  }, [user, profile, addresses, form]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
