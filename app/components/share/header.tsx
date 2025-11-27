@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Search, User, ShoppingCart, ChevronDown, Menu, X } from 'lucide-react';
+import { Search, User, ShoppingCart, ChevronDown, Menu, X, LogOut, Settings } from 'lucide-react';
 import { useCartStore } from '~/store/cart';
+import { useCustomerAuthStore } from '~/store/customer-auth';
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Link } from 'react-router';
 import {
   DropdownMenu,
@@ -18,6 +20,7 @@ export default function Header({
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isDiscoverOpen, setIsDiscoverOpen] = useState(false);
   const totalItems = useCartStore((state) => state.getTotalItems());
+  const { user, isAuthenticated, signOut } = useCustomerAuthStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -107,9 +110,47 @@ export default function Header({
                   <Link to="/admin/login" className="text-gray-700 hover:text-gray-900 text-sm hidden xl:block">
                     LOGIN/REGISTER
                   </Link>
-                  <Link to="/auth/login" className="text-gray-700 hover:text-gray-900">
-                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </Link>
+                  {mounted && isAuthenticated && user ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="outline-none">
+                        <Avatar className="h-8 w-8 cursor-pointer border border-gray-200">
+                          <AvatarImage src={user.image || ''} alt={user.name} />
+                          <AvatarFallback className="bg-primary/10 text-primary">
+                            {user.name ? user.name.charAt(0).toUpperCase() : 'C'}
+                          </AvatarFallback>
+                        </Avatar>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56 bg-white">
+                        <div className="flex items-center justify-start gap-2 p-2">
+                          <div className="flex flex-col space-y-1 leading-none">
+                            {user.name && <p className="font-medium">{user.name}</p>}
+                            {user.email && (
+                              <p className="w-[200px] truncate text-sm text-muted-foreground">
+                                {user.email}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <DropdownMenuItem asChild>
+                          <Link to="/profile" className="w-full cursor-pointer flex items-center">
+                            <Settings className="mr-2 h-4 w-4" />
+                            Settings
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-red-600 focus:text-red-600 cursor-pointer flex items-center"
+                          onClick={() => signOut()}
+                        >
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Log out
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : (
+                    <Link to="/auth/login" className="text-gray-700 hover:text-gray-900">
+                      <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </Link>
+                  )}
                   <Link to="/cart" className="text-gray-700 hover:text-gray-900 relative">
                     <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
                     <span className="absolute -top-2 -right-2 bg-gray-800 text-white text-xs rounded-full h-3 w-3 sm:h-4 sm:w-4 flex items-center justify-center">
@@ -123,9 +164,20 @@ export default function Header({
                   <button className="text-gray-700 hover:text-gray-900">
                     <Search className="h-5 w-5" />
                   </button>
-                  <Link to="/auth/login" className="text-gray-700 hover:text-gray-900">
-                    <User className="h-5 w-5" />
-                  </Link>
+                  {mounted && isAuthenticated && user ? (
+                    <Link to="/profile" className="text-gray-700 hover:text-gray-900">
+                      <Avatar className="h-6 w-6 border border-gray-200">
+                        <AvatarImage src={user.image || ''} alt={user.name} />
+                        <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                          {user.name ? user.name.charAt(0).toUpperCase() : 'C'}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
+                  ) : (
+                    <Link to="/auth/login" className="text-gray-700 hover:text-gray-900">
+                      <User className="h-5 w-5" />
+                    </Link>
+                  )}
                   <Link to="/cart" className="text-gray-700 hover:text-gray-900 relative">
                     <ShoppingCart className="h-5 w-5" />
                     <span className="absolute -top-2 -right-2 bg-gray-800 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
