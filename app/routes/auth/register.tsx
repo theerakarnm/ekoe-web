@@ -2,26 +2,15 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useCustomerAuthStore } from '~/store/customer-auth';
+import { registerSchema, type RegisterFormData } from '~/lib/auth-validation';
+import { setReturnUrl } from '~/lib/auth-utils';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-
-const registerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'],
-});
-
-type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function CustomerRegister() {
   const navigate = useNavigate();
@@ -69,9 +58,9 @@ export default function CustomerRegister() {
     setIsGoogleLoading(true);
 
     try {
-      // Save return URL to localStorage before OAuth redirect
+      // Save return URL before OAuth redirect
       if (returnUrl !== '/') {
-        localStorage.setItem('auth_return_url', returnUrl);
+        setReturnUrl(returnUrl);
       }
       await signInWithGoogle();
     } catch (err) {
