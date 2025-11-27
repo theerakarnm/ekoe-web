@@ -107,6 +107,9 @@ export default function Header({
                   <Link to="/admin/login" className="text-gray-700 hover:text-gray-900 text-sm hidden xl:block">
                     LOGIN/REGISTER
                   </Link>
+                  <Link to="/auth/login" className="text-gray-700 hover:text-gray-900">
+                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </Link>
                   <Link to="/cart" className="text-gray-700 hover:text-gray-900 relative">
                     <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
                     <span className="absolute -top-2 -right-2 bg-gray-800 text-white text-xs rounded-full h-3 w-3 sm:h-4 sm:w-4 flex items-center justify-center">
@@ -120,6 +123,9 @@ export default function Header({
                   <button className="text-gray-700 hover:text-gray-900">
                     <Search className="h-5 w-5" />
                   </button>
+                  <Link to="/auth/login" className="text-gray-700 hover:text-gray-900">
+                    <User className="h-5 w-5" />
+                  </Link>
                   <Link to="/cart" className="text-gray-700 hover:text-gray-900 relative">
                     <ShoppingCart className="h-5 w-5" />
                     <span className="absolute -top-2 -right-2 bg-gray-800 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
