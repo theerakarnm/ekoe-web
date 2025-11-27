@@ -73,6 +73,9 @@ interface CustomerAuthState {
   // Password reset actions
   sendVerificationEmail: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  
+  // Session management
+  handleSessionExpired: () => void;
 }
 
 export const useCustomerAuthStore = create<CustomerAuthState>()(
@@ -199,10 +202,43 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
 
       signOut: async () => {
         try {
-          await authClient.signOut();
+          // Sign out on server - this will clear the session and cookies
+          await authClient.signOut({
+            fetchOptions: {
+              onSuccess: () => {
+                // Clear all auth state
+                set({
+                  user: null,
+                  profile: null,
+                  addresses: [],
+                  isAuthenticated: false,
+                  isEmailVerified: false,
+                });
+                
+                // Clear localStorage
+                localStorage.removeItem('customer-auth-storage');
+                
+                // Redirect to home page
+                window.location.href = '/';
+              },
+              onError: (ctx) => {
+                console.error('Logout error:', ctx.error);
+                // Still clear local state even if server logout fails
+                set({
+                  user: null,
+                  profile: null,
+                  addresses: [],
+                  isAuthenticated: false,
+                  isEmailVerified: false,
+                });
+                localStorage.removeItem('customer-auth-storage');
+                window.location.href = '/';
+              }
+            }
+          });
         } catch (error) {
           console.error('Logout error:', error);
-        } finally {
+          // Ensure state is cleared even on error
           set({
             user: null,
             profile: null,
@@ -210,22 +246,31 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
             isAuthenticated: false,
             isEmailVerified: false,
           });
+          localStorage.removeItem('customer-auth-storage');
+          window.location.href = '/';
         }
       },
 
       checkAuth: async () => {
         set({ isLoading: true });
         try {
-          const { data } = await authClient.getSession();
+          const { data, error } = await authClient.getSession();
 
-          if (!data) {
+          // Handle session expiration or invalid session
+          if (error || !data) {
+            // Clear expired session state
             set({ 
               user: null, 
               profile: null,
+              addresses: [],
               isAuthenticated: false, 
               isEmailVerified: false,
               isLoading: false 
             });
+            
+            // Clear localStorage
+            localStorage.removeItem('customer-auth-storage');
+            
             return;
           }
 
@@ -246,6 +291,8 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
           await get().loadProfile();
         } catch (error) {
           console.error('Auth check error:', error);
+          
+          // Clear state on error (likely session expired)
           set({ 
             user: null, 
             profile: null,
@@ -254,6 +301,9 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
             isEmailVerified: false,
             isLoading: false 
           });
+          
+          // Clear localStorage
+          localStorage.removeItem('customer-auth-storage');
         }
       },
 
@@ -270,6 +320,13 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
               'Content-Type': 'application/json',
             },
           });
+
+          // Handle session expiration
+          if (response.status === 401) {
+            console.warn('Session expired while loading profile');
+            get().handleSessionExpired();
+            return;
+          }
 
           if (!response.ok) {
             throw new Error('Failed to load profile');
@@ -302,6 +359,13 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
             body: JSON.stringify(data),
           });
 
+          // Handle session expiration
+          if (response.status === 401) {
+            console.warn('Session expired while updating profile');
+            get().handleSessionExpired();
+            throw new Error('Session expired');
+          }
+
           if (!response.ok) {
             throw new Error('Failed to update profile');
           }
@@ -330,6 +394,13 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
               'Content-Type': 'application/json',
             },
           });
+
+          // Handle session expiration
+          if (response.status === 401) {
+            console.warn('Session expired while loading addresses');
+            get().handleSessionExpired();
+            return;
+          }
 
           if (!response.ok) {
             throw new Error('Failed to load addresses');
@@ -392,6 +463,32 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
           console.error('Reset password error:', error);
           throw error;
         }
+      },
+
+      handleSessionExpired: () => {
+        // Clear all auth state
+        set({
+          user: null,
+          profile: null,
+          addresses: [],
+          isAuthenticated: false,
+          isEmailVerified: false,
+        });
+
+        // Clear localStorage
+        localStorage.removeItem('customer-auth-storage');
+
+        // Save current URL as return URL (if not already on auth page)
+        const currentPath = window.location.pathname;
+        const authRoutes = ['/auth/login', '/auth/register', '/auth/verify-email', '/auth/reset-password', '/auth/reset-password-confirm', '/auth/callback'];
+        const isAuthRoute = authRoutes.some(route => currentPath.startsWith(route));
+        
+        if (!isAuthRoute && currentPath !== '/') {
+          localStorage.setItem('auth_return_url', currentPath);
+        }
+
+        // Redirect to login page
+        window.location.href = '/auth/login';
       },
     }),
     {
