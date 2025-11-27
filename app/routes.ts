@@ -13,6 +13,13 @@ export default [
   // Admin routes
   route("admin/login", "routes/admin/login.tsx"),
 
+  // Customer auth routes
+  route("auth/login", "routes/auth/login.tsx"),
+  route("auth/register", "routes/auth/register.tsx"),
+  route("auth/verify-email", "routes/auth/verify-email.tsx"),
+  route("auth/reset-password", "routes/auth/reset-password.tsx"),
+  route("auth/reset-password-confirm", "routes/auth/reset-password-confirm.tsx"),
+
   // Date Picker Demo
   route("date-picker-demo", "routes/date-picker-demo.tsx"),
 
