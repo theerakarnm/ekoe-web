@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 export interface RevenueChartProps {
   data: {
     date: string;
-    revenue: number;
+    amount: number;
   }[];
 }
 
@@ -39,8 +39,24 @@ export function RevenueChart({ data }: RevenueChartProps) {
   // Transform data for chart
   const chartData = data?.map((item) => ({
     date: formatDate(item.date),
-    revenue: item.revenue / 100, // Convert from cents to baht
+    revenue: item.amount / 100, // Convert from cents to baht
   }));
+
+  // Show loading state if no data
+  if (!data || data.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Revenue Over Time</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+            <p>No revenue data available</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>

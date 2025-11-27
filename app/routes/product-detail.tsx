@@ -20,7 +20,7 @@ import { ProductGallery } from "~/components/product/product-gallery";
 import { QuantitySelector } from "~/components/product/quantity-selector";
 import { DiscountCodes } from "~/components/product/discount-codes";
 import { ComplimentaryGift } from "~/components/product/complimentary-gift";
-import { getProduct, getProducts, type Product } from "~/lib/api-client";
+import { getProduct, getRelatedProducts, type Product } from "~/lib/services/product.service";
 import { formatNumber } from "~/lib/formatter";
 
 // Mock Data used as defaults for missing API fields
@@ -130,18 +130,37 @@ const MOCK_DEFAULTS: IProduct = {
 export async function loader({ params }: Route.LoaderArgs) {
   try {
     const { id } = params as { id: string };
-    if (!id) throw new Error("Product ID is required");
-    const [productResponse, relatedResponse] = await Promise.all([
+    if (!id) {
+      throw new Response("Product ID is required", { status: 400 });
+    }
+    
+    // Fetch product and related products in parallel
+    const [product, relatedProducts] = await Promise.all([
       getProduct(id),
-      getProducts({ limit: 4 })
+      getRelatedProducts(id, 4)
     ]);
-    return { product: productResponse, relatedProducts: relatedResponse.data };
-  } catch (error) {
-    throw new Response("Not Found", { status: 404 });
+    
+    return { product, relatedProducts };
+  } catch (error: any) {
+    // Handle 404 errors for non-existent products
+    if (error?.statusCode === 404 || error?.response?.status === 404) {
+      throw new Response("Product Not Found", { status: 404 });
+    }
+    
+    // Re-throw other errors
+    throw new Response("Failed to load product", { status: 500 });
   }
 }
 
-function mapApiProductToDetail(apiProduct: Product): IProduct {
+interface ExtendedSize {
+  label: string;
+  value: string;
+  price: number;
+  stockQuantity: number;
+  variantId: string;
+}
+
+function mapApiProductToDetail(apiProduct: Product): IProduct & { extendedSizes?: ExtendedSize[] } {
   const primaryImage = apiProduct.images?.find(img => img.isPrimary) || apiProduct.images?.[0];
   const galleryImages = apiProduct.images?.map(img => ({
     url: img.url,
@@ -154,6 +173,15 @@ function mapApiProductToDetail(apiProduct: Product): IProduct {
     value: v.value,
     price: v.price
   })) || MOCK_DEFAULTS.sizes;
+
+  // Extended sizes with stock information
+  const extendedSizes = apiProduct.variants?.map(v => ({
+    label: v.name,
+    value: v.value,
+    price: v.price,
+    stockQuantity: v.stockQuantity,
+    variantId: v.id
+  })) || [];
 
   return {
     ...MOCK_DEFAULTS, // Use defaults for missing fields
@@ -169,10 +197,11 @@ function mapApiProductToDetail(apiProduct: Product): IProduct {
       description: primaryImage?.altText || MOCK_DEFAULTS.image.description,
     },
     galleryImages: galleryImages?.length ? galleryImages : MOCK_DEFAULTS.galleryImages,
-    rating: parseFloat(apiProduct.rating) || MOCK_DEFAULTS.rating,
+    rating: parseFloat(apiProduct.rating || '0') || MOCK_DEFAULTS.rating,
     reviewCount: apiProduct.reviewCount || MOCK_DEFAULTS.reviewCount,
     description: apiProduct.description ? [apiProduct.description] : MOCK_DEFAULTS.description,
     sizes: sizes?.length ? sizes : MOCK_DEFAULTS.sizes,
+    extendedSizes: extendedSizes.length ? extendedSizes : undefined,
   };
 }
 
@@ -189,17 +218,28 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
   const { product: apiProduct, relatedProducts: apiRelatedProducts } = loaderData;
   const productData = mapApiProductToDetail(apiProduct);
   const relatedProducts = apiRelatedProducts?.map(p => mapApiProductToDetail(p)) || [];
-  const [selectedSize, setSelectedSize] = useState(productData.sizes?.[0]);
+  
+  // Use extended sizes if available, otherwise fall back to regular sizes
+  const availableSizes = productData.extendedSizes || productData.sizes?.map(s => ({ ...s, stockQuantity: 999, variantId: '' })) || [];
+  const [selectedSize, setSelectedSize] = useState<ExtendedSize | undefined>(availableSizes[0]);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(productData.image.url);
+  
+  // Check if selected size is out of stock
+  const isOutOfStock = selectedSize ? selectedSize.stockQuantity === 0 : false;
+  const maxQuantity = selectedSize ? selectedSize.stockQuantity : 999;
+  
   const handleQuantityChange = (delta: number) => {
-    setQuantity((prev) => Math.max(1, prev + delta));
+    setQuantity((prev) => {
+      const newQuantity = prev + delta;
+      return Math.max(1, Math.min(newQuantity, maxQuantity));
+    });
   };
 
   const addItem = useCartStore((state) => state.addItem);
 
   const handleAddToCart = () => {
-    if (!selectedSize) return;
+    if (!selectedSize || isOutOfStock) return;
 
     addItem({
       productId: +productData.productId,
@@ -216,15 +256,23 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
   const handleImageClick = (img: { url: string; associatedSize?: string }) => {
     setSelectedImage(img.url);
     if (img.associatedSize) {
-      const size = productData.sizes?.find((s) => s.value === img.associatedSize);
+      const size = availableSizes.find((s) => s.value === img.associatedSize);
       if (size) {
         setSelectedSize(size);
+        // Reset quantity if it exceeds new size's stock
+        if (quantity > size.stockQuantity) {
+          setQuantity(Math.max(1, size.stockQuantity));
+        }
       }
     }
   };
 
-  const handleSizeClick = (size: { label: string; value: string; price: number }) => {
+  const handleSizeClick = (size: ExtendedSize) => {
     setSelectedSize(size);
+    // Reset quantity if it exceeds new size's stock
+    if (quantity > size.stockQuantity) {
+      setQuantity(Math.max(1, size.stockQuantity));
+    }
     const associatedImage = productData.galleryImages?.find(
       (img) => img.associatedSize === size.value
     );
@@ -345,19 +393,44 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                     </Button>
                   </div>
                   <div className="flex gap-3">
-                    {productData.sizes?.map((size) => (
-                      <button
-                        key={size.value}
-                        onClick={() => handleSizeClick(size)}
-                        className={`px-4 py-2 border text-sm transition-all ${selectedSize?.value === size.value
-                          ? "border-black bg-black text-white"
-                          : "border-gray-200 hover:border-gray-400"
+                    {availableSizes.map((size) => {
+                      const sizeOutOfStock = size.stockQuantity === 0;
+                      const isLowStock = size.stockQuantity > 0 && size.stockQuantity <= 5;
+                      
+                      return (
+                        <button
+                          key={size.value}
+                          onClick={() => !sizeOutOfStock && handleSizeClick(size)}
+                          disabled={sizeOutOfStock}
+                          className={`px-4 py-2 border text-sm transition-all relative ${
+                            selectedSize?.value === size.value
+                              ? "border-black bg-black text-white"
+                              : sizeOutOfStock
+                              ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : "border-gray-200 hover:border-gray-400"
                           }`}
-                      >
-                        {size.label}
-                      </button>
-                    ))}
+                        >
+                          {size.label}
+                          {sizeOutOfStock && (
+                            <span className="absolute inset-0 flex items-center justify-center">
+                              <span className="w-full h-px bg-gray-400 rotate-[-20deg]"></span>
+                            </span>
+                          )}
+                          {isLowStock && !sizeOutOfStock && (
+                            <span className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full"></span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
+                  {isOutOfStock && (
+                    <p className="text-sm text-red-600 mt-2">Out of Stock</p>
+                  )}
+                  {!isOutOfStock && selectedSize && selectedSize.stockQuantity <= 5 && (
+                    <p className="text-sm text-orange-600 mt-2">
+                      Only {selectedSize.stockQuantity} left in stock
+                    </p>
+                  )}
                 </div>
 
                 {/* Quantity & Add to Cart */}
@@ -366,12 +439,14 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                     quantity={quantity}
                     onIncrease={() => handleQuantityChange(1)}
                     onDecrease={() => handleQuantityChange(-1)}
+                    disabled={isOutOfStock}
                   />
                   <Button
-                    className="flex-1 h-12 text-base uppercase tracking-wide bg-black hover:bg-gray-800"
+                    className="flex-1 h-12 text-base uppercase tracking-wide bg-black hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500"
                     onClick={handleAddToCart}
+                    disabled={isOutOfStock}
                   >
-                    Add to Cart - {(selectedSize?.price || 0) * quantity} THB
+                    {isOutOfStock ? 'Out of Stock' : `Add to Cart - ${formatNumber((selectedSize?.price || 0) * quantity, { decimalPlaces: 0 })} THB`}
                   </Button>
                 </div>
 
@@ -518,14 +593,16 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
           </div>
 
           {/* Recommendations */}
-          <div className="mb-24">
-            <h2 className="text-2xl font-serif mb-8">Also Loved</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {relatedProducts.map((product) => (
-                <ProductCard key={product.productId} product={product} />
-              ))}
+          {relatedProducts && relatedProducts.length > 0 && (
+            <div className="mb-24">
+              <h2 className="text-2xl font-serif mb-8">Also Loved</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {relatedProducts.map((product) => (
+                  <ProductCard key={product.productId} product={product} />
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </main>
 

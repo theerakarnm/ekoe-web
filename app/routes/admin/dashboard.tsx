@@ -1,6 +1,6 @@
 import { type LoaderFunctionArgs } from 'react-router';
 import { useLoaderData } from 'react-router';
-import { type DashboardMetrics, createAdminClient } from '~/lib/admin/api-client';
+import { getDashboardMetrics } from '~/lib/services/admin/analytics-admin.service';
 import { MetricCard } from '~/components/admin/dashboard/metric-card';
 import { RevenueChart } from '~/components/admin/dashboard/revenue-chart';
 import { OrderStatusChart } from '~/components/admin/dashboard/order-status-chart';
@@ -14,12 +14,7 @@ import { Suspense } from 'react';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
-    const api = createAdminClient(request);
-    const metrics = await api.getDashboardMetrics();
-
-    console.log(metrics);
-
-
+    const metrics = await getDashboardMetrics({}, request.headers);
     return { metrics };
   } catch (error) {
     if (error instanceof Response) {
@@ -85,30 +80,54 @@ export default function AdminDashboard() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <MetricCard
             title="Total Revenue"
-            value={formatCurrency(metrics.totalRevenue)}
+            value={formatCurrency(metrics.revenue.total)}
+            change={
+              metrics.revenue.growth !== 0
+                ? {
+                    value: Math.abs(metrics.revenue.growth),
+                    trend: metrics.revenue.growth > 0 ? 'up' : 'down',
+                  }
+                : undefined
+            }
             icon={<DollarSign className="h-5 w-5" />}
           />
           <MetricCard
             title="Total Orders"
-            value={formatNumber(metrics.totalOrders)}
+            value={formatNumber(metrics.orders.total)}
+            change={
+              metrics.orders.growth !== 0
+                ? {
+                    value: Math.abs(metrics.orders.growth),
+                    trend: metrics.orders.growth > 0 ? 'up' : 'down',
+                  }
+                : undefined
+            }
             icon={<ShoppingCart className="h-5 w-5" />}
           />
           <MetricCard
             title="Total Customers"
-            value={formatNumber(metrics.totalCustomers)}
+            value={formatNumber(metrics.customers.total)}
+            change={
+              metrics.customers.growth !== 0
+                ? {
+                    value: Math.abs(metrics.customers.growth),
+                    trend: metrics.customers.growth > 0 ? 'up' : 'down',
+                  }
+                : undefined
+            }
             icon={<Users className="h-5 w-5" />}
           />
           <MetricCard
-            title="Total Products"
-            value={formatNumber(metrics.totalProducts)}
+            title="Average Order Value"
+            value={formatCurrency(metrics.orders.averageValue)}
             icon={<Package className="h-5 w-5" />}
           />
         </div>
 
         {/* Charts */}
         <div className="grid gap-4 md:grid-cols-2">
-          <RevenueChart data={metrics.revenueByDate} />
-          <OrderStatusChart data={metrics.ordersByStatus} />
+          <RevenueChart data={metrics.revenue.byDate} />
+          <OrderStatusChart data={metrics.orders.byStatus} />
         </div>
       </Suspense>
     </div>

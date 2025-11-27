@@ -65,6 +65,22 @@ export function OrderStatusChart({ data }: OrderStatusChartProps) {
     );
   };
 
+  // Show loading state if no data
+  if (!data || data.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Order Status Distribution</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+            <p>No order data available</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>

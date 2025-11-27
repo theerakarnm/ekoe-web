@@ -2,9 +2,14 @@ import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Form as RemixForm, useActionData, useNavigation } from "react-router";
 import { useCustomerAuthStore } from "~/store/customer-auth";
+import { useCartStore } from "~/store/cart";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
+import type { ValidationResult } from "~/lib/services/order.service";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -45,8 +50,18 @@ const formSchema = z.object({
   billingSameAsShipping: z.boolean(),
 });
 
-export function CheckoutForm() {
+interface CheckoutFormProps {
+  isValidating: boolean;
+  validationResult: ValidationResult | null;
+}
+
+export function CheckoutForm({ isValidating, validationResult }: CheckoutFormProps) {
   const { user, profile, addresses, loadProfile, loadAddresses } = useCustomerAuthStore();
+  const items = useCartStore((state) => state.items);
+  const clearCart = useCartStore((state) => state.clearCart);
+  const actionData = useActionData<{ error?: string; code?: string; field?: string; details?: any }>();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -117,13 +132,81 @@ export function CheckoutForm() {
     }
   }, [user, profile, addresses, form]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-  }
+  // Clear cart on successful order (when component unmounts after redirect)
+  useEffect(() => {
+    return () => {
+      // This will run when navigating away from checkout
+      if (navigation.state === "loading" && navigation.location?.pathname.includes("/order-success")) {
+        clearCart();
+      }
+    };
+  }, [navigation, clearCart]);
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12 py-8">
+    <RemixForm method="post" className="space-y-12 py-8 relative">
+      {/* Loading Overlay */}
+      {isSubmitting && (
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
+            <p className="text-lg font-medium">Processing your order...</p>
+            <p className="text-sm text-gray-600">Please do not close this page</p>
+          </div>
+        </div>
+      )}
+      {/* Error Display */}
+      {actionData?.error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Order Failed</AlertTitle>
+          <AlertDescription>
+            <div className="space-y-2">
+              <p>{actionData.error}</p>
+              {actionData.field && (
+                <p className="text-sm">
+                  Issue with field: <strong>{actionData.field}</strong>
+                </p>
+              )}
+              {actionData.code && (
+                <p className="text-xs opacity-75">Error code: {actionData.code}</p>
+              )}
+              {actionData.details && typeof actionData.details === 'object' && (
+                <div className="mt-2 text-sm space-y-1">
+                  {Object.entries(actionData.details).map(([key, value]) => (
+                    <p key={key}>
+                      <strong>{key}:</strong> {String(value)}
+                    </p>
+                  ))}
+                </div>
+              )}
+              <Button
+                type="submit"
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                disabled={isSubmitting}
+              >
+                Retry Order
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Hidden field for cart items */}
+      <input
+        type="hidden"
+        name="items"
+        value={JSON.stringify(
+          items.map((item) => ({
+            productId: String(item.productId),
+            variantId: item.size ? String(item.size) : undefined,
+            quantity: item.quantity,
+          }))
+        )}
+      />
+
+      <Form {...form}>
         {/* Contact Section */}
         <div className="space-y-4">
           <h2 className="font-serif text-2xl">Contact</h2>
@@ -133,7 +216,7 @@ export function CheckoutForm() {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder="Email" {...field} className="h-12" />
+                  <Input placeholder="Email" {...field} name="email" className="h-12" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -168,7 +251,7 @@ export function CheckoutForm() {
             name="country"
             render={({ field }) => (
               <FormItem>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} defaultValue={field.value} name="country">
                   <FormControl>
                     <SelectTrigger className="h-12">
                       <SelectValue placeholder="Country/Region" />
@@ -189,7 +272,7 @@ export function CheckoutForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder="First name" {...field} className="h-12" />
+                    <Input placeholder="First name" {...field} name="firstName" className="h-12" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -201,7 +284,7 @@ export function CheckoutForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder="Last name" {...field} className="h-12" />
+                    <Input placeholder="Last name" {...field} name="lastName" className="h-12" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -214,7 +297,7 @@ export function CheckoutForm() {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder="Company (optional)" {...field} className="h-12" />
+                  <Input placeholder="Company (optional)" {...field} name="company" className="h-12" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -226,7 +309,7 @@ export function CheckoutForm() {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder="House number and street name" {...field} className="h-12" />
+                  <Input placeholder="House number and street name" {...field} name="address" className="h-12" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -238,7 +321,7 @@ export function CheckoutForm() {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder="Apartment, suite, etc. (optional)" {...field} className="h-12" />
+                  <Input placeholder="Apartment, suite, etc. (optional)" {...field} name="apartment" className="h-12" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -251,7 +334,7 @@ export function CheckoutForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder="City" {...field} className="h-12" />
+                    <Input placeholder="City" {...field} name="city" className="h-12" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -262,7 +345,7 @@ export function CheckoutForm() {
               name="province"
               render={({ field }) => (
                 <FormItem>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} name="province">
                     <FormControl>
                       <SelectTrigger className="h-12">
                         <SelectValue placeholder="Province" />
@@ -284,7 +367,7 @@ export function CheckoutForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input placeholder="Postal code" {...field} className="h-12" />
+                    <Input placeholder="Postal code" {...field} name="postalCode" className="h-12" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -297,7 +380,7 @@ export function CheckoutForm() {
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input placeholder="Phone" {...field} className="h-12" />
+                  <Input placeholder="Phone" {...field} name="phone" className="h-12" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -432,14 +515,18 @@ export function CheckoutForm() {
           />
         </div>
 
-        <Button type="submit" className="w-full h-14 bg-black text-white text-lg hover:bg-gray-800 uppercase tracking-widest">
-          Pay Now
+        <Button 
+          type="submit" 
+          className="w-full h-14 bg-black text-white text-lg hover:bg-gray-800 uppercase tracking-widest"
+          disabled={isValidating || isSubmitting || (validationResult !== null && !validationResult.isValid)}
+        >
+          {isSubmitting ? 'Processing Order...' : isValidating ? 'Validating Cart...' : 'Pay Now'}
         </Button>
 
         <p className="text-[10px] text-gray-400 text-center mt-4">
           เราใช้ข้อมูลส่วนตัวของคุณเพื่อจัดการคำสั่งซื้อ, เข้าถึงหน้าต่างๆ ในเว็บไซต์ รวมถึงจุดประสงค์อื่นๆ ตาม privacy policy
         </p>
-      </form>
-    </Form>
+      </Form>
+    </RemixForm>
   );
 }
