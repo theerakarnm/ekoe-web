@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from '~/components/ui/form';
 import type { ProductFormData } from '~/lib/admin/validation';
+import { PriceInput } from './price-input';
 
 interface VariantManagerProps {
   control: Control<ProductFormData>;
@@ -130,15 +131,12 @@ export function VariantManager({ control }: VariantManagerProps) {
                 name={`variants.${index}.price`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price (cents)</FormLabel>
+                    <FormLabel>Price</FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
+                      <PriceInput
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value, 10) || 0)
-                        }
-                        placeholder="2999"
+                        onChange={field.onChange}
+                        placeholder="29.99"
                       />
                     </FormControl>
                     <FormMessage />
@@ -151,20 +149,13 @@ export function VariantManager({ control }: VariantManagerProps) {
                 name={`variants.${index}.compareAtPrice`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Compare At Price (cents)</FormLabel>
+                    <FormLabel>Compare At Price</FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
+                      <PriceInput
                         {...field}
-                        value={field.value || ''}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value
-                              ? parseInt(e.target.value, 10)
-                              : undefined
-                          )
-                        }
-                        placeholder="3999"
+                        value={field.value || undefined}
+                        onChange={field.onChange}
+                        placeholder="39.99"
                       />
                     </FormControl>
                     <FormMessage />

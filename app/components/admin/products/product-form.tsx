@@ -18,6 +18,7 @@ import {
   type Product,
   type ProductImage,
 } from '~/lib/admin/api-client';
+import { PriceInput } from './price-input';
 import { ImageUploader } from './image-uploader';
 import { VariantManager } from './variant-manager';
 import { IngredientsManager } from './ingredients-manager';
@@ -360,19 +361,16 @@ export function ProductForm({ product }: ProductFormProps) {
               name="basePrice"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Base Price (cents)</FormLabel>
+                  <FormLabel>Base Price</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
+                    <PriceInput
                       {...field}
-                      onChange={(e) =>
-                        field.onChange(parseInt(e.target.value, 10) || 0)
-                      }
-                      placeholder="0"
+                      onChange={field.onChange}
+                      placeholder="0.00"
                     />
                   </FormControl>
                   <FormDescription>
-                    Price in cents (e.g., 2999 = $29.99)
+                    Price in dollars (e.g., 29.99)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -384,20 +382,13 @@ export function ProductForm({ product }: ProductFormProps) {
               name="compareAtPrice"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Compare At Price (cents)</FormLabel>
+                  <FormLabel>Compare At Price</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
+                    <PriceInput
                       {...field}
-                      value={field.value || ''}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value
-                            ? parseInt(e.target.value, 10)
-                            : undefined
-                        )
-                      }
-                      placeholder="0"
+                      value={field.value || undefined}
+                      onChange={field.onChange}
+                      placeholder="0.00"
                     />
                   </FormControl>
                   <FormDescription>
