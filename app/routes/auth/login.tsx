@@ -2,21 +2,15 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useCustomerAuthStore } from '~/store/customer-auth';
+import { loginSchema, type LoginFormData } from '~/lib/auth-validation';
+import { setReturnUrl } from '~/lib/auth-utils';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-
-const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(1, 'Password is required'),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function CustomerLogin() {
   const navigate = useNavigate();
@@ -63,9 +57,9 @@ export default function CustomerLogin() {
     setIsGoogleLoading(true);
 
     try {
-      // Save return URL to localStorage before OAuth redirect
+      // Save return URL before OAuth redirect
       if (returnUrl !== '/') {
-        localStorage.setItem('auth_return_url', returnUrl);
+        setReturnUrl(returnUrl);
       }
       await signInWithGoogle();
     } catch (err) {
