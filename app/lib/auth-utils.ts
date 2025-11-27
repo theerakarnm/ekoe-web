@@ -1,5 +1,20 @@
 /**
  * Auth utility functions for managing return URLs and route checks
+ * 
+ * @example
+ * // Save return URL before redirecting to login
+ * setReturnUrl('/checkout');
+ * navigate('/auth/login');
+ * 
+ * // Retrieve return URL after successful login
+ * const returnUrl = getReturnUrl() || '/';
+ * clearReturnUrl();
+ * navigate(returnUrl);
+ * 
+ * // Check if current route is auth-related
+ * if (isAuthRoute(location.pathname)) {
+ *   // Don't save auth routes as return URLs
+ * }
  */
 
 const RETURN_URL_KEY = 'auth_return_url';

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { useCustomerAuthStore } from '~/store/customer-auth';
+import { setReturnUrl } from '~/lib/auth-utils';
 
 interface CustomerAuthGuardProps {
   children: React.ReactNode;
@@ -23,6 +24,7 @@ export function CustomerAuthGuard({ children }: CustomerAuthGuardProps) {
     if (!isAuthenticated) {
       // Save current URL as return URL
       const returnUrl = `${location.pathname}${location.search}`;
+      setReturnUrl(returnUrl);
       navigate(`/auth/login?returnUrl=${encodeURIComponent(returnUrl)}`, { replace: true });
     }
   }, [isAuthenticated, navigate, location, isLoading]);

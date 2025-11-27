@@ -2,20 +2,14 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useCustomerAuthStore } from '~/store/customer-auth';
+import { passwordResetRequestSchema, type PasswordResetRequestFormData } from '~/lib/auth-validation';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
-
-const resetPasswordSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-});
-
-type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
 export default function ResetPassword() {
   const { resetPassword } = useCustomerAuthStore();
@@ -27,11 +21,11 @@ export default function ResetPassword() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ResetPasswordFormData>({
-    resolver: zodResolver(resetPasswordSchema),
+  } = useForm<PasswordResetRequestFormData>({
+    resolver: zodResolver(passwordResetRequestSchema),
   });
 
-  const onSubmit = async (data: ResetPasswordFormData) => {
+  const onSubmit = async (data: PasswordResetRequestFormData) => {
     setError(null);
     setIsLoading(true);
     setSuccess(false);

@@ -1,6 +1,20 @@
 import { z } from 'zod';
 
 /**
+ * Centralized validation schemas for authentication forms
+ * 
+ * These schemas ensure consistent validation across all auth-related forms
+ * and can be used with React Hook Form's zodResolver.
+ * 
+ * @example
+ * import { loginSchema, type LoginFormData } from '~/lib/auth-validation';
+ * 
+ * const form = useForm<LoginFormData>({
+ *   resolver: zodResolver(loginSchema),
+ * });
+ */
+
+/**
  * Login form validation schema
  */
 export const loginSchema = z.object({

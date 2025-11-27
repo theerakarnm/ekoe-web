@@ -2,23 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { passwordResetConfirmSchema, type PasswordResetConfirmFormData } from '~/lib/auth-validation';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
-
-const resetPasswordConfirmSchema = z.object({
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'],
-});
-
-type ResetPasswordConfirmFormData = z.infer<typeof resetPasswordConfirmSchema>;
 
 export default function ResetPasswordConfirm() {
   const navigate = useNavigate();
@@ -33,8 +23,8 @@ export default function ResetPasswordConfirm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ResetPasswordConfirmFormData>({
-    resolver: zodResolver(resetPasswordConfirmSchema),
+  } = useForm<PasswordResetConfirmFormData>({
+    resolver: zodResolver(passwordResetConfirmSchema),
   });
 
   useEffect(() => {
@@ -44,7 +34,7 @@ export default function ResetPasswordConfirm() {
     }
   }, [token, navigate]);
 
-  const onSubmit = async (data: ResetPasswordConfirmFormData) => {
+  const onSubmit = async (data: PasswordResetConfirmFormData) => {
     if (!token) {
       setError('Invalid or missing reset token');
       return;
