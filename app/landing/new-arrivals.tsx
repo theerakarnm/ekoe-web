@@ -46,19 +46,19 @@ function transformProduct(product: Product): IProduct {
   };
 }
 
-interface BestSellerSectionProps {
+interface NewArrivalsSectionProps {
   products?: Product[];
   isLoading?: boolean;
   error?: string | null;
 }
 
-function BestSellerSection({ products = [], isLoading = false, error = null }: BestSellerSectionProps) {
+function NewArrivalsSection({ products = [], isLoading = false, error = null }: NewArrivalsSectionProps) {
   // Show loading skeleton
   if (isLoading) {
     return (
       <div className="mx-auto *:mt-16 sm:*:mt-20 md:*:mt-24 mb-8 sm:mb-12 md:mb-16 container px-4 sm:px-6">
         <div className="relative">
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center mb-6 sm:mb-8 md:mb-10 text-[#858585]">Our Best Seller</h2>
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center mb-6 sm:mb-8 md:mb-10 text-[#858585]">New Arrivals</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="space-y-3">
@@ -78,7 +78,7 @@ function BestSellerSection({ products = [], isLoading = false, error = null }: B
     return (
       <div className="mx-auto *:mt-16 sm:*:mt-20 md:*:mt-24 mb-8 sm:mb-12 md:mb-16 container px-4 sm:px-6">
         <div className="relative">
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center mb-6 sm:mb-8 md:mb-10 text-[#858585]">Our Best Seller</h2>
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center mb-6 sm:mb-8 md:mb-10 text-[#858585]">New Arrivals</h2>
           <div className="text-center py-12">
             <p className="text-gray-600 mb-4">Unable to load products at this time.</p>
             <p className="text-sm text-gray-400">{error}</p>
@@ -93,9 +93,9 @@ function BestSellerSection({ products = [], isLoading = false, error = null }: B
     return (
       <div className="mx-auto *:mt-16 sm:*:mt-20 md:*:mt-24 mb-8 sm:mb-12 md:mb-16 container px-4 sm:px-6">
         <div className="relative">
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center mb-6 sm:mb-8 md:mb-10 text-[#858585]">Our Best Seller</h2>
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center mb-6 sm:mb-8 md:mb-10 text-[#858585]">New Arrivals</h2>
           <div className="text-center py-12">
-            <p className="text-gray-600">No products available at this time.</p>
+            <p className="text-gray-600">No new products available at this time.</p>
           </div>
         </div>
       </div>
@@ -108,7 +108,7 @@ function BestSellerSection({ products = [], isLoading = false, error = null }: B
   return (
     <div className="mx-auto *:mt-16 sm:*:mt-20 md:*:mt-24 mb-8 sm:mb-12 md:mb-16 container px-4 sm:px-6">
       <div className="relative">
-        <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center mb-6 sm:mb-8 md:mb-10 text-[#858585]">Our Best Seller</h2>
+        <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center mb-6 sm:mb-8 md:mb-10 text-[#858585]">New Arrivals</h2>
         <Carousel
           opts={{
             align: "start",
@@ -136,5 +136,5 @@ function BestSellerSection({ products = [], isLoading = false, error = null }: B
 }
 
 export {
-  BestSellerSection
+  NewArrivalsSection
 }

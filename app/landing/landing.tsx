@@ -2,11 +2,21 @@ import { useState, useEffect } from 'react';
 import { Header } from "~/components/share/header";
 import { HeroSection } from "./hero-section";
 import { BestSellerSection } from "./best-seller";
+import { NewArrivalsSection } from "./new-arrivals";
 import { FeatureSection } from "./feature-section";
 import BlogSection from "./blog-section";
 import { Footer } from "~/components/share/footer";
+import type { Product } from "~/lib/services/product.service";
 
-export function Landing() {
+interface LandingProps {
+  loaderData?: {
+    bestSellers: Product[];
+    newArrivals: Product[];
+    error: string | null;
+  };
+}
+
+export function Landing({ loaderData }: LandingProps) {
   const [showMainHeader, setShowMainHeader] = useState(false);
 
   useEffect(() => {
@@ -52,8 +62,15 @@ export function Landing() {
       <Header isLandingMagic={!showMainHeader} />
       <main className="min-h-screen bg-white">
         <HeroSection />
-        <BestSellerSection />
+        <BestSellerSection 
+          products={loaderData?.bestSellers} 
+          error={loaderData?.error}
+        />
         <FeatureSection />
+        <NewArrivalsSection 
+          products={loaderData?.newArrivals} 
+          error={loaderData?.error}
+        />
         <BlogSection />
         <Footer />
       </main>
