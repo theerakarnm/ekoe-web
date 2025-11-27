@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { useCustomerAuthStore } from '~/store/customer-auth';
+import { handleApiError, showSuccess } from '~/lib/toast';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Alert, AlertDescription } from '~/components/ui/alert';
@@ -77,9 +78,11 @@ export default function VerifyEmail() {
     try {
       await sendVerificationEmail();
       setResendSuccess(true);
+      showSuccess('Verification email sent', 'Please check your inbox');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to send verification email';
       setError(errorMessage);
+      handleApiError(err, 'Failed to send verification email');
     } finally {
       setIsResending(false);
     }

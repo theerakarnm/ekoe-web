@@ -7,6 +7,7 @@ import { useCartStore } from '~/store/cart';
 import { registerSchema, type RegisterFormData } from '~/lib/auth-validation';
 import { setReturnUrl } from '~/lib/auth-utils';
 import { restoreCartBackup, clearCartBackup, mergeCartItems } from '~/lib/cart-utils';
+import { handleApiError } from '~/lib/toast';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
@@ -70,6 +71,7 @@ export default function CustomerRegister() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Registration failed';
       setError(errorMessage);
+      handleApiError(err, 'Failed to create account');
     } finally {
       setIsLoading(false);
     }
@@ -88,6 +90,7 @@ export default function CustomerRegister() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Google sign-in failed';
       setError(errorMessage);
+      handleApiError(err, 'Failed to sign in with Google');
       setIsGoogleLoading(false);
     }
   };

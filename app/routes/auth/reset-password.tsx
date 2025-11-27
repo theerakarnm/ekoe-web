@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCustomerAuthStore } from '~/store/customer-auth';
 import { passwordResetRequestSchema, type PasswordResetRequestFormData } from '~/lib/auth-validation';
+import { handleApiError, showSuccess } from '~/lib/toast';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
@@ -33,9 +34,11 @@ export default function ResetPassword() {
     try {
       await resetPassword(data.email);
       setSuccess(true);
+      showSuccess('Reset email sent', 'Check your email for password reset instructions');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to send reset email';
       setError(errorMessage);
+      handleApiError(err, 'Failed to send reset email');
     } finally {
       setIsLoading(false);
     }

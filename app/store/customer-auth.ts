@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { authClient } from '../lib/auth-client';
+import { handleApiError, handleNetworkError } from '../lib/toast';
 
 interface CustomerUser {
   id: string;

@@ -7,6 +7,7 @@ import { useCartStore } from '~/store/cart';
 import { loginSchema, type LoginFormData } from '~/lib/auth-validation';
 import { setReturnUrl } from '~/lib/auth-utils';
 import { restoreCartBackup, clearCartBackup, mergeCartItems } from '~/lib/cart-utils';
+import { handleApiError } from '~/lib/toast';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
@@ -69,6 +70,7 @@ export default function CustomerLogin() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Authentication failed';
       setError(errorMessage);
+      handleApiError(err, 'Failed to sign in');
     } finally {
       setIsLoading(false);
     }
@@ -87,6 +89,7 @@ export default function CustomerLogin() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Google sign-in failed';
       setError(errorMessage);
+      handleApiError(err, 'Failed to sign in with Google');
       setIsGoogleLoading(false);
     }
   };

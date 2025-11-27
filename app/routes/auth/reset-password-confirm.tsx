@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { passwordResetConfirmSchema, type PasswordResetConfirmFormData } from '~/lib/auth-validation';
+import { handleApiError, showSuccess } from '~/lib/toast';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
@@ -62,6 +63,7 @@ export default function ResetPasswordConfirm() {
       }
 
       setSuccess(true);
+      showSuccess('Password reset successful', 'You can now sign in with your new password');
 
       // Redirect to login after 2 seconds
       setTimeout(() => {
@@ -70,6 +72,7 @@ export default function ResetPasswordConfirm() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to reset password';
       setError(errorMessage);
+      handleApiError(err, 'Failed to reset password');
     } finally {
       setIsLoading(false);
     }
