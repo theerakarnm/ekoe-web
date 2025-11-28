@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useLoaderData, useSearchParams, useNavigate, useRevalidator, useNavigation } from 'react-router';
-import type { Route } from './+types/index';
 import { getOrders, type Order } from '~/lib/services/admin/order-admin.service';
-import { OrderTable } from '~/components/admin/orders/order-table';
 import { TableSkeleton } from '~/components/admin/layout/table-skeleton';
+import { OrderTable } from '~/components/admin/orders/order-table';
+import type { Route } from '../orders/+types/index'
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);

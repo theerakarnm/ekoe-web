@@ -1,6 +1,6 @@
 import { useLoaderData, useNavigate, useActionData, Form } from 'react-router';
 import { ArrowLeft, Package, MapPin, CreditCard, Clock } from 'lucide-react';
-import type { Route } from './+types/$id';
+import type { Route } from '../orders/+types/$id'
 import { getOrder, updateOrderStatus, type OrderDetail } from '~/lib/services/admin/order-admin.service';
 import { Button } from '~/components/ui/button';
 import { Badge } from '~/components/ui/badge';
