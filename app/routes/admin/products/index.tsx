@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLoaderData, useSearchParams, useNavigate, useRevalidator, useNavigation } from 'react-router';
 import type { Route } from './+types/index';
-import { deleteProduct, type Product, createAdminClient } from '~/lib/admin/api-client';
+import { getProducts, deleteProduct, type Product } from '~/lib/services/admin/product-admin.service';
 import { ProductTable } from '~/components/admin/products/product-table';
 import { TableSkeleton } from '~/components/admin/layout/table-skeleton';
 import { showSuccess, showError } from '~/lib/admin/toast';
@@ -15,15 +15,14 @@ export async function loader({ request }: Route.LoaderArgs) {
   const sortBy = url.searchParams.get('sortBy') || undefined;
   const sortOrder = (url.searchParams.get('sortOrder') as 'asc' | 'desc') || undefined;
 
-  const api = createAdminClient(request);
-  const response = await api.getProducts({
+  const response = await getProducts({
     page,
     limit,
     search,
     status,
     sortBy,
     sortOrder,
-  });
+  }, request.headers);
 
   console.log(response);
 

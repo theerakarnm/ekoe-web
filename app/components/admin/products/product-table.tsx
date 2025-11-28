@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, ArrowUpDown, ArrowUp, ArrowDown, Edit, Trash2 } from 'lucide-react';
-import type { Product } from '~/lib/admin/api-client';
+import type { Product } from '~/lib/services/admin/product-admin.service';
 import { formatPrice } from '~/lib/admin/validation';
 import {
   Table,

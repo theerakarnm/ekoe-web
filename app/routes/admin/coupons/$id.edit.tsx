@@ -1,6 +1,6 @@
 import { useNavigate, useLoaderData, useNavigation } from 'react-router';
 import type { Route } from './+types/$id.edit';
-import { updateDiscountCode, createAdminClient } from '~/lib/admin/api-client';
+import { getDiscountCode, updateDiscountCode } from '~/lib/services/admin/coupon-admin.service';
 import { CouponForm } from '~/components/admin/coupons/coupon-form';
 import { FormSkeleton } from '~/components/admin/layout/form-skeleton';
 import { showSuccess, showError } from '~/lib/admin/toast';
@@ -12,8 +12,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     throw new Response('Invalid coupon ID', { status: 400 });
   }
 
-  const api = createAdminClient(request);
-  const coupon = await api.getDiscountCode(id);
+  const coupon = await getDiscountCode(id, request.headers);
   return { coupon };
 }
 

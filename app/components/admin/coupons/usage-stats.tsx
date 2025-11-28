@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Users, ShoppingCart, DollarSign, TrendingUp } from 'lucide-react';
-import { getCouponUsageStats, type CouponUsageStats } from '~/lib/admin/api-client';
+import { getCouponUsageStats, type CouponUsageStats } from '~/lib/services/admin/coupon-admin.service';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
 

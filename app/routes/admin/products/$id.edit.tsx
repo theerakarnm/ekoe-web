@@ -2,7 +2,7 @@ import type { Route } from './+types/$id.edit';
 import { useNavigation } from 'react-router';
 import { ProductForm } from '~/components/admin/products/product-form';
 import { FormSkeleton } from '~/components/admin/layout/form-skeleton';
-import { createAdminClient } from '~/lib/admin/api-client';
+import { getProduct } from '~/lib/services/admin/product-admin.service';
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const productId = params.id;
@@ -12,8 +12,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   }
 
   try {
-    const api = createAdminClient(request);
-    const product = await api.getProduct(productId);
+    const product = await getProduct(productId, request.headers);
     return { product };
   } catch (error) {
     throw new Response('Product not found', { status: 404 });

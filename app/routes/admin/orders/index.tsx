@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useLoaderData, useSearchParams, useNavigate, useRevalidator, useNavigation } from 'react-router';
 import type { Route } from './+types/index';
-import { getDiscountCodes, deactivateDiscountCode, type DiscountCode } from '~/lib/services/admin/coupon-admin.service';
-import { CouponTable } from '~/components/admin/coupons/coupon-table';
+import { getOrders, type Order } from '~/lib/services/admin/order-admin.service';
+import { OrderTable } from '~/components/admin/orders/order-table';
 import { TableSkeleton } from '~/components/admin/layout/table-skeleton';
-import { showSuccess, showError } from '~/lib/admin/toast';
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
@@ -12,33 +11,37 @@ export async function loader({ request }: Route.LoaderArgs) {
   const limit = parseInt(url.searchParams.get('limit') || '20', 10);
   const search = url.searchParams.get('search') || undefined;
   const status = url.searchParams.get('status') || undefined;
+  const paymentStatus = url.searchParams.get('paymentStatus') || undefined;
   const sortBy = url.searchParams.get('sortBy') || undefined;
   const sortOrder = (url.searchParams.get('sortOrder') as 'asc' | 'desc') || undefined;
 
-  const response = await getDiscountCodes({
-    page,
-    limit,
-    search,
-    status,
-    sortBy,
-    sortOrder,
-  }, request.headers);
+  const response = await getOrders(
+    {
+      page,
+      limit,
+      search,
+      status,
+      paymentStatus,
+      sortBy,
+      sortOrder,
+    },
+    request.headers
+  );
 
   return {
-    coupons: response.data,
+    orders: response.data,
     total: response.total,
     page: response.page,
     limit: response.limit,
   };
 }
 
-export default function CouponsIndexPage() {
-  const { coupons, total, page, limit } = useLoaderData<typeof loader>();
+export default function OrdersIndexPage() {
+  const { orders, total, page, limit } = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const navigation = useNavigation();
-  const [isDeactivating, setIsDeactivating] = useState(false);
 
   const isLoading = navigation.state === 'loading' || revalidator.state === 'loading';
 
@@ -55,7 +58,7 @@ export default function CouponsIndexPage() {
     } else {
       params.delete('search');
     }
-    params.set('page', '1'); // Reset to first page on search
+    params.set('page', '1');
     navigate(`?${params.toString()}`);
   };
 
@@ -66,7 +69,18 @@ export default function CouponsIndexPage() {
     } else {
       params.delete('status');
     }
-    params.set('page', '1'); // Reset to first page on filter
+    params.set('page', '1');
+    navigate(`?${params.toString()}`);
+  };
+
+  const handlePaymentStatusFilter = (paymentStatus: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (paymentStatus && paymentStatus !== 'all') {
+      params.set('paymentStatus', paymentStatus);
+    } else {
+      params.delete('paymentStatus');
+    }
+    params.set('page', '1');
     navigate(`?${params.toString()}`);
   };
 
@@ -77,60 +91,38 @@ export default function CouponsIndexPage() {
     navigate(`?${params.toString()}`);
   };
 
-  const handleEdit = (id: string) => {
-    navigate(`/admin/coupons/${id}/edit`);
-  };
-
-  const handleDeactivate = async (id: string) => {
-    if (isDeactivating) return;
-
-    setIsDeactivating(true);
-    try {
-      await deactivateDiscountCode(id);
-      showSuccess('Coupon deactivated successfully');
-      // Revalidate to refresh the data
-      revalidator.revalidate();
-    } catch (error: any) {
-      console.error('Failed to deactivate coupon:', error);
-      showError(error.message || 'Failed to deactivate coupon');
-    } finally {
-      setIsDeactivating(false);
-    }
+  const handleViewOrder = (id: string) => {
+    navigate(`/admin/orders/${id}`);
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Coupons</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
           <p className="text-muted-foreground mt-2">
-            Manage discount codes and promotional offers
+            Manage customer orders and track fulfillment
           </p>
         </div>
-        <button
-          onClick={() => navigate('/admin/coupons/new')}
-          className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          Add Coupon
-        </button>
-      </div>
+      </header>
 
       {isLoading ? (
-        <TableSkeleton columns={8} rows={10} />
+        <TableSkeleton columns={7} rows={10} />
       ) : (
-        <CouponTable
-          coupons={coupons}
+        <OrderTable
+          orders={orders}
           totalCount={total}
           currentPage={page}
           pageSize={limit}
           onPageChange={handlePageChange}
           onSearch={handleSearch}
           onStatusFilter={handleStatusFilter}
+          onPaymentStatusFilter={handlePaymentStatusFilter}
           onSort={handleSort}
-          onEdit={handleEdit}
-          onDeactivate={handleDeactivate}
+          onViewOrder={handleViewOrder}
           currentSearch={searchParams.get('search') || ''}
           currentStatus={searchParams.get('status') || 'all'}
+          currentPaymentStatus={searchParams.get('paymentStatus') || 'all'}
           currentSortBy={searchParams.get('sortBy') || ''}
           currentSortOrder={(searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc'}
         />

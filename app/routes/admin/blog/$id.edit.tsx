@@ -2,7 +2,7 @@ import type { Route } from './+types/$id.edit';
 import { useNavigate, useNavigation } from 'react-router';
 import { BlogForm } from '~/components/admin/blog/blog-form';
 import { FormSkeleton } from '~/components/admin/layout/form-skeleton';
-import { updateBlogPost, createAdminClient } from '~/lib/admin/api-client';
+import { getBlogPost, updateBlogPost } from '~/lib/services/admin/blog-admin.service';
 import type { BlogPostFormData } from '~/lib/admin/validation';
 import { showSuccess, showError } from '~/lib/admin/toast';
 
@@ -14,8 +14,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   }
 
   try {
-    const api = createAdminClient(request);
-    const post = await api.getBlogPost(id);
+    const post = await getBlogPost(id, request.headers);
     return { post };
   } catch (error) {
     throw new Response('Blog post not found', { status: 404 });

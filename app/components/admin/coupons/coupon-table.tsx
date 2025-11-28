@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, ArrowUpDown, ArrowUp, ArrowDown, Edit, Ban, Calendar, Percent, DollarSign, Truck } from 'lucide-react';
-import type { DiscountCode } from '~/lib/admin/api-client';
+import type { DiscountCode } from '~/lib/services/admin/coupon-admin.service';
 import {
   Table,
   TableBody,

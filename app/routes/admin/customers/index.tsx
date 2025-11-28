@@ -1,44 +1,42 @@
-import { useState } from 'react';
 import { useLoaderData, useSearchParams, useNavigate, useRevalidator, useNavigation } from 'react-router';
 import type { Route } from './+types/index';
-import { getBlogPosts, deleteBlogPost, type BlogPost } from '~/lib/services/admin/blog-admin.service';
-import { BlogTable } from '~/components/admin/blog/blog-table';
+import { getCustomers } from '~/lib/services/admin/customer-admin.service';
+import { CustomerTable } from '~/components/admin/customers/customer-table';
 import { TableSkeleton } from '~/components/admin/layout/table-skeleton';
-import { showSuccess, showError } from '~/lib/admin/toast';
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const page = parseInt(url.searchParams.get('page') || '1', 10);
   const limit = parseInt(url.searchParams.get('limit') || '20', 10);
   const search = url.searchParams.get('search') || undefined;
-  const status = url.searchParams.get('status') || undefined;
   const sortBy = url.searchParams.get('sortBy') || undefined;
   const sortOrder = (url.searchParams.get('sortOrder') as 'asc' | 'desc') || undefined;
 
-  const response = await getBlogPosts({
-    page,
-    limit,
-    search,
-    status,
-    sortBy,
-    sortOrder,
-  }, request.headers);
+  const response = await getCustomers(
+    {
+      page,
+      limit,
+      search,
+      sortBy,
+      sortOrder,
+    },
+    request.headers
+  );
 
   return {
-    posts: response.data,
+    customers: response.data,
     total: response.total,
     page: response.page,
     limit: response.limit,
   };
 }
 
-export default function BlogIndexPage() {
-  const { posts, total, page, limit } = useLoaderData<typeof loader>();
+export default function CustomersIndexPage() {
+  const { customers, total, page, limit } = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const revalidator = useRevalidator();
   const navigation = useNavigation();
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const isLoading = navigation.state === 'loading' || revalidator.state === 'loading';
 
@@ -55,18 +53,7 @@ export default function BlogIndexPage() {
     } else {
       params.delete('search');
     }
-    params.set('page', '1'); // Reset to first page on search
-    navigate(`?${params.toString()}`);
-  };
-
-  const handleStatusFilter = (status: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (status && status !== 'all') {
-      params.set('status', status);
-    } else {
-      params.delete('status');
-    }
-    params.set('page', '1'); // Reset to first page on filter
+    params.set('page', '1');
     navigate(`?${params.toString()}`);
   };
 
@@ -77,60 +64,34 @@ export default function BlogIndexPage() {
     navigate(`?${params.toString()}`);
   };
 
-  const handleEdit = (id: number) => {
-    navigate(`/admin/blog/${id}/edit`);
-  };
-
-  const handleDelete = async (id: number) => {
-    if (isDeleting) return;
-
-    setIsDeleting(true);
-    try {
-      await deleteBlogPost(id);
-      showSuccess('Blog post deleted successfully');
-      // Revalidate to refresh the data
-      revalidator.revalidate();
-    } catch (error: any) {
-      console.error('Failed to delete blog post:', error);
-      showError(error.message || 'Failed to delete blog post');
-    } finally {
-      setIsDeleting(false);
-    }
+  const handleViewCustomer = (id: string) => {
+    navigate(`/admin/customers/${id}`);
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Blog</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
           <p className="text-muted-foreground mt-2">
-            Manage your blog articles
+            View and manage customer accounts and order history
           </p>
         </div>
-        <button
-          onClick={() => navigate('/admin/blog/new')}
-          className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          Add Article
-        </button>
-      </div>
+      </header>
 
       {isLoading ? (
         <TableSkeleton columns={6} rows={10} />
       ) : (
-        <BlogTable
-          posts={posts}
+        <CustomerTable
+          customers={customers}
           totalCount={total}
           currentPage={page}
           pageSize={limit}
           onPageChange={handlePageChange}
           onSearch={handleSearch}
-          onStatusFilter={handleStatusFilter}
           onSort={handleSort}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+          onViewCustomer={handleViewCustomer}
           currentSearch={searchParams.get('search') || ''}
-          currentStatus={searchParams.get('status') || 'all'}
           currentSortBy={searchParams.get('sortBy') || ''}
           currentSortOrder={(searchParams.get('sortOrder') as 'asc' | 'desc') || 'desc'}
         />

@@ -71,7 +71,7 @@ export async function action({ request }: Route.ActionArgs) {
         error: error.message,
         code: error.code,
         field: error.field,
-        details: error.details,
+        details: error.cause
       };
     }
 
@@ -86,7 +86,7 @@ export default function Checkout() {
   const items = useCartStore((state) => state.items);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
-  
+
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [isValidating, setIsValidating] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -201,7 +201,7 @@ export default function Checkout() {
             <div className="grid grid-cols-1 lg:grid-cols-2">
               {/* Left Column - Form */}
               <div className="px-4 sm:px-6 lg:px-12">
-                <CheckoutForm 
+                <CheckoutForm
                   isValidating={isValidating}
                   validationResult={validationResult}
                 />

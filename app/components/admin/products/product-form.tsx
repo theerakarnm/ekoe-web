@@ -17,7 +17,7 @@ import {
   uploadProductImage,
   type Product,
   type ProductImage,
-} from '~/lib/admin/api-client';
+} from '~/lib/services/admin/product-admin.service';
 import { PriceInput } from './price-input';
 import { ImageUploader } from './image-uploader';
 import { VariantManager } from './variant-manager';

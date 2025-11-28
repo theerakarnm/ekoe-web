@@ -1,7 +1,7 @@
 import type { Route } from './+types/new';
 import { useNavigate } from 'react-router';
 import { BlogForm } from '~/components/admin/blog/blog-form';
-import { createBlogPost } from '~/lib/admin/api-client';
+import { createBlogPost } from '~/lib/services/admin/blog-admin.service';
 import type { BlogPostFormData } from '~/lib/admin/validation';
 import { showSuccess, showError } from '~/lib/admin/toast';
 

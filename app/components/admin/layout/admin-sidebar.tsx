@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import { LayoutDashboard, Package, FileText, Ticket, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Package, FileText, Ticket, ShoppingCart, Menu, X } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
@@ -11,6 +11,11 @@ const navigationItems = [
     name: 'Dashboard',
     href: '/admin/dashboard',
     icon: LayoutDashboard,
+  },
+  {
+    name: 'Orders',
+    href: '/admin/orders',
+    icon: ShoppingCart,
   },
   {
     name: 'Products',

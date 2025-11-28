@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useEffect } from 'react';
 import { Loader2, Info } from 'lucide-react';
 import { discountCodeSchema, type DiscountCodeFormData } from '~/lib/admin/validation';
-import type { DiscountCode } from '~/lib/admin/api-client';
+import type { DiscountCode } from '~/lib/services/admin/coupon-admin.service';
 import { useKeyboardShortcuts } from '~/lib/admin/use-keyboard-shortcuts';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import type { Route } from './+types/new';
-import { createDiscountCode } from '~/lib/admin/api-client';
+import { createDiscountCode } from '~/lib/services/admin/coupon-admin.service';
 import { CouponForm } from '~/components/admin/coupons/coupon-form';
 import { showSuccess, showError } from '~/lib/admin/toast';
 
