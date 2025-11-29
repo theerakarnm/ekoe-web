@@ -99,7 +99,7 @@ export default function PromptPayPaymentPage({ loaderData }: Route.ComponentProp
           )}
 
           {/* Payment Pending - Show QR Code */}
-          {!error && payment && paymentStatus === 'pending' && (
+          {!error && payment && paymentStatus === 'pending' && payment.qrCode && payment.expiresAt && (
             <PromptPayQR
               paymentId={payment.paymentId}
               qrCode={payment.qrCode}

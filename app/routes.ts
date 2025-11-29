@@ -53,5 +53,9 @@ export default [
     // Order routes
     route("admin/orders", "routes/admin/orders/index.tsx"),
     route("admin/orders/:id", "routes/admin/orders/$id.tsx"),
+
+    // Customer routes
+    route("admin/customers", "routes/admin/customers/index.tsx"),
+    route("admin/customers/:id", "routes/admin/customers/$id.tsx"),
   ]),
 ] satisfies RouteConfig;

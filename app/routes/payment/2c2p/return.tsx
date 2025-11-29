@@ -39,10 +39,9 @@ export async function loader({ request }: Route.LoaderArgs) {
       transactionRef || undefined
     );
 
-    // If payment is completed, redirect to success page
-    if (result.status === 'completed') {
-      return redirect(`/order-success/${orderId}`);
-    }
+    // If payment is completed, we still return it so the UI can show success message
+    // and then redirect via client-side logic
+
 
     return {
       result,
