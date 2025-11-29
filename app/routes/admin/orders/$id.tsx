@@ -1,7 +1,8 @@
-import { useLoaderData, useNavigate, useActionData, Form } from 'react-router';
-import { ArrowLeft, Package, MapPin, CreditCard, Clock } from 'lucide-react';
+import { useLoaderData, useNavigate, useActionData, Form, useRevalidator } from 'react-router';
+import { ArrowLeft, Package, MapPin, CreditCard, Clock, Receipt, CheckCircle } from 'lucide-react';
 import type { Route } from '../orders/+types/$id'
 import { getOrder, updateOrderStatus, type OrderDetail } from '~/lib/services/admin/order-admin.service';
+import { getPaymentsByOrderId, manuallyVerifyPayment, type Payment } from '~/lib/services/payment.service';
 import { Button } from '~/components/ui/button';
 import { Badge } from '~/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
@@ -15,12 +16,24 @@ import {
 } from '~/components/ui/select';
 import { Textarea } from '~/components/ui/textarea';
 import { Label } from '~/components/ui/label';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '~/components/ui/alert-dialog';
 import { showSuccess, showError } from '~/lib/admin/toast';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { PaymentDetailModal } from '~/components/admin/payments/payment-detail-modal';
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const order = await getOrder(params.id, request.headers);
-  return { order };
+  const payments = await getPaymentsByOrderId(params.id, request.headers);
+  return { order, payments };
 }
 
 export async function action({ params, request }: Route.ActionArgs) {
@@ -37,9 +50,14 @@ export async function action({ params, request }: Route.ActionArgs) {
 }
 
 export default function OrderDetailPage() {
-  const { order } = useLoaderData<typeof loader>();
+  const { order, payments } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
+  const revalidator = useRevalidator();
+  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
+  const [verifyingPayment, setVerifyingPayment] = useState<Payment | null>(null);
+  const [verificationNote, setVerificationNote] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
 
   useEffect(() => {
     if (actionData?.success && actionData.message) {
@@ -48,6 +66,23 @@ export default function OrderDetailPage() {
       showError(actionData.error);
     }
   }, [actionData]);
+
+  const handleVerifyPayment = async () => {
+    if (!verifyingPayment) return;
+
+    setIsVerifying(true);
+    try {
+      await manuallyVerifyPayment(verifyingPayment.id, verificationNote || undefined);
+      showSuccess('Payment marked as paid successfully');
+      setVerifyingPayment(null);
+      setVerificationNote('');
+      revalidator.revalidate();
+    } catch (error: any) {
+      showError(error.message || 'Failed to verify payment');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -78,6 +113,19 @@ export default function OrderDetailPage() {
         return <Badge variant="outline">Refunded</Badge>;
       default:
         return <Badge variant="outline">{paymentStatus}</Badge>;
+    }
+  };
+
+  const getPaymentMethodLabel = (method: string) => {
+    switch (method) {
+      case 'promptpay':
+        return 'PromptPay';
+      case 'credit_card':
+        return 'Credit Card';
+      case 'bank_transfer':
+        return 'Bank Transfer';
+      default:
+        return method;
     }
   };
 
@@ -260,6 +308,81 @@ export default function OrderDetailPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Payment Transactions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Receipt className="size-5" />
+                Payment Transactions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {payments.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No payment transactions</p>
+              ) : (
+                <div className="space-y-4">
+                  {payments.map((payment) => (
+                    <div key={payment.id} className="space-y-2 pb-4 border-b last:border-b-0 last:pb-0">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">
+                              {getPaymentMethodLabel(payment.paymentMethod)}
+                            </span>
+                            {getPaymentStatusBadge(payment.status)}
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Amount: {formatCurrency(payment.amount / 100)}
+                          </p>
+                          {payment.transactionId && (
+                            <p className="text-sm text-muted-foreground">
+                              Transaction ID: {payment.transactionId}
+                            </p>
+                          )}
+                          {payment.cardLast4 && (
+                            <p className="text-sm text-muted-foreground">
+                              Card: {payment.cardBrand} •••• {payment.cardLast4}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="space-y-1 text-xs text-muted-foreground">
+                        <p>Created: {formatDate(payment.createdAt)}</p>
+                        {payment.completedAt && (
+                          <p>Completed: {formatDate(payment.completedAt)}</p>
+                        )}
+                        {payment.failedAt && (
+                          <p>Failed: {formatDate(payment.failedAt)}</p>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedPayment(payment)}
+                          className="flex-1"
+                        >
+                          View Details
+                        </Button>
+                        {payment.status === 'pending' && (
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => setVerifyingPayment(payment)}
+                            className="flex-1"
+                          >
+                            <CheckCircle className="size-4 mr-1" />
+                            Mark as Paid
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Sidebar */}
@@ -357,6 +480,43 @@ export default function OrderDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* Payment Detail Modal */}
+      {selectedPayment && (
+        <PaymentDetailModal
+          payment={selectedPayment}
+          open={!!selectedPayment}
+          onClose={() => setSelectedPayment(null)}
+        />
+      )}
+
+      {/* Manual Verification Dialog */}
+      <AlertDialog open={!!verifyingPayment} onOpenChange={(open) => !open && setVerifyingPayment(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Mark Payment as Paid</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to manually mark this payment as paid? This action will update the order status and send a confirmation email to the customer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-2 py-4">
+            <Label htmlFor="verification-note">Note (Optional)</Label>
+            <Textarea
+              id="verification-note"
+              placeholder="Add a note explaining the manual verification..."
+              value={verificationNote}
+              onChange={(e) => setVerificationNote(e.target.value)}
+              rows={3}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isVerifying}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleVerifyPayment} disabled={isVerifying}>
+              {isVerifying ? 'Verifying...' : 'Confirm'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

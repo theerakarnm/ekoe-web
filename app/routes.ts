@@ -10,6 +10,15 @@ export default [
   route("cart", "routes/cart.tsx"),
   route("checkout", "routes/checkout.tsx"),
 
+  // Payment routes
+  route("payment/2c2p/return", "routes/payment/2c2p/return.tsx"),
+  route("payment/promptpay/:id", "routes/payment/promptpay/$id.tsx"),
+
+  // Order
+  route("order", "routes/order.tsx"),
+  route("order/:id", "routes/order/$id.tsx"),
+  route("order-success/:id", "routes/order-success/$id.tsx"),
+
   // Admin routes
   route("admin/login", "routes/admin/login.tsx"),
 

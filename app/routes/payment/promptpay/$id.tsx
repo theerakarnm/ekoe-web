@@ -27,7 +27,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 
   try {
     const payment = await getPaymentStatus(paymentId);
-    
+
     // If payment is already completed, redirect to success page
     if (payment.status === 'completed') {
       // Get order ID from payment (we'll need to add this to the response)
@@ -54,7 +54,6 @@ export async function loader({ params }: Route.LoaderArgs) {
 export default function PromptPayPaymentPage({ loaderData }: Route.ComponentProps) {
   const { payment, error } = loaderData;
   const [paymentStatus, setPaymentStatus] = useState(payment?.status || 'pending');
-  const [isPolling, setIsPolling] = useState(true);
 
   // Handle payment completion
   useEffect(() => {
@@ -63,11 +62,6 @@ export default function PromptPayPaymentPage({ loaderData }: Route.ComponentProp
       window.location.href = `/order-success/${payment.orderId}`;
     }
   }, [paymentStatus, payment?.orderId]);
-
-  // Handle payment timeout
-  const handleTimeout = () => {
-    setIsPolling(false);
-  };
 
   // Handle payment completion from polling
   const handlePaymentComplete = () => {
@@ -105,48 +99,15 @@ export default function PromptPayPaymentPage({ loaderData }: Route.ComponentProp
           )}
 
           {/* Payment Pending - Show QR Code */}
-          {!error && payment && paymentStatus === 'pending' && isPolling && (
-            <div className="bg-white rounded-lg shadow-sm p-8">
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                  <Clock className="h-8 w-8 text-blue-600" />
-                </div>
-                <h2 className="text-2xl font-serif mb-2">Complete Your Payment</h2>
-                <p className="text-gray-600">
-                  Scan the QR code below with your mobile banking app to complete the payment
-                </p>
-              </div>
-
-              <PromptPayQR
-                paymentId={payment.paymentId}
-                qrCode={payment.qrCode}
-                amount={payment.amount}
-                expiresAt={new Date(payment.expiresAt)}
-                onPaymentComplete={handlePaymentComplete}
-                onTimeout={handleTimeout}
-              />
-            </div>
-          )}
-
-          {/* Payment Timeout */}
-          {!error && payment && !isPolling && paymentStatus === 'pending' && (
-            <div className="space-y-6">
-              <Alert>
-                <Clock className="h-4 w-4" />
-                <AlertTitle>Payment Expired</AlertTitle>
-                <AlertDescription>
-                  The payment QR code has expired. Please return to checkout to try again.
-                </AlertDescription>
-              </Alert>
-              <div className="flex justify-center gap-4">
-                <Button asChild variant="outline">
-                  <a href="/cart">View Cart</a>
-                </Button>
-                <Button asChild>
-                  <a href="/checkout">Return to Checkout</a>
-                </Button>
-              </div>
-            </div>
+          {!error && payment && paymentStatus === 'pending' && (
+            <PromptPayQR
+              paymentId={payment.paymentId}
+              qrCode={payment.qrCode}
+              amount={payment.amount}
+              expiresAt={new Date(payment.expiresAt)}
+              orderId={payment.orderId}
+              onPaymentComplete={handlePaymentComplete}
+            />
           )}
 
           {/* Payment Completed */}
