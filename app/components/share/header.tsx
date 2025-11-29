@@ -107,9 +107,6 @@ export default function Header({
                   <button className="text-gray-700 hover:text-gray-900 text-sm hidden xl:block">
                     SEARCH
                   </button>
-                  <Link to="/admin/login" className="text-gray-700 hover:text-gray-900 text-sm hidden xl:block">
-                    LOGIN/REGISTER
-                  </Link>
                   {mounted && isAuthenticated && user ? (
                     <DropdownMenu>
                       <DropdownMenuTrigger className="outline-none">
@@ -132,9 +129,9 @@ export default function Header({
                           </div>
                         </div>
                         <DropdownMenuItem asChild>
-                          <Link to="/profile" className="w-full cursor-pointer flex items-center">
-                            <Settings className="mr-2 h-4 w-4" />
-                            Settings
+                          <Link to="/account" className="w-full cursor-pointer flex items-center">
+                            <User className="mr-2 h-4 w-4" />
+                            My Account
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
@@ -147,10 +144,15 @@ export default function Header({
                       </DropdownMenuContent>
                     </DropdownMenu>
                   ) : (
-                    <Link to="/auth/login" className="text-gray-700 hover:text-gray-900">
-                      <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <Link to="/auth/login" className="text-gray-700 hover:text-gray-900 text-sm hidden xl:block">
+                      LOGIN
                     </Link>
                   )}
+                  {!mounted || !isAuthenticated ? (
+                    <Link to="/auth/login" className="text-gray-700 hover:text-gray-900 xl:hidden">
+                      <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </Link>
+                  ) : null}
                   <Link to="/cart" className="text-gray-700 hover:text-gray-900 relative">
                     <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
                     <span className="absolute -top-2 -right-2 bg-gray-800 text-white text-xs rounded-full h-3 w-3 sm:h-4 sm:w-4 flex items-center justify-center">
@@ -165,7 +167,7 @@ export default function Header({
                     <Search className="h-5 w-5" />
                   </button>
                   {mounted && isAuthenticated && user ? (
-                    <Link to="/profile" className="text-gray-700 hover:text-gray-900">
+                    <Link to="/account" className="text-gray-700 hover:text-gray-900">
                       <Avatar className="h-6 w-6 border border-gray-200">
                         <AvatarImage src={user.image || ''} alt={user.name} />
                         <AvatarFallback className="bg-primary/10 text-primary text-xs">
@@ -237,13 +239,34 @@ export default function Header({
                       <button className="flex items-center text-gray-700 hover:text-gray-900 text-sm font-medium py-2 w-full text-left">
                         <Search className="h-4 w-4 mr-2" /> SEARCH
                       </button>
-                      <Link
-                        to="/admin/login"
-                        className="block text-gray-700 hover:text-gray-900 text-sm font-medium py-2"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        LOGIN/REGISTER
-                      </Link>
+                      {mounted && isAuthenticated && user ? (
+                        <>
+                          <Link
+                            to="/account"
+                            className="block text-gray-700 hover:text-gray-900 text-sm font-medium py-2"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            MY ACCOUNT
+                          </Link>
+                          <button
+                            onClick={() => {
+                              signOut();
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className="flex items-center text-red-600 hover:text-red-700 text-sm font-medium py-2 w-full text-left"
+                          >
+                            <LogOut className="h-4 w-4 mr-2" /> LOGOUT
+                          </button>
+                        </>
+                      ) : (
+                        <Link
+                          to="/auth/login"
+                          className="block text-gray-700 hover:text-gray-900 text-sm font-medium py-2"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          LOGIN/REGISTER
+                        </Link>
+                      )}
                     </div>
                   </nav>
                 </div>

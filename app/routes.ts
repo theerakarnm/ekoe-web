@@ -29,6 +29,9 @@ export default [
   route("auth/reset-password", "routes/auth/reset-password.tsx"),
   route("auth/reset-password-confirm", "routes/auth/reset-password-confirm.tsx"),
 
+  // Customer account
+  route("account", "routes/account/index.tsx"),
+
   // Date Picker Demo
   route("date-picker-demo", "routes/date-picker-demo.tsx"),
 
