@@ -7,6 +7,7 @@ import { CustomerAuthGuard } from "~/components/auth/customer-auth-guard";
 import { ShoppingCart, AlertCircle } from "lucide-react";
 import { useCartStore } from "~/store/cart";
 import { validateCartItems, createOrder, type ValidationResult, type CreateOrderRequest } from "~/lib/services/order.service";
+import { createPromptPayPayment, initiate2C2PPayment } from "~/lib/services/payment.service";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { ApiClientError } from "~/lib/api-client";
@@ -19,12 +20,14 @@ export function meta({ }: Route.MetaArgs) {
 }
 
 /**
- * Action function to handle order creation
+ * Action function to handle order creation and payment
  */
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
 
   try {
+    const paymentMethod = formData.get('paymentMethod') as string;
+
     // Parse form data into CreateOrderRequest
     const orderData: CreateOrderRequest = {
       email: formData.get('email') as string,
@@ -60,7 +63,23 @@ export async function action({ request }: Route.ActionArgs) {
     // Create the order
     const order = await createOrder(orderData);
 
-    // Redirect to success page
+    // Handle payment based on selected method
+    if (paymentMethod === 'promptpay') {
+      // Create PromptPay payment
+      const payment = await createPromptPayPayment(order.id, order.totalAmount);
+      
+      // Redirect to PromptPay QR page
+      return redirect(`/payment/promptpay/${payment.paymentId}`);
+    } else if (paymentMethod === 'credit_card') {
+      // Initiate 2C2P payment
+      const returnUrl = `${request.url.split('/checkout')[0]}/payment/2c2p/return`;
+      const payment = await initiate2C2PPayment(order.id, order.totalAmount, returnUrl);
+      
+      // Redirect to 2C2P payment page
+      return redirect(payment.paymentUrl);
+    }
+
+    // Fallback: redirect to success page (shouldn't happen)
     return redirect(`/order-success/${order.id}`);
   } catch (error) {
     console.error('Order creation error:', error);

@@ -205,6 +205,13 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
           }))
         )}
       />
+      
+      {/* Hidden field for payment method */}
+      <input
+        type="hidden"
+        name="paymentMethod"
+        value={form.watch('paymentMethod')}
+      />
 
       <Form {...form}>
         {/* Contact Section */}

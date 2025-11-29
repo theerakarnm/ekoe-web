@@ -44,9 +44,12 @@ export interface Payment {
  */
 export interface PaymentStatusResponse {
   paymentId: string;
+  orderId: string;
   status: PaymentStatus;
   transactionId: string | null;
   amount: number;
+  qrCode?: string;
+  expiresAt?: string;
   createdAt: string;
   completedAt: string | null;
 }

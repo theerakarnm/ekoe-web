@@ -1,13 +1,18 @@
-import { useEffect } from "react";
-import { Link, useLoaderData, useParams } from "react-router";
-import { CheckCircle, Package, MapPin, Mail } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useLoaderData, useParams, useSearchParams, Form } from "react-router";
+import { CheckCircle, Package, MapPin, Mail, AlertCircle, CreditCard, QrCode } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
+import { Label } from "~/components/ui/label";
 import { formatCurrencyFromCents } from "~/lib/formatter";
 import { useCartStore } from "~/store/cart";
 import { apiClient, type SuccessResponseWrapper } from "~/lib/api-client";
+import { createPromptPayPayment, initiate2C2PPayment, getPaymentsByOrderId } from "~/lib/services/payment.service";
 import type { OrderDetail } from "~/lib/services/order.service";
+import type { Payment } from "~/lib/services/payment.service";
 
 export function meta() {
   return [
@@ -17,14 +22,34 @@ export function meta() {
 }
 
 /**
- * Loader to fetch order details
+ * Loader to fetch order details and payment information
  */
-export async function loader({ params }: { params: { id: string } }) {
+export async function loader({ params, request }: { params: { id: string }; request: Request }) {
   try {
+    const url = new URL(request.url);
+    const showRetry = url.searchParams.get('retry') === 'true';
+
     const response = await apiClient.get<SuccessResponseWrapper<OrderDetail>>(
       `/api/orders/${params.id}`
     );
-    return { order: response.data.data };
+    
+    const order = response.data.data;
+
+    // Fetch payment information if order exists
+    let payments: Payment[] = [];
+    try {
+      payments = await getPaymentsByOrderId(params.id);
+    } catch (error) {
+      console.error('Failed to load payments:', error);
+    }
+
+    return { 
+      order, 
+      payments,
+      showRetry,
+      hasFailedPayment: payments.some(p => p.status === 'failed'),
+      isPending: order.paymentStatus === 'pending',
+    };
   } catch (error) {
     console.error('Failed to load order:', error);
     throw new Response("Order not found", { status: 404 });
@@ -32,13 +57,46 @@ export async function loader({ params }: { params: { id: string } }) {
 }
 
 export default function OrderSuccess() {
-  const { order } = useLoaderData<{ order: OrderDetail }>();
+  const { order, payments, showRetry, hasFailedPayment, isPending } = useLoaderData<{ 
+    order: OrderDetail; 
+    payments: Payment[];
+    showRetry: boolean;
+    hasFailedPayment: boolean;
+    isPending: boolean;
+  }>();
   const clearCart = useCartStore((state) => state.clearCart);
+  const [searchParams] = useSearchParams();
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'promptpay' | 'credit_card'>('credit_card');
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [retryError, setRetryError] = useState<string | null>(null);
 
   // Clear cart on mount
   useEffect(() => {
     clearCart();
   }, [clearCart]);
+
+  // Handle payment retry
+  const handleRetryPayment = async () => {
+    setIsRetrying(true);
+    setRetryError(null);
+
+    try {
+      if (selectedPaymentMethod === 'promptpay') {
+        // Create PromptPay payment
+        const payment = await createPromptPayPayment(order.id, order.totalAmount);
+        window.location.href = `/payment/promptpay/${payment.paymentId}`;
+      } else if (selectedPaymentMethod === 'credit_card') {
+        // Initiate 2C2P payment
+        const returnUrl = `${window.location.origin}/payment/2c2p/return`;
+        const payment = await initiate2C2PPayment(order.id, order.totalAmount, returnUrl);
+        window.location.href = payment.paymentUrl;
+      }
+    } catch (error) {
+      console.error('Payment retry error:', error);
+      setRetryError('Failed to initiate payment. Please try again or contact support.');
+      setIsRetrying(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
@@ -53,18 +111,124 @@ export default function OrderSuccess() {
 
       {/* Main Content */}
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Success Message */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-            <CheckCircle className="w-10 h-10 text-green-600" />
+        {/* Success Message or Payment Pending */}
+        {order.paymentStatus === 'paid' ? (
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+              <CheckCircle className="w-10 h-10 text-green-600" />
+            </div>
+            <h1 className="text-3xl font-serif text-gray-900 mb-2">
+              Order Confirmed!
+            </h1>
+            <p className="text-gray-600">
+              Thank you for your purchase. Your order has been received and is being processed.
+            </p>
           </div>
-          <h1 className="text-3xl font-serif text-gray-900 mb-2">
-            Order Confirmed!
-          </h1>
-          <p className="text-gray-600">
-            Thank you for your purchase. Your order has been received and is being processed.
-          </p>
-        </div>
+        ) : (
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mb-4">
+              <AlertCircle className="w-10 h-10 text-yellow-600" />
+            </div>
+            <h1 className="text-3xl font-serif text-gray-900 mb-2">
+              Order Created - Payment Pending
+            </h1>
+            <p className="text-gray-600">
+              Your order has been created but payment is still pending.
+            </p>
+          </div>
+        )}
+
+        {/* Payment Failed Alert */}
+        {(hasFailedPayment || showRetry) && order.paymentStatus !== 'paid' && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Payment Failed</AlertTitle>
+            <AlertDescription>
+              Your previous payment attempt was unsuccessful. Please try again with a different payment method or contact support if you need assistance.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Retry Payment Section */}
+        {(showRetry || (hasFailedPayment && order.paymentStatus !== 'paid')) && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Retry Payment</CardTitle>
+              <CardDescription>
+                Select a payment method to complete your order
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {retryError && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{retryError}</AlertDescription>
+                </Alert>
+              )}
+
+              <div className="space-y-4">
+                <Label>Payment Method</Label>
+                <RadioGroup
+                  value={selectedPaymentMethod}
+                  onValueChange={(value) => setSelectedPaymentMethod(value as 'promptpay' | 'credit_card')}
+                  className="flex flex-col space-y-0"
+                >
+                  {/* Credit Card Option */}
+                  <div className={`border rounded-t-md p-4 ${selectedPaymentMethod === 'credit_card' ? 'bg-gray-50 border-black z-10' : 'border-gray-200'}`}>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="credit_card" id="retry_credit_card" />
+                      <div className="flex-1 flex justify-between items-center">
+                        <Label htmlFor="retry_credit_card" className="font-medium cursor-pointer">Credit card</Label>
+                        <div className="flex gap-1">
+                          <div className="w-8 h-5 bg-blue-600 rounded text-[8px] text-white flex items-center justify-center font-bold italic">VISA</div>
+                          <div className="w-8 h-5 bg-red-500 rounded text-[8px] text-white flex items-center justify-center font-bold">MC</div>
+                        </div>
+                      </div>
+                    </div>
+                    {selectedPaymentMethod === 'credit_card' && (
+                      <div className="mt-4 pl-6 text-sm text-gray-500">
+                        You will be redirected to a secure payment page to enter your card details.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* PromptPay Option */}
+                  <div className={`border border-t-0 rounded-b-md p-4 ${selectedPaymentMethod === 'promptpay' ? 'bg-gray-50 border-black' : 'border-gray-200'}`}>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="promptpay" id="retry_promptpay" />
+                      <div className="flex-1 flex justify-between items-center">
+                        <Label htmlFor="retry_promptpay" className="font-medium cursor-pointer">PromptPay QR Code</Label>
+                        <QrCode size={20} />
+                      </div>
+                    </div>
+                    {selectedPaymentMethod === 'promptpay' && (
+                      <div className="mt-4 pl-6 text-sm text-gray-500">
+                        You will be shown a QR code to scan with your mobile banking app.
+                      </div>
+                    )}
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <div className="flex gap-4">
+                <Button
+                  onClick={handleRetryPayment}
+                  disabled={isRetrying}
+                  className="flex-1"
+                >
+                  {isRetrying ? 'Processing...' : `Pay ${formatCurrencyFromCents(order.totalAmount, { symbol: '฿' })}`}
+                </Button>
+                <Button
+                  variant="outline"
+                  asChild
+                  className="flex-1"
+                >
+                  <Link to="/">Cancel</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Order Details Card */}
         <Card className="mb-6">
@@ -172,6 +336,54 @@ export default function OrderSuccess() {
           </CardContent>
         </Card>
 
+        {/* Payment Status */}
+        {payments.length > 0 && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Payment History</CardTitle>
+              <CardDescription>
+                Payment attempts for this order
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {payments.map((payment) => (
+                  <div key={payment.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium capitalize">
+                          {payment.paymentMethod.replace('_', ' ')}
+                        </span>
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          payment.status === 'completed' ? 'bg-green-100 text-green-800' :
+                          payment.status === 'failed' ? 'bg-red-100 text-red-800' :
+                          payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {payment.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {new Date(payment.createdAt).toLocaleString()}
+                      </p>
+                      {payment.transactionId && (
+                        <p className="text-xs text-gray-500 font-mono">
+                          Ref: {payment.transactionId}
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium">
+                        {formatCurrencyFromCents(payment.amount, { symbol: '฿' })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Order Status Info */}
         <Card className="mb-8">
           <CardContent className="pt-6">
@@ -182,8 +394,17 @@ export default function OrderSuccess() {
                   What's Next?
                 </h3>
                 <p className="text-sm text-gray-600">
-                  We've sent a confirmation email to <strong>{order.email}</strong> with your order details.
-                  You'll receive another email when your order ships.
+                  {order.paymentStatus === 'paid' ? (
+                    <>
+                      We've sent a confirmation email to <strong>{order.email}</strong> with your order details.
+                      You'll receive another email when your order ships.
+                    </>
+                  ) : (
+                    <>
+                      Once your payment is completed, we'll send a confirmation email to <strong>{order.email}</strong>.
+                      Please complete the payment to proceed with your order.
+                    </>
+                  )}
                 </p>
               </div>
             </div>
