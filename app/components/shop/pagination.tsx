@@ -5,6 +5,7 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  disabled?: boolean;
 }
 
 /**
@@ -31,7 +32,7 @@ function generatePageNumbers(current: number, total: number): (number | string)[
   return [1, '...', current - 1, current, current + 1, '...', total];
 }
 
-export function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
+export function Pagination({ currentPage, totalPages, onPageChange, disabled = false }: PaginationProps) {
   const pages = generatePageNumbers(currentPage, totalPages);
 
   // Don't render pagination if there's only one page or no pages
@@ -46,7 +47,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         variant="outline"
         size="icon"
         onClick={() => onPageChange(1)}
-        disabled={currentPage === 1}
+        disabled={disabled || currentPage === 1}
         aria-label="Go to first page"
       >
         <ChevronsLeft className="h-4 w-4" />
@@ -57,7 +58,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         variant="outline"
         size="icon"
         onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
+        disabled={disabled || currentPage === 1}
         aria-label="Go to previous page"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -74,6 +75,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
             key={page}
             variant={currentPage === page ? 'default' : 'outline'}
             onClick={() => onPageChange(page as number)}
+            disabled={disabled}
             aria-label={`Go to page ${page}`}
             aria-current={currentPage === page ? 'page' : undefined}
           >
@@ -87,7 +89,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         variant="outline"
         size="icon"
         onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
+        disabled={disabled || currentPage === totalPages}
         aria-label="Go to next page"
       >
         <ChevronRight className="h-4 w-4" />
@@ -98,7 +100,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         variant="outline"
         size="icon"
         onClick={() => onPageChange(totalPages)}
-        disabled={currentPage === totalPages}
+        disabled={disabled || currentPage === totalPages}
         aria-label="Go to last page"
       >
         <ChevronsRight className="h-4 w-4" />

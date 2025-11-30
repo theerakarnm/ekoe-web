@@ -9,13 +9,15 @@ interface FilterPanelProps {
   priceRange: PriceRange;
   appliedFilters: ProductFilterParams;
   onFilterChange: (filters: Partial<ProductFilterParams>) => void;
+  disabled?: boolean;
 }
 
 export function FilterPanel({ 
   categories, 
   priceRange, 
   appliedFilters, 
-  onFilterChange 
+  onFilterChange,
+  disabled = false
 }: FilterPanelProps) {
   // Local state for selected categories
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
@@ -96,10 +98,11 @@ export function FilterPanel({
                 id={`category-${category.id}`}
                 checked={selectedCategories.includes(category.id)}
                 onCheckedChange={() => handleCategoryToggle(category.id)}
+                disabled={disabled}
               />
               <Label 
                 htmlFor={`category-${category.id}`}
-                className="text-sm text-gray-700 cursor-pointer font-serif"
+                className={`text-sm text-gray-700 cursor-pointer font-serif ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {category.name}
               </Label>
@@ -120,8 +123,9 @@ export function FilterPanel({
             onValueChange={handlePriceChange}
             onValueCommit={handlePriceCommit}
             className="w-full"
+            disabled={disabled}
           />
-          <div className="flex justify-between text-sm font-serif text-gray-600">
+          <div className={`flex justify-between text-sm font-serif text-gray-600 ${disabled ? 'opacity-50' : ''}`}>
             <span>฿{(priceMin / 100).toFixed(2)}</span>
             <span>฿{(priceMax / 100).toFixed(2)}</span>
           </div>
