@@ -9,6 +9,7 @@ import { SearchBar } from "~/components/shop/search-bar";
 import { FilterPanel } from "~/components/shop/filter-panel";
 import { ActiveFilters } from "~/components/shop/active-filters";
 import { Pagination } from "~/components/shop/pagination";
+import { ResultCount } from "~/components/shop/result-count";
 import type { IProduct } from "~/interface/product.interface";
 import { 
   getProducts, 
@@ -209,9 +210,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
               {/* Results Header - Scroll target */}
               <div ref={productsTopRef} className="mb-6">
                 <div className="flex justify-between items-center mb-4">
-                  <p className="text-sm font-serif text-gray-900">
-                    Showing {pagination.total} products
-                  </p>
+                  <ResultCount total={pagination.total} />
                   <button className="flex items-center text-sm font-serif text-gray-900 hover:text-gray-600">
                     Sort By <ChevronDown className="ml-1 h-4 w-4" />
                   </button>
