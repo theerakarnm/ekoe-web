@@ -13,6 +13,7 @@ interface ImageUploaderProps {
   onDelete: (imageId: string) => void;
   onSetPrimary: (imageId: string) => void;
   onUpdateAltText: (imageId: string, altText: string) => void;
+  onUpdateDescription: (imageId: string, description: string) => void;
 }
 
 export function ImageUploader({
@@ -22,6 +23,7 @@ export function ImageUploader({
   onDelete,
   onSetPrimary,
   onUpdateAltText,
+  onUpdateDescription,
 }: ImageUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -193,6 +195,20 @@ export function ImageUploader({
                         className="text-sm"
                         aria-required="true"
                         aria-label="Image alt text for accessibility"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor={`desc-${image.id}`} className="text-xs">
+                        Description
+                      </Label>
+                      <Input
+                        id={`desc-${image.id}`}
+                        value={image.description || ''}
+                        onChange={(e) =>
+                          onUpdateDescription(image.id, e.target.value)
+                        }
+                        placeholder="Internal description or notes"
+                        className="text-sm"
                       />
                     </div>
                     <div className="flex gap-2">

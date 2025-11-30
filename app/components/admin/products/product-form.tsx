@@ -15,6 +15,8 @@ import {
   createProduct,
   updateProduct,
   uploadProductImage,
+  updateProductImage,
+  deleteProductImage,
   type Product,
   type ProductImage,
 } from '~/lib/services/admin/product-admin.service';
@@ -155,36 +157,89 @@ export function ProductForm({ product }: ProductFormProps) {
   };
 
   // Handle image reorder
-  const handleImageReorder = (reorderedImages: ProductImage[]) => {
+  const handleImageReorder = async (reorderedImages: ProductImage[]) => {
     setImages(reorderedImages);
-    // TODO: Call API to update sort order
+
+    if (!product) return;
+
+    try {
+      // Update sort order for all images
+      const updatePromises = reorderedImages.map((img, index) =>
+        updateProductImage(product.id, img.id, { sortOrder: index })
+      );
+      await Promise.all(updatePromises);
+    } catch (error) {
+      console.error('Failed to update image order:', error);
+      showError('Failed to save image order');
+    }
   };
 
   // Handle image delete
-  const handleImageDelete = (imageId: string) => {
-    setImages((prev) => prev.filter((img) => img.id !== imageId));
-    // TODO: Call API to delete image
-    showSuccess('Image deleted');
+  const handleImageDelete = async (imageId: string) => {
+    if (!product) return;
+
+    try {
+      await deleteProductImage(product.id, imageId);
+      setImages((prev) => prev.filter((img) => img.id !== imageId));
+      showSuccess('Image deleted');
+    } catch (error) {
+      console.error('Failed to delete image:', error);
+      showError('Failed to delete image');
+    }
   };
 
   // Handle set primary image
-  const handleSetPrimary = (imageId: string) => {
-    setImages((prev) =>
-      prev.map((img) => ({
-        ...img,
-        isPrimary: img.id === imageId,
-      }))
-    );
-    // TODO: Call API to update primary image
-    showSuccess('Primary image updated');
+  const handleSetPrimary = async (imageId: string) => {
+    if (!product) return;
+
+    try {
+      await updateProductImage(product.id, imageId, { isPrimary: true });
+
+      setImages((prev) =>
+        prev.map((img) => ({
+          ...img,
+          isPrimary: img.id === imageId,
+        }))
+      );
+      showSuccess('Primary image updated');
+    } catch (error) {
+      console.error('Failed to set primary image:', error);
+      showError('Failed to set primary image');
+    }
   };
 
   // Handle alt text update
-  const handleAltTextUpdate = (imageId: string, altText: string) => {
+  const handleAltTextUpdate = async (imageId: string, altText: string) => {
+    if (!product) return;
+
+    // Optimistic update
     setImages((prev) =>
       prev.map((img) => (img.id === imageId ? { ...img, altText } : img))
     );
-    // TODO: Call API to update alt text
+
+    try {
+      await updateProductImage(product.id, imageId, { altText });
+    } catch (error) {
+      console.error('Failed to update alt text:', error);
+      showError('Failed to save alt text');
+    }
+  };
+
+  // Handle description update
+  const handleDescriptionUpdate = async (imageId: string, description: string) => {
+    if (!product) return;
+
+    // Optimistic update
+    setImages((prev) =>
+      prev.map((img) => (img.id === imageId ? { ...img, description } : img))
+    );
+
+    try {
+      await updateProductImage(product.id, imageId, { description });
+    } catch (error) {
+      console.error('Failed to update description:', error);
+      showError('Failed to save description');
+    }
   };
 
   // Handle form submission
@@ -525,6 +580,7 @@ export function ProductForm({ product }: ProductFormProps) {
               onDelete={handleImageDelete}
               onSetPrimary={handleSetPrimary}
               onUpdateAltText={handleAltTextUpdate}
+              onUpdateDescription={handleDescriptionUpdate}
             />
           </Card>
         )}

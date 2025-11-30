@@ -191,11 +191,22 @@ export async function deleteProduct(id: string, headers?: HeadersInit): Promise<
 export async function uploadProductImage(
   productId: string,
   file: File,
+  options: {
+    altText?: string;
+    description?: string;
+    sortOrder?: number;
+    isPrimary?: boolean;
+  } = {},
   headers?: HeadersInit
 ): Promise<ProductImage> {
   try {
     const formData = new FormData();
     formData.append('image', file);
+
+    if (options.altText) formData.append('altText', options.altText);
+    if (options.description) formData.append('description', options.description);
+    if (options.sortOrder !== undefined) formData.append('sortOrder', options.sortOrder.toString());
+    if (options.isPrimary !== undefined) formData.append('isPrimary', String(options.isPrimary));
 
     const config = getAxiosConfig(headers);
     config.headers = {
@@ -209,6 +220,50 @@ export async function uploadProductImage(
       config
     );
     return response.data.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
+/**
+ * Update a product image
+ */
+export async function updateProductImage(
+  productId: string,
+  imageId: string,
+  data: {
+    altText?: string;
+    description?: string;
+    sortOrder?: number;
+    isPrimary?: boolean;
+  },
+  headers?: HeadersInit
+): Promise<ProductImage> {
+  try {
+    const response = await apiClient.put<SuccessResponseWrapper<ProductImage>>(
+      `/api/admin/products/${productId}/images/${imageId}`,
+      data,
+      getAxiosConfig(headers)
+    );
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
+/**
+ * Delete a product image
+ */
+export async function deleteProductImage(
+  productId: string,
+  imageId: string,
+  headers?: HeadersInit
+): Promise<void> {
+  try {
+    await apiClient.delete(
+      `/api/admin/products/${productId}/images/${imageId}`,
+      getAxiosConfig(headers)
+    );
   } catch (error) {
     throw handleApiError(error);
   }
