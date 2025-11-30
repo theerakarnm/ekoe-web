@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Input } from '~/components/ui/input';
 import { Search } from 'lucide-react';
 
@@ -10,14 +10,20 @@ interface SearchBarProps {
 export function SearchBar({ initialValue = '', onSearch }: SearchBarProps) {
   const [query, setQuery] = useState(initialValue);
 
+  const onSearchRef = useRef(onSearch);
+
+  useEffect(() => {
+    onSearchRef.current = onSearch;
+  }, [onSearch]);
+
   // Debounce search with 300ms delay
   useEffect(() => {
     const timer = setTimeout(() => {
-      onSearch(query);
+      onSearchRef.current(query);
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [query, onSearch]);
+  }, [query]);
 
   return (
     <div className="relative w-full sm:max-w-md">

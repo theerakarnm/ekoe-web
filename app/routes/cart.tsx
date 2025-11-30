@@ -3,6 +3,7 @@ import { Header } from "~/components/share/header";
 import { Footer } from "~/components/share/footer";
 import { useCartStore } from "~/store/cart";
 import { CartItemRow } from "~/components/cart/cart-item-row";
+import { CartItemCard } from "~/components/cart/cart-item-card";
 import { CartSummary } from "~/components/cart/cart-summary";
 import { RecommendedProduct } from "~/components/cart/recommended-product";
 import { Gift } from "lucide-react";
@@ -43,7 +44,7 @@ export default function Cart() {
             {/* Left Column - Cart Items */}
             <div className="lg:col-span-8">
               {/* Table Header */}
-              <div className="flex text-xs font-medium tracking-widest uppercase text-gray-500 pb-4 border-b border-gray-200">
+              <div className="hidden md:flex text-xs font-medium tracking-widest uppercase text-gray-500 pb-4 border-b border-gray-200">
                 <div className="flex-1">Product</div>
                 <div className="w-32 text-center">Price</div>
                 <div className="w-40 text-center">Quantity</div>
@@ -59,10 +60,14 @@ export default function Cart() {
                   </div>
                 ) : (
                   items.map((item) => (
-                    <CartItemRow
-                      key={`${item.productId}-${item.size}`}
-                      item={item}
-                    />
+                    <div key={`${item.productId}-${item.size}`}>
+                      <div className="hidden md:block">
+                        <CartItemRow item={item} />
+                      </div>
+                      <div className="block md:hidden">
+                        <CartItemCard item={item} />
+                      </div>
+                    </div>
                   ))
                 )}
               </div>

@@ -5,7 +5,7 @@ import { Input } from '../ui/input';
 function Footer() {
   return (
     <footer className='relative mt-48'>
-      <div className="absolute h-48 w-[75%] left-1/2 -translate-x-1/2 -translate-y-[80%]  overflow-hidden">
+      <div className="absolute h-48 w-[95%] md:w-[80%] left-1/2 -translate-x-1/2 -translate-y-[80%]  overflow-hidden py-6">
         <div className="absolute inset-0 bg-gray-300">
           <img
             src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2000&auto=format&fit=crop"
@@ -16,7 +16,7 @@ function Footer() {
           </div>
         </div>
         <div className="relative z-10 h-full max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
-          <div className="text-white mb-6 md:mb-0">
+          <div className="text-white mb-6 md:mb-0 text-center md:text-left w-full md:w-[40%]">
             <h3 className="text-xl font-bold mb-1">ร่วมเดินทางไปกับเรา</h3>
             <p className="text-sm opacity-90">รับข่าวสารพิเศษ และเรื่องราวดีๆที่จะเกิดขึ้นก่อนใคร</p>
           </div>
@@ -24,7 +24,7 @@ function Footer() {
             <Input
               type="email"
               placeholder="Email"
-              className="px-4 py-3 w-full h-12 md:w-80 rounded-l-full text-gray-900 focus:outline-none"
+              className="px-4 py-2 w-full h-12 md:w-50 xl:w-60 rounded-l-full text-gray-900 focus:outline-none"
             />
             <Button className="bg-black text-white px-6 py-2 rounded-r-full rounded-l-none hover:bg-gray-800 transition-colors uppercase text-sm tracking-wider h-auto">
               Subscribe
