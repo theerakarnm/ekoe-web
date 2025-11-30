@@ -5,6 +5,7 @@ import { Header } from "~/components/share/header";
 import { Footer } from "~/components/share/footer";
 import { ProductCard } from "~/components/share/product-card";
 import { SearchBar } from "~/components/shop/search-bar";
+import { FilterPanel } from "~/components/shop/filter-panel";
 import type { IProduct } from "~/interface/product.interface";
 import { 
   getProducts, 
@@ -170,31 +171,47 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
           />
         </div>
 
-        {/* Filter & Sort Bar */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-between items-center">
-          <p className="text-sm font-serif text-gray-900">
-            Showing {pagination.total} products
-          </p>
-          <button className="flex items-center text-sm font-serif text-gray-900 hover:text-gray-600">
-            Sort By <ChevronDown className="ml-1 h-4 w-4" />
-          </button>
-        </div>
+        {/* Main Content with Sidebar and Products */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Filter Sidebar */}
+            <aside className="w-full lg:w-64 shrink-0">
+              <FilterPanel
+                categories={categories}
+                priceRange={priceRange}
+                appliedFilters={appliedFilters}
+                onFilterChange={updateFilters}
+              />
+            </aside>
 
-        {/* Product Grid */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-          {mappedProducts.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-600 font-serif text-lg">No products available at the moment.</p>
-            </div>
-          )}
+            {/* Products Section */}
+            <main className="flex-1">
+              {/* Results Header */}
+              <div className="flex justify-between items-center mb-6">
+                <p className="text-sm font-serif text-gray-900">
+                  Showing {pagination.total} products
+                </p>
+                <button className="flex items-center text-sm font-serif text-gray-900 hover:text-gray-600">
+                  Sort By <ChevronDown className="ml-1 h-4 w-4" />
+                </button>
+              </div>
 
-          {mappedProducts.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
-              {mappedProducts.map((product) => (
-                <ProductCard key={product.productId} product={product} />
-              ))}
-            </div>
-          )}
+              {/* Product Grid */}
+              {mappedProducts.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-gray-600 font-serif text-lg">No products available at the moment.</p>
+                </div>
+              )}
+
+              {mappedProducts.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+                  {mappedProducts.map((product) => (
+                    <ProductCard key={product.productId} product={product} />
+                  ))}
+                </div>
+              )}
+            </main>
+          </div>
         </div>
       </main>
 
