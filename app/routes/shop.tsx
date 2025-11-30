@@ -1,7 +1,7 @@
 import { useSearchParams, useNavigate, useNavigation, isRouteErrorResponse } from "react-router";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { Route } from "./+types/shop";
-import { ChevronDown, AlertCircle, RefreshCw } from "lucide-react";
+import { ChevronDown, AlertCircle, RefreshCw, SlidersHorizontal } from "lucide-react";
 import { Header } from "~/components/share/header";
 import { Footer } from "~/components/share/footer";
 import { ProductGrid } from "~/components/shop/product-grid";
@@ -11,6 +11,7 @@ import { ActiveFilters } from "~/components/shop/active-filters";
 import { Pagination } from "~/components/shop/pagination";
 import { ResultCount } from "~/components/shop/result-count";
 import { Button } from "~/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "~/components/ui/sheet";
 import type { IProduct } from "~/interface/product.interface";
 import { 
   getProducts, 
@@ -150,6 +151,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   const navigation = useNavigation();
   const productsTopRef = useRef<HTMLDivElement>(null);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   // Map products to IProduct interface for ProductCard component
   const mappedProducts = products.map(mapProductToIProduct);
@@ -241,8 +243,8 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
         {/* Main Content with Sidebar and Products */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Filter Sidebar */}
-            <aside className="w-full lg:w-64 shrink-0">
+            {/* Desktop Filter Sidebar - Hidden on mobile */}
+            <aside className="hidden lg:block w-64 shrink-0">
               {/* Show warning if filters failed to load */}
               {(categories.length === 0 || (priceRange.min === 0 && priceRange.max === 100000)) && (
                 <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -265,9 +267,53 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
             <main className="flex-1">
               {/* Results Header - Scroll target */}
               <div ref={productsTopRef} className="mb-6">
-                <div className="flex justify-between items-center mb-4">
-                  <ResultCount total={pagination.total} />
-                  <button className="flex items-center text-sm font-serif text-gray-900 hover:text-gray-600">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
+                  <div className="flex items-center gap-3">
+                    <ResultCount total={pagination.total} />
+                    
+                    {/* Mobile Filter Button - Only visible on mobile */}
+                    <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+                      <SheetTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="lg:hidden font-serif"
+                        >
+                          <SlidersHorizontal className="h-4 w-4 mr-2" />
+                          Filters
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent side="left" className="w-[300px] sm:w-[400px] overflow-y-auto">
+                        <SheetHeader className="mb-6">
+                          <SheetTitle className="font-serif">Filters</SheetTitle>
+                        </SheetHeader>
+                        
+                        {/* Show warning if filters failed to load */}
+                        {(categories.length === 0 || (priceRange.min === 0 && priceRange.max === 100000)) && (
+                          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p className="text-xs text-yellow-800 font-serif">
+                              Some filters may be unavailable. Products are still loading normally.
+                            </p>
+                          </div>
+                        )}
+                        
+                        <FilterPanel
+                          categories={categories}
+                          priceRange={priceRange}
+                          appliedFilters={appliedFilters}
+                          onFilterChange={(filters) => {
+                            updateFilters(filters);
+                            // Close drawer after filter change on mobile
+                            setMobileFiltersOpen(false);
+                          }}
+                          disabled={isLoading}
+                          isMobile={true}
+                        />
+                      </SheetContent>
+                    </Sheet>
+                  </div>
+                  
+                  <button className="hidden sm:flex items-center text-sm font-serif text-gray-900 hover:text-gray-600">
                     Sort By <ChevronDown className="ml-1 h-4 w-4" />
                   </button>
                 </div>

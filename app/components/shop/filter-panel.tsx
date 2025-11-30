@@ -10,6 +10,7 @@ interface FilterPanelProps {
   appliedFilters: ProductFilterParams;
   onFilterChange: (filters: Partial<ProductFilterParams>) => void;
   disabled?: boolean;
+  isMobile?: boolean;
 }
 
 export function FilterPanel({ 
@@ -17,7 +18,8 @@ export function FilterPanel({
   priceRange, 
   appliedFilters, 
   onFilterChange,
-  disabled = false
+  disabled = false,
+  isMobile = false
 }: FilterPanelProps) {
   // Local state for selected categories
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
@@ -87,27 +89,31 @@ export function FilterPanel({
   };
 
   return (
-    <div className="filter-panel space-y-8 p-6 bg-white border border-gray-200 rounded-lg">
+    <div className={`filter-panel space-y-8 ${isMobile ? 'p-0' : 'p-6 bg-white border border-gray-200 rounded-lg'}`}>
       {/* Categories Section */}
       <div>
         <h3 className="font-serif font-semibold text-lg mb-4 text-gray-900">Categories</h3>
         <div className="space-y-3">
-          {categories.map(category => (
-            <div key={category.id} className="flex items-center space-x-3">
-              <Checkbox
-                id={`category-${category.id}`}
-                checked={selectedCategories.includes(category.id)}
-                onCheckedChange={() => handleCategoryToggle(category.id)}
-                disabled={disabled}
-              />
-              <Label 
-                htmlFor={`category-${category.id}`}
-                className={`text-sm text-gray-700 cursor-pointer font-serif ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {category.name}
-              </Label>
-            </div>
-          ))}
+          {categories.length === 0 ? (
+            <p className="text-sm text-gray-500 font-serif">No categories available</p>
+          ) : (
+            categories.map(category => (
+              <div key={category.id} className="flex items-center space-x-3">
+                <Checkbox
+                  id={`category-${category.id}${isMobile ? '-mobile' : ''}`}
+                  checked={selectedCategories.includes(category.id)}
+                  onCheckedChange={() => handleCategoryToggle(category.id)}
+                  disabled={disabled}
+                />
+                <Label 
+                  htmlFor={`category-${category.id}${isMobile ? '-mobile' : ''}`}
+                  className={`text-sm text-gray-700 cursor-pointer font-serif ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {category.name}
+                </Label>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
