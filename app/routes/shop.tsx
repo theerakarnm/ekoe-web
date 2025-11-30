@@ -6,6 +6,7 @@ import { Footer } from "~/components/share/footer";
 import { ProductCard } from "~/components/share/product-card";
 import { SearchBar } from "~/components/shop/search-bar";
 import { FilterPanel } from "~/components/shop/filter-panel";
+import { ActiveFilters } from "~/components/shop/active-filters";
 import type { IProduct } from "~/interface/product.interface";
 import { 
   getProducts, 
@@ -187,13 +188,23 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
             {/* Products Section */}
             <main className="flex-1">
               {/* Results Header */}
-              <div className="flex justify-between items-center mb-6">
-                <p className="text-sm font-serif text-gray-900">
-                  Showing {pagination.total} products
-                </p>
-                <button className="flex items-center text-sm font-serif text-gray-900 hover:text-gray-600">
-                  Sort By <ChevronDown className="ml-1 h-4 w-4" />
-                </button>
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-4">
+                  <p className="text-sm font-serif text-gray-900">
+                    Showing {pagination.total} products
+                  </p>
+                  <button className="flex items-center text-sm font-serif text-gray-900 hover:text-gray-600">
+                    Sort By <ChevronDown className="ml-1 h-4 w-4" />
+                  </button>
+                </div>
+                
+                {/* Active Filters */}
+                <ActiveFilters
+                  filters={appliedFilters}
+                  categories={categories}
+                  onRemoveFilter={updateFilters}
+                  onClearAll={() => navigate('/shop')}
+                />
               </div>
 
               {/* Product Grid */}
