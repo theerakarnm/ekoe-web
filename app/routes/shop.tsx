@@ -1,10 +1,17 @@
-import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router";
+import type { Route } from "./+types/shop";
 import { ChevronDown } from "lucide-react";
 import { Header } from "~/components/share/header";
 import { Footer } from "~/components/share/footer";
 import { ProductCard } from "~/components/share/product-card";
 import type { IProduct } from "~/interface/product.interface";
-import { getProducts, type Product } from "~/lib/api-client";
+import { 
+  getProducts, 
+  getCategories, 
+  getPriceRange,
+  type ProductFilterParams,
+  type Product
+} from "~/lib/services/product.service";
 
 // Helper function to map API Product to IProduct interface
 function mapProductToIProduct(product: Product): IProduct {
@@ -26,39 +33,101 @@ function mapProductToIProduct(product: Product): IProduct {
     },
     productName: product.name,
     priceTitle: sizes && sizes.length > 0
-      ? `$${Math.min(...sizes.map(s => s.price))} - $${Math.max(...sizes.map(s => s.price))}`
-      : `$${product.basePrice}`,
+      ? `${Math.min(...sizes.map(s => s.price))} - ${Math.max(...sizes.map(s => s.price))}`
+      : `${product.basePrice}`,
     quickCartPrice: product.basePrice,
     sizes,
-    subtitle: product.subtitle,
-    rating: parseFloat(product.rating) || 0,
+    subtitle: product.subtitle ?? undefined,
+    rating: parseFloat(product.rating || '0') || 0,
     reviewCount: product.reviewCount,
   };
 }
 
-export default function Shop() {
-  const [products, setProducts] = useState<IProduct[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+/**
+ * Loader function that fetches products, categories, and price range
+ * Parses URL query parameters for filters
+ */
+export async function loader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url);
+  
+  // Parse query parameters
+  const searchParam = url.searchParams.get('search');
+  const categoriesParam = url.searchParams.get('categories');
+  const minPriceParam = url.searchParams.get('minPrice');
+  const maxPriceParam = url.searchParams.get('maxPrice');
+  const pageParam = url.searchParams.get('page');
+  const sortByParam = url.searchParams.get('sortBy');
+  const sortOrderParam = url.searchParams.get('sortOrder');
 
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        setLoading(true);
-        const response = await getProducts({ limit: 20 });
-        const mappedProducts = response.data.map(mapProductToIProduct);
-        setProducts(mappedProducts);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch products:', err);
-        setError('Failed to load products. Please try again later.');
-      } finally {
-        setLoading(false);
+  const params: ProductFilterParams = {
+    search: searchParam ? searchParam : undefined,
+    categories: categoriesParam ? categoriesParam.split(',').filter(Boolean) : undefined,
+    minPrice: minPriceParam ? parseFloat(minPriceParam) : undefined,
+    maxPrice: maxPriceParam ? parseFloat(maxPriceParam) : undefined,
+    page: pageParam ? parseInt(pageParam) : 1,
+    limit: 24,
+    sortBy: (sortByParam as 'price' | 'createdAt' | 'name') || 'createdAt',
+    sortOrder: (sortOrderParam as 'asc' | 'desc') || 'desc'
+  };
+
+  try {
+    // Fetch data in parallel
+    const [productsData, categories, priceRange] = await Promise.all([
+      getProducts(params),
+      getCategories(),
+      getPriceRange()
+    ]);
+
+    return {
+      products: productsData.data,
+      pagination: productsData.pagination,
+      categories,
+      priceRange,
+      appliedFilters: params,
+      error: null
+    };
+  } catch (error) {
+    console.error('Failed to load shop data:', error);
+    throw new Response('Failed to load products', { status: 500 });
+  }
+}
+
+export default function Shop({ loaderData }: Route.ComponentProps) {
+  const { products, pagination, categories, priceRange, appliedFilters } = loaderData;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // Map products to IProduct interface for ProductCard component
+  const mappedProducts = products.map(mapProductToIProduct);
+
+  /**
+   * Update filters and navigate
+   * Resets to page 1 when filters change (except page parameter)
+   */
+  const updateFilters = (newFilters: Partial<ProductFilterParams>) => {
+    const params = new URLSearchParams(searchParams);
+    
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') {
+        params.delete(key);
+      } else if (Array.isArray(value)) {
+        if (value.length > 0) {
+          params.set(key, value.join(','));
+        } else {
+          params.delete(key);
+        }
+      } else {
+        params.set(key, value.toString());
       }
+    });
+    
+    // Reset to page 1 when filters change (except when only page is changing)
+    if (Object.keys(newFilters).some(k => k !== 'page')) {
+      params.set('page', '1');
     }
-
-    fetchProducts();
-  }, []);
+    
+    setSearchParams(params);
+  };
 
   return (
     <div className="min-h-screen bg-white font-sans">
@@ -95,7 +164,7 @@ export default function Shop() {
         {/* Filter & Sort Bar */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-between items-center">
           <p className="text-sm font-serif text-gray-900">
-            {loading ? 'Loading products...' : `Showing ${products.length} products`}
+            Showing {pagination.total} products
           </p>
           <button className="flex items-center text-sm font-serif text-gray-900 hover:text-gray-600">
             Sort By <ChevronDown className="ml-1 h-4 w-4" />
@@ -104,27 +173,15 @@ export default function Shop() {
 
         {/* Product Grid */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-          {error && (
-            <div className="text-center py-12">
-              <p className="text-red-600 font-serif text-lg">{error}</p>
-            </div>
-          )}
-
-          {loading && !error && (
-            <div className="text-center py-12">
-              <p className="text-gray-600 font-serif text-lg">Loading products...</p>
-            </div>
-          )}
-
-          {!loading && !error && products.length === 0 && (
+          {mappedProducts.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-600 font-serif text-lg">No products available at the moment.</p>
             </div>
           )}
 
-          {!loading && !error && products.length > 0 && (
+          {mappedProducts.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
-              {products.map((product) => (
+              {mappedProducts.map((product) => (
                 <ProductCard key={product.productId} product={product} />
               ))}
             </div>

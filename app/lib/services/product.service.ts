@@ -3,7 +3,7 @@
  * Handles all public product-related API calls
  */
 
-import { apiClient, handleApiError, type PaginatedResponse, type SuccessResponseWrapper } from '../api-client';
+import { apiClient, handleApiError, type SuccessResponseWrapper } from '../api-client';
 
 // ============================================================================
 // Types
@@ -83,27 +83,75 @@ export interface GetProductsParams {
   sortOrder?: 'asc' | 'desc';
 }
 
+/**
+ * Product filter parameters for advanced filtering
+ */
+export interface ProductFilterParams {
+  search?: string;
+  categories?: string[];
+  minPrice?: number;
+  maxPrice?: number;
+  page?: number;
+  limit?: number;
+  sortBy?: 'price' | 'createdAt' | 'name';
+  sortOrder?: 'asc' | 'desc';
+}
+
+/**
+ * Paginated products response with pagination metadata
+ */
+export interface PaginatedProducts {
+  data: Product[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+/**
+ * Product category
+ */
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+}
+
+/**
+ * Price range for filtering
+ */
+export interface PriceRange {
+  min: number;
+  max: number;
+}
+
 // ============================================================================
 // API Functions
 // ============================================================================
 
 /**
- * Get a paginated list of products
+ * Get a paginated list of products with advanced filtering
  * 
  * @param params - Query parameters for filtering and pagination
- * @returns Paginated list of products
+ * @returns Paginated list of products with pagination metadata
  */
-export async function getProducts(params: GetProductsParams = {}): Promise<PaginatedResponse<Product>> {
+export async function getProducts(params: ProductFilterParams = {}): Promise<PaginatedProducts> {
   try {
     const queryParams = new URLSearchParams();
     
+    if (params.search) queryParams.append('search', params.search);
+    if (params.categories?.length) queryParams.append('categories', params.categories.join(','));
+    if (params.minPrice !== undefined) queryParams.append('minPrice', params.minPrice.toString());
+    if (params.maxPrice !== undefined) queryParams.append('maxPrice', params.maxPrice.toString());
     if (params.page) queryParams.append('page', params.page.toString());
     if (params.limit) queryParams.append('limit', params.limit.toString());
-    if (params.search) queryParams.append('search', params.search);
     if (params.sortBy) queryParams.append('sortBy', params.sortBy);
     if (params.sortOrder) queryParams.append('sortOrder', params.sortOrder);
 
-    const response = await apiClient.get<SuccessResponseWrapper<PaginatedResponse<Product>>>(
+    const response = await apiClient.get<SuccessResponseWrapper<PaginatedProducts>>(
       `/api/products?${queryParams.toString()}`
     );
 
@@ -160,8 +208,6 @@ export async function getRelatedProducts(productId: string, limit: number = 4): 
 export async function getBestSellers(limit: number = 8): Promise<Product[]> {
   try {
     const result = await getProducts({
-      sortBy: 'soldCount',
-      sortOrder: 'desc',
       limit,
     });
 
@@ -187,6 +233,40 @@ export async function getNewArrivals(limit: number = 8): Promise<Product[]> {
     });
 
     return result.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+}
+
+/**
+ * Get all product categories
+ * 
+ * @returns Array of categories
+ */
+export async function getCategories(): Promise<Category[]> {
+  try {
+    const response = await apiClient.get<SuccessResponseWrapper<Category[]>>(
+      '/api/products/categories'
+    );
+
+    return response.data.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+}
+
+/**
+ * Get price range for filters
+ * 
+ * @returns Price range object with min and max prices
+ */
+export async function getPriceRange(): Promise<PriceRange> {
+  try {
+    const response = await apiClient.get<SuccessResponseWrapper<PriceRange>>(
+      '/api/products/price-range'
+    );
+
+    return response.data.data;
   } catch (error) {
     handleApiError(error);
   }
