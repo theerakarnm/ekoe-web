@@ -1,10 +1,10 @@
-import { useSearchParams, useNavigate } from "react-router";
+import { useSearchParams, useNavigate, useNavigation } from "react-router";
 import { useRef } from "react";
 import type { Route } from "./+types/shop";
 import { ChevronDown } from "lucide-react";
 import { Header } from "~/components/share/header";
 import { Footer } from "~/components/share/footer";
-import { ProductCard } from "~/components/share/product-card";
+import { ProductGrid } from "~/components/shop/product-grid";
 import { SearchBar } from "~/components/shop/search-bar";
 import { FilterPanel } from "~/components/shop/filter-panel";
 import { ActiveFilters } from "~/components/shop/active-filters";
@@ -101,10 +101,14 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
   const { products, pagination, categories, priceRange, appliedFilters } = loaderData;
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const navigation = useNavigation();
   const productsTopRef = useRef<HTMLDivElement>(null);
 
   // Map products to IProduct interface for ProductCard component
   const mappedProducts = products.map(mapProductToIProduct);
+  
+  // Check if we're loading (navigating)
+  const isLoading = navigation.state === "loading";
 
   /**
    * Update filters and navigate
@@ -223,27 +227,15 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
               </div>
 
               {/* Product Grid */}
-              {mappedProducts.length === 0 && (
-                <div className="text-center py-12">
-                  <p className="text-gray-600 font-serif text-lg">No products available at the moment.</p>
-                </div>
-              )}
+              <ProductGrid products={mappedProducts} loading={isLoading} />
 
-              {mappedProducts.length > 0 && (
-                <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
-                    {mappedProducts.map((product) => (
-                      <ProductCard key={product.productId} product={product} />
-                    ))}
-                  </div>
-
-                  {/* Pagination */}
-                  <Pagination
-                    currentPage={pagination.page}
-                    totalPages={pagination.totalPages}
-                    onPageChange={handlePageChange}
-                  />
-                </>
+              {/* Pagination - only show if we have products and not loading */}
+              {!isLoading && mappedProducts.length > 0 && (
+                <Pagination
+                  currentPage={pagination.page}
+                  totalPages={pagination.totalPages}
+                  onPageChange={handlePageChange}
+                />
               )}
             </main>
           </div>
