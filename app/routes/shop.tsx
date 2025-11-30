@@ -1,4 +1,5 @@
 import { useSearchParams, useNavigate } from "react-router";
+import { useRef } from "react";
 import type { Route } from "./+types/shop";
 import { ChevronDown } from "lucide-react";
 import { Header } from "~/components/share/header";
@@ -7,6 +8,7 @@ import { ProductCard } from "~/components/share/product-card";
 import { SearchBar } from "~/components/shop/search-bar";
 import { FilterPanel } from "~/components/shop/filter-panel";
 import { ActiveFilters } from "~/components/shop/active-filters";
+import { Pagination } from "~/components/shop/pagination";
 import type { IProduct } from "~/interface/product.interface";
 import { 
   getProducts, 
@@ -99,6 +101,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
   const { products, pagination, categories, priceRange, appliedFilters } = loaderData;
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const productsTopRef = useRef<HTMLDivElement>(null);
 
   // Map products to IProduct interface for ProductCard component
   const mappedProducts = products.map(mapProductToIProduct);
@@ -130,6 +133,18 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
     }
     
     setSearchParams(params);
+  };
+
+  /**
+   * Handle page change with scroll to top
+   */
+  const handlePageChange = (page: number) => {
+    updateFilters({ page });
+    
+    // Scroll to top of product list
+    if (productsTopRef.current) {
+      productsTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   return (
@@ -187,8 +202,8 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
 
             {/* Products Section */}
             <main className="flex-1">
-              {/* Results Header */}
-              <div className="mb-6">
+              {/* Results Header - Scroll target */}
+              <div ref={productsTopRef} className="mb-6">
                 <div className="flex justify-between items-center mb-4">
                   <p className="text-sm font-serif text-gray-900">
                     Showing {pagination.total} products
@@ -215,11 +230,20 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
               )}
 
               {mappedProducts.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
-                  {mappedProducts.map((product) => (
-                    <ProductCard key={product.productId} product={product} />
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+                    {mappedProducts.map((product) => (
+                      <ProductCard key={product.productId} product={product} />
+                    ))}
+                  </div>
+
+                  {/* Pagination */}
+                  <Pagination
+                    currentPage={pagination.page}
+                    totalPages={pagination.totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                </>
               )}
             </main>
           </div>
