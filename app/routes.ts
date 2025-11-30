@@ -15,8 +15,6 @@ export default [
   route("payment/promptpay/:id", "routes/payment/promptpay/$id.tsx"),
 
   // Order
-  route("order", "routes/order.tsx"),
-  route("order/:id", "routes/order/$id.tsx"),
   route("order-success/:id", "routes/order-success/$id.tsx"),
 
   // Admin routes
