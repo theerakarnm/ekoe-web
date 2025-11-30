@@ -4,6 +4,7 @@ import { ChevronDown } from "lucide-react";
 import { Header } from "~/components/share/header";
 import { Footer } from "~/components/share/footer";
 import { ProductCard } from "~/components/share/product-card";
+import { SearchBar } from "~/components/shop/search-bar";
 import type { IProduct } from "~/interface/product.interface";
 import { 
   getProducts, 
@@ -160,6 +161,14 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
         </section>
+
+        {/* Search Bar */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <SearchBar
+            initialValue={appliedFilters.search}
+            onSearch={(search) => updateFilters({ search: search || undefined })}
+          />
+        </div>
 
         {/* Filter & Sort Bar */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex justify-between items-center">
