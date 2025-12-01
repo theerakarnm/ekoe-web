@@ -40,12 +40,12 @@ export default [
     // Product routes
     route("admin/products", "routes/admin/products/index.tsx"),
     route("admin/products/new", "routes/admin/products/new.tsx"),
-    route("admin/products/:id/edit", "routes/admin/products/$id.edit.tsx"),
+    route("admin/products/:id", "routes/admin/products/$id.tsx"),
 
     // Blog routes
     route("admin/blog", "routes/admin/blog/index.tsx"),
     route("admin/blog/new", "routes/admin/blog/new.tsx"),
-    route("admin/blog/:id/edit", "routes/admin/blog/$id.edit.tsx"),
+    route("admin/blog/:id", "routes/admin/blog/$id.tsx"),
 
     // Coupon routes
     route("admin/coupons", "routes/admin/coupons/index.tsx"),

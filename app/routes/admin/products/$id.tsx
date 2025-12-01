@@ -1,4 +1,4 @@
-import type { Route } from './+types/$id.edit';
+import type { Route } from './+types/$id';
 import { useNavigation } from 'react-router';
 import { ProductForm } from '~/components/admin/products/product-form';
 import { FormSkeleton } from '~/components/admin/layout/form-skeleton';

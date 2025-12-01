@@ -81,9 +81,9 @@ export const productHowToUseSchema = z.object({
 });
 
 export const productComplimentaryGiftSchema = z.object({
-  name: z.string().min(1, 'Gift name is required'),
-  description: z.string().min(1, 'Gift description is required'),
-  image: z.string().url('Must be a valid image URL'),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  image: z.url('Must be a valid image URL').optional().or(z.literal('')),
   value: z.string().optional(),
 });
 

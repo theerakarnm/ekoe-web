@@ -44,9 +44,9 @@ export interface Product {
     note?: string;
   };
   complimentaryGift?: {
-    name: string;
-    description: string;
-    image: string;
+    name?: string;
+    description?: string;
+    image?: string;
     value?: string;
   };
   whyItWorks?: string;

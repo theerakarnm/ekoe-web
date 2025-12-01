@@ -31,6 +31,9 @@ import { useEffect, useState } from 'react';
 import { PaymentDetailModal } from '~/components/admin/payments/payment-detail-modal';
 
 export async function loader({ params, request }: Route.LoaderArgs) {
+  if (!params.id) {
+    throw new Error('Invalid order ID');
+  }
   const order = await getOrder(params.id, request.headers);
   const payments = await getPaymentsByOrderId(params.id, request.headers);
   return { order, payments };
@@ -40,6 +43,10 @@ export async function action({ params, request }: Route.ActionArgs) {
   const formData = await request.formData();
   const status = formData.get('status') as string;
   const note = formData.get('note') as string | null;
+
+  if (!params.id) {
+    throw new Error('Invalid order ID');
+  }
 
   try {
     await updateOrderStatus(params.id, status, note || undefined, request.headers);

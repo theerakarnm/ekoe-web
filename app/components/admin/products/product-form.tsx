@@ -318,7 +318,7 @@ export function ProductForm({ product }: ProductFormProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Name</FormLabel>
+                  <FormLabel required>Product Name</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -337,7 +337,7 @@ export function ProductForm({ product }: ProductFormProps) {
               name="slug"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Slug</FormLabel>
+                  <FormLabel required>Slug</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="product-slug" />
                   </FormControl>
@@ -416,7 +416,7 @@ export function ProductForm({ product }: ProductFormProps) {
               name="basePrice"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Base Price</FormLabel>
+                  <FormLabel required>Base Price</FormLabel>
                   <FormControl>
                     <PriceInput
                       {...field}
@@ -478,7 +478,7 @@ export function ProductForm({ product }: ProductFormProps) {
               name="productType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Type</FormLabel>
+                  <FormLabel required>Product Type</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -504,7 +504,7 @@ export function ProductForm({ product }: ProductFormProps) {
               name="status"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel required>Status</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}

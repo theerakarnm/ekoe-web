@@ -253,6 +253,9 @@ export function ProductTable({
     return items;
   };
 
+  console.log(products);
+
+
   return (
     <div className="space-y-4">
       {/* Filters */}

@@ -13,13 +13,14 @@ import { ResultCount } from "~/components/shop/result-count";
 import { Button } from "~/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "~/components/ui/sheet";
 import type { IProduct } from "~/interface/product.interface";
-import { 
-  getProducts, 
-  getCategories, 
+import {
+  getProducts,
+  getCategories,
   getPriceRange,
   type ProductFilterParams,
   type Product
 } from "~/lib/services/product.service";
+import { formatCurrencyFromCents } from "~/lib/formatter";
 
 // Helper function to map API Product to IProduct interface
 function mapProductToIProduct(product: Product): IProduct {
@@ -41,8 +42,8 @@ function mapProductToIProduct(product: Product): IProduct {
     },
     productName: product.name,
     priceTitle: sizes && sizes.length > 0
-      ? `${Math.min(...sizes.map(s => s.price))} - ${Math.max(...sizes.map(s => s.price))}`
-      : `${product.basePrice}`,
+      ? `${formatCurrencyFromCents(Math.min(...sizes.map(s => s.price)), { symbol: '$' })} - ${formatCurrencyFromCents(Math.max(...sizes.map(s => s.price)), { symbol: '$' })}`
+      : `${formatCurrencyFromCents(product.basePrice, { symbol: '$' })}`,
     quickCartPrice: product.basePrice,
     sizes,
     subtitle: product.subtitle ?? undefined,
@@ -57,7 +58,7 @@ function mapProductToIProduct(product: Product): IProduct {
  */
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
-  
+
   // Parse query parameters
   const searchParam = url.searchParams.get('search');
   const categoriesParam = url.searchParams.get('categories');
@@ -89,14 +90,14 @@ export async function loader({ request }: Route.LoaderArgs) {
     // Check if products fetch failed (critical)
     if (productsResult.status === 'rejected') {
       console.error('Failed to load products:', productsResult.reason);
-      
+
       // Determine appropriate error status
       const errorMessage = productsResult.reason?.message || 'Failed to load products';
       const isNetworkError = errorMessage.includes('fetch') || errorMessage.includes('network');
-      
+
       throw new Response(
-        isNetworkError 
-          ? 'Unable to connect to the server. Please check your connection.' 
+        isNetworkError
+          ? 'Unable to connect to the server. Please check your connection.'
           : 'Failed to load products. Please try again.',
         { status: isNetworkError ? 503 : 500 }
       );
@@ -106,10 +107,10 @@ export async function loader({ request }: Route.LoaderArgs) {
     const productsData = productsResult.value;
 
     // Handle categories failure (non-critical - use empty array as fallback)
-    const categories = categoriesResult.status === 'fulfilled' 
-      ? categoriesResult.value 
+    const categories = categoriesResult.status === 'fulfilled'
+      ? categoriesResult.value
       : [];
-    
+
     if (categoriesResult.status === 'rejected') {
       console.warn('Failed to load categories, using empty array:', categoriesResult.reason);
     }
@@ -118,7 +119,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     const priceRange = priceRangeResult.status === 'fulfilled'
       ? priceRangeResult.value
       : { min: 0, max: 100000 }; // Default fallback range
-    
+
     if (priceRangeResult.status === 'rejected') {
       console.warn('Failed to load price range, using defaults:', priceRangeResult.reason);
     }
@@ -134,12 +135,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   } catch (error) {
     // This catch handles any unexpected errors not caught above
     console.error('Unexpected error loading shop data:', error);
-    
+
     // If it's already a Response, re-throw it
     if (error instanceof Response) {
       throw error;
     }
-    
+
     // Otherwise, throw a generic 500 error
     throw new Response('An unexpected error occurred. Please try again.', { status: 500 });
   }
@@ -155,7 +156,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
 
   // Map products to IProduct interface for ProductCard component
   const mappedProducts = products.map(mapProductToIProduct);
-  
+
   // Check if we're loading (navigating)
   const isLoading = navigation.state === "loading";
 
@@ -165,7 +166,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
    */
   const updateFilters = (newFilters: Partial<ProductFilterParams>) => {
     const params = new URLSearchParams(searchParams);
-    
+
     Object.entries(newFilters).forEach(([key, value]) => {
       if (value === undefined || value === null || value === '') {
         params.delete(key);
@@ -179,12 +180,12 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
         params.set(key, value.toString());
       }
     });
-    
+
     // Reset to page 1 when filters change (except when only page is changing)
     if (Object.keys(newFilters).some(k => k !== 'page')) {
       params.set('page', '1');
     }
-    
+
     setSearchParams(params);
   };
 
@@ -193,7 +194,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
    */
   const handlePageChange = (page: number) => {
     updateFilters({ page });
-    
+
     // Scroll to top of product list
     if (productsTopRef.current) {
       productsTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -253,7 +254,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
                   </p>
                 </div>
               )}
-              
+
               <FilterPanel
                 categories={categories}
                 priceRange={priceRange}
@@ -270,13 +271,13 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
                   <div className="flex items-center gap-3">
                     <ResultCount total={pagination.total} />
-                    
+
                     {/* Mobile Filter Button - Only visible on mobile */}
                     <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
                       <SheetTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="lg:hidden font-serif"
                         >
                           <SlidersHorizontal className="h-4 w-4 mr-2" />
@@ -287,7 +288,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
                         <SheetHeader className="mb-6">
                           <SheetTitle className="font-serif">Filters</SheetTitle>
                         </SheetHeader>
-                        
+
                         {/* Show warning if filters failed to load */}
                         {(categories.length === 0 || (priceRange.min === 0 && priceRange.max === 100000)) && (
                           <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -296,7 +297,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
                             </p>
                           </div>
                         )}
-                        
+
                         <FilterPanel
                           categories={categories}
                           priceRange={priceRange}
@@ -312,12 +313,12 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
                       </SheetContent>
                     </Sheet>
                   </div>
-                  
+
                   <button className="hidden sm:flex items-center text-sm font-serif text-gray-900 hover:text-gray-600">
                     Sort By <ChevronDown className="ml-1 h-4 w-4" />
                   </button>
                 </div>
-                
+
                 {/* Active Filters */}
                 <ActiveFilters
                   filters={appliedFilters}
@@ -361,7 +362,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   // Handle route error responses (thrown Response objects)
   if (isRouteErrorResponse(error)) {
     statusCode = error.status;
-    
+
     if (error.status === 404) {
       title = "Page Not Found";
       message = "The shop page you're looking for doesn't exist.";
@@ -375,18 +376,18 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       title = `Error ${error.status}`;
       message = error.statusText || message;
     }
-  } 
+  }
   // Handle regular Error objects
   else if (error instanceof Error) {
     console.error('Shop page error:', error);
-    
+
     // Check for network errors
     if (error.message.includes('fetch') || error.message.includes('network')) {
       title = "Connection Error";
       message = "Unable to connect to the server. Please check your internet connection and try again.";
     } else {
-      message = import.meta.env.DEV 
-        ? error.message 
+      message = import.meta.env.DEV
+        ? error.message
         : "An unexpected error occurred. Please try again.";
     }
   }
@@ -402,7 +403,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   return (
     <div className="min-h-screen bg-white font-sans">
       <Header />
-      
+
       <main className="pt-8 sm:pt-8">
         {/* Breadcrumb */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -446,7 +447,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Try Again
               </Button>
-              
+
               <Button
                 onClick={handleGoHome}
                 variant="outline"
