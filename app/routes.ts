@@ -26,6 +26,7 @@ export default [
   route("auth/verify-email", "routes/auth/verify-email.tsx"),
   route("auth/reset-password", "routes/auth/reset-password.tsx"),
   route("auth/reset-password-confirm", "routes/auth/reset-password-confirm.tsx"),
+  route("auth/callback", "routes/auth/callback.tsx"),
 
   // Customer account
   route("account", "routes/account/index.tsx"),

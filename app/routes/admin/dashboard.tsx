@@ -80,54 +80,54 @@ export default function AdminDashboard() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <MetricCard
             title="Total Revenue"
-            value={formatCurrency(metrics.revenue.total)}
+            value={formatCurrency(metrics.revenue?.total || 0)}
             change={
-              metrics.revenue.growth !== 0
+              metrics.revenue?.growth !== 0
                 ? {
-                    value: Math.abs(metrics.revenue.growth),
-                    trend: metrics.revenue.growth > 0 ? 'up' : 'down',
-                  }
+                  value: Math.abs(metrics.revenue?.growth || 0),
+                  trend: metrics.revenue?.growth > 0 ? 'up' : 'down',
+                }
                 : undefined
             }
             icon={<DollarSign className="h-5 w-5" />}
           />
           <MetricCard
             title="Total Orders"
-            value={formatNumber(metrics.orders.total)}
+            value={formatNumber(metrics.orders?.total || 0)}
             change={
-              metrics.orders.growth !== 0
+              metrics.orders?.growth !== 0
                 ? {
-                    value: Math.abs(metrics.orders.growth),
-                    trend: metrics.orders.growth > 0 ? 'up' : 'down',
-                  }
+                  value: Math.abs(metrics.orders?.growth || 0),
+                  trend: metrics.orders?.growth > 0 ? 'up' : 'down',
+                }
                 : undefined
             }
             icon={<ShoppingCart className="h-5 w-5" />}
           />
           <MetricCard
             title="Total Customers"
-            value={formatNumber(metrics.customers.total)}
+            value={formatNumber(metrics.customers?.total || 0)}
             change={
-              metrics.customers.growth !== 0
+              metrics.customers?.growth !== 0
                 ? {
-                    value: Math.abs(metrics.customers.growth),
-                    trend: metrics.customers.growth > 0 ? 'up' : 'down',
-                  }
+                  value: Math.abs(metrics.customers?.growth || 0),
+                  trend: metrics.customers?.growth > 0 ? 'up' : 'down',
+                }
                 : undefined
             }
             icon={<Users className="h-5 w-5" />}
           />
           <MetricCard
             title="Average Order Value"
-            value={formatCurrency(metrics.orders.averageValue)}
+            value={formatCurrency(metrics.orders?.averageValue || 0)}
             icon={<Package className="h-5 w-5" />}
           />
         </div>
 
         {/* Charts */}
         <div className="grid gap-4 md:grid-cols-2">
-          <RevenueChart data={metrics.revenue.byDate} />
-          <OrderStatusChart data={metrics.orders.byStatus} />
+          <RevenueChart data={metrics.revenue?.byDate || []} />
+          <OrderStatusChart data={metrics.orders?.byStatus || []} />
         </div>
       </Suspense>
     </div>

@@ -33,7 +33,7 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 
 /**
  * Registration form validation schema
- */ 
+ */
 export const registerSchema = z.object({
   name: z
     .string()
@@ -118,7 +118,7 @@ export const profileUpdateSchema = z.object({
     .nullable(),
   phone: z
     .string()
-    .regex(/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number (e.g., +1234567890)')
+    .regex(/^(\+?[1-9]\d{7,14}|0\d{8,10})$/, 'Please enter a valid phone number (e.g., +1234567890)')
     .optional()
     .nullable(),
   dateOfBirth: z

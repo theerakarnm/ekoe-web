@@ -56,25 +56,25 @@ interface CustomerAuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   isEmailVerified: boolean;
-  
+
   // Authentication actions
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   checkAuth: () => Promise<void>;
-  
+
   // Profile actions
   loadProfile: () => Promise<void>;
   updateProfile: (data: Partial<CustomerProfile>) => Promise<void>;
-  
+
   // Address actions
   loadAddresses: () => Promise<void>;
-  
+
   // Password reset actions
   sendVerificationEmail: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
-  
+
   // Session management
   handleSessionExpired: () => void;
 }
@@ -107,7 +107,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
 
           // After signup, get the session to update state
           const session = await authClient.getSession();
-          
+
           if (session.data) {
             set({
               user: {
@@ -215,10 +215,10 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
                   isAuthenticated: false,
                   isEmailVerified: false,
                 });
-                
+
                 // Clear localStorage
                 localStorage.removeItem('customer-auth-storage');
-                
+
                 // Redirect to home page
                 window.location.href = '/';
               },
@@ -260,18 +260,18 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
           // Handle session expiration or invalid session
           if (error || !data) {
             // Clear expired session state
-            set({ 
-              user: null, 
+            set({
+              user: null,
               profile: null,
               addresses: [],
-              isAuthenticated: false, 
+              isAuthenticated: false,
               isEmailVerified: false,
-              isLoading: false 
+              isLoading: false
             });
-            
+
             // Clear localStorage
             localStorage.removeItem('customer-auth-storage');
-            
+
             return;
           }
 
@@ -292,17 +292,17 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
           await get().loadProfile();
         } catch (error) {
           console.error('Auth check error:', error);
-          
+
           // Clear state on error (likely session expired)
-          set({ 
-            user: null, 
+          set({
+            user: null,
             profile: null,
             addresses: [],
-            isAuthenticated: false, 
+            isAuthenticated: false,
             isEmailVerified: false,
-            isLoading: false 
+            isLoading: false
           });
-          
+
           // Clear localStorage
           localStorage.removeItem('customer-auth-storage');
         }
@@ -334,9 +334,10 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
           }
 
           const result = await response.json();
-          
+
           set({
-            profile: result.data,
+            profile: result.data.profile,
+            addresses: result.data.addresses,
           });
         } catch (error) {
           console.error('Load profile error:', error);
@@ -372,7 +373,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
           }
 
           const result = await response.json();
-          
+
           set({
             profile: result.data,
           });
@@ -408,7 +409,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
           }
 
           const result = await response.json();
-          
+
           set({
             addresses: result.data,
           });
@@ -483,7 +484,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
         const currentPath = window.location.pathname;
         const authRoutes = ['/auth/login', '/auth/register', '/auth/verify-email', '/auth/reset-password', '/auth/reset-password-confirm', '/auth/callback'];
         const isAuthRoute = authRoutes.some(route => currentPath.startsWith(route));
-        
+
         if (!isAuthRoute && currentPath !== '/') {
           localStorage.setItem('auth_return_url', currentPath);
         }

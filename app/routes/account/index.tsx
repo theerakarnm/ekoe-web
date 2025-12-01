@@ -4,10 +4,11 @@ import { CustomerAuthGuard } from '~/components/auth/customer-auth-guard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { Button } from '~/components/ui/button';
-import { LogOut, User, Package, MapPin } from 'lucide-react';
+import { LogOut, User, Package, MapPin, ArrowLeft } from 'lucide-react';
 import { ProfileInfoForm } from '~/components/profile/profile-info-form';
 import { OrderHistoryList } from '~/components/profile/order-history-list';
 import { AddressManager } from '~/components/profile/address-manager';
+import { Link } from 'react-router';
 
 export default function AccountPage() {
   const { user, signOut } = useCustomerAuthStore();
@@ -29,6 +30,10 @@ export default function AccountPage() {
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
+                <Link className='flex items-center gap-2 mb-4' to="/">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Home
+                </Link>
                 <h1 className="text-3xl font-bold text-gray-900">My Account</h1>
                 <p className="text-gray-600 mt-1">Welcome back, {user?.name}</p>
               </div>
