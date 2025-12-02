@@ -100,7 +100,7 @@ export default function OnlineExecutive() {
               <div className="aspect-4/5 bg-gray-100 rounded-lg overflow-hidden relative">
                 {/* Placeholder for the product set image */}
                 <img
-                  src="/ekoe-asset/ONLINE EXECUTIVE/ONLINE_EXECUTIVE.png"
+                  src="/ekoe-asset/ONLINE_EXECUTIVE/ONLINE_EXECUTIVE.png"
                   alt="Ekoe Product Set"
                   className="w-full h-full object-cover"
                 />
