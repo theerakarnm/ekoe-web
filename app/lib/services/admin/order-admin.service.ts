@@ -63,7 +63,8 @@ export interface StatusHistory {
   status: string;
   note?: string;
   createdAt: string;
-  createdBy?: string;
+  changedBy?: string;
+  changedByName?: string;
 }
 
 export interface GetOrdersParams {
@@ -140,6 +141,27 @@ export async function getOrderStatusHistory(id: string, headers?: HeadersInit): 
   try {
     const response = await apiClient.get<SuccessResponseWrapper<StatusHistory[]>>(
       `/api/admin/orders/${id}/history`,
+      getAxiosConfig(headers)
+    );
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
+/**
+ * Get valid next statuses for an order
+ */
+export async function getValidNextStatuses(id: string, headers?: HeadersInit): Promise<{
+  currentStatus: string;
+  validNextStatuses: string[];
+}> {
+  try {
+    const response = await apiClient.get<SuccessResponseWrapper<{
+      currentStatus: string;
+      validNextStatuses: string[];
+    }>>(
+      `/api/admin/orders/${id}/valid-next-statuses`,
       getAxiosConfig(headers)
     );
     return response.data.data;

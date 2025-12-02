@@ -119,12 +119,26 @@ export interface Order {
 }
 
 /**
+ * Order status history entry
+ */
+export interface OrderStatusHistory {
+  id: string;
+  orderId: string;
+  status: string;
+  note?: string | null;
+  changedBy?: string | null;
+  changedByName?: string;
+  createdAt: Date | string;
+}
+
+/**
  * Order detail with items and addresses
  */
 export interface OrderDetail extends Order {
   items: OrderItemDetail[];
   shippingAddress: ShippingAddress | null;
   billingAddress: BillingAddress | null;
+  statusHistory?: OrderStatusHistory[];
 }
 
 /**

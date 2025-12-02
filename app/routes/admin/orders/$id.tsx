@@ -1,7 +1,7 @@
 import { useLoaderData, useNavigate, useActionData, Form, useRevalidator } from 'react-router';
 import { ArrowLeft, Package, MapPin, CreditCard, Clock, Receipt, CheckCircle } from 'lucide-react';
 import type { Route } from '../orders/+types/$id'
-import { getOrder, updateOrderStatus, type OrderDetail } from '~/lib/services/admin/order-admin.service';
+import { getOrder, updateOrderStatus, getValidNextStatuses, type OrderDetail } from '~/lib/services/admin/order-admin.service';
 import { getPaymentsByOrderId, manuallyVerifyPayment, type Payment } from '~/lib/services/payment.service';
 import { Button } from '~/components/ui/button';
 import { Badge } from '~/components/ui/badge';
@@ -36,7 +36,8 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   }
   const order = await getOrder(params.id, request.headers);
   const payments = await getPaymentsByOrderId(params.id, request.headers);
-  return { order, payments };
+  const validStatuses = await getValidNextStatuses(params.id, request.headers);
+  return { order, payments, validStatuses };
 }
 
 export async function action({ params, request }: Route.ActionArgs) {
@@ -57,7 +58,7 @@ export async function action({ params, request }: Route.ActionArgs) {
 }
 
 export default function OrderDetailPage() {
-  const { order, payments } = useLoaderData<typeof loader>();
+  const { order, payments, validStatuses } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
   const revalidator = useRevalidator();
@@ -65,14 +66,16 @@ export default function OrderDetailPage() {
   const [verifyingPayment, setVerifyingPayment] = useState<Payment | null>(null);
   const [verificationNote, setVerificationNote] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<string>(order.status);
 
   useEffect(() => {
     if (actionData?.success && actionData.message) {
       showSuccess(actionData.message);
+      revalidator.revalidate();
     } else if (actionData?.error) {
       showError(actionData.error);
     }
-  }, [actionData]);
+  }, [actionData, revalidator]);
 
   const handleVerifyPayment = async () => {
     if (!verifyingPayment) return;
@@ -89,6 +92,10 @@ export default function OrderDetailPage() {
     } finally {
       setIsVerifying(false);
     }
+  };
+
+  const formatStatusLabel = (status: string) => {
+    return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
   const getStatusBadge = (status: string) => {
@@ -424,18 +431,32 @@ export default function OrderDetailPage() {
               <Form method="post" className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="status">Order Status</Label>
-                  <Select name="status" defaultValue={order.status}>
+                  <Select 
+                    name="status" 
+                    value={selectedStatus}
+                    onValueChange={setSelectedStatus}
+                  >
                     <SelectTrigger id="status">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="processing">Processing</SelectItem>
-                      <SelectItem value="shipped">Shipped</SelectItem>
-                      <SelectItem value="delivered">Delivered</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                      {/* Current status */}
+                      <SelectItem value={order.status}>
+                        {formatStatusLabel(order.status)} (Current)
+                      </SelectItem>
+                      {/* Valid next statuses */}
+                      {validStatuses.validNextStatuses.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {formatStatusLabel(status)}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
+                  {validStatuses.validNextStatuses.length === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      No valid status transitions available from {order.status}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -448,7 +469,11 @@ export default function OrderDetailPage() {
                   />
                 </div>
 
-                <Button type="submit" className="w-full">
+                <Button 
+                  type="submit" 
+                  className="w-full"
+                  disabled={selectedStatus === order.status}
+                >
                   Update Status
                 </Button>
               </Form>
@@ -465,22 +490,33 @@ export default function OrderDetailPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {order.statusHistory.length === 0 ? (
+                {order.statusHistory && order.statusHistory.length === 0 ? (
                   <p className="text-sm text-muted-foreground">No status history</p>
-                ) : (
+                ) : order.statusHistory ? (
                   order.statusHistory.map((history) => (
-                    <div key={history.id} className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        {getStatusBadge(history.status)}
-                        <span className="text-xs text-muted-foreground">
+                    <div key={history.id} className="space-y-2 pb-4 border-b last:border-b-0 last:pb-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          {getStatusBadge(history.status)}
+                        </div>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
                           {formatDate(history.createdAt)}
                         </span>
                       </div>
-                      {history.note && (
-                        <p className="text-sm text-muted-foreground">{history.note}</p>
-                      )}
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">
+                          Changed by: <span className="font-medium">{history.changedByName || 'System'}</span>
+                        </p>
+                        {history.note && (
+                          <p className="text-sm text-muted-foreground bg-muted/50 p-2 rounded-md italic">
+                            "{history.note}"
+                          </p>
+                        )}
+                      </div>
                     </div>
                   ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">Loading status history...</p>
                 )}
               </div>
             </CardContent>

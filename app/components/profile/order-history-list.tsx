@@ -172,7 +172,7 @@ export function OrderHistoryList() {
             <div className="flex gap-2">
               <Button asChild variant="outline" size="sm">
                 <Link to={`/order/${order.id}`} className="flex items-center gap-1">
-                  View Details
+                  Track Order
                   <ExternalLink className="h-3 w-3" />
                 </Link>
               </Button>
