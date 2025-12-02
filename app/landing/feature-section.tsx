@@ -26,7 +26,7 @@ function FeatureSection() {
 
       <div className="relative h-96 md:h-auto">
         <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqDytMpmTsIwR1baoqTJWp2YnXc5G7m5H-3tC5ccnZ_SLz1Bx4z3sDKCDuHvZT1tUI-9-SXB6tan3QPIqmwewvxpipTpBSoANV-T2qgJjxobMo99lnJLtASEBGg-f2nTTNety4iMwX-_OwfPCxIUsh9GCfWBNQVeYWrd32JseGiS_wrhuAMRjBtx2nmXxfXFGfWoIVOXoYG0C8ScsIJNNGdt8wKXK3jZVpzNHb_c4sFFvhWWonPyA4W5y0ADSd1AFcDIaMb28s27A"
+          src="/ekoe-asset/HOME/Glowthat_sworth.png"
           alt="Ekoe Product"
           className="w-full h-full object-cover"
         />
@@ -34,7 +34,7 @@ function FeatureSection() {
 
       <div className="relative h-96 md:h-auto order-4 md:order-3">
         <img
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuCF8s5R1ekzjdJ-_1bl48aGTFPzrCzWBYhc1-qUGqXQhuBgLZP_GMsQDKvHa6UX7zecMaaZzU-45AJULnrs96qZk0ub-o1e6xjFZBs_RHZewfulTak4eWXgyokVN4IHx2sIr-_ZCOV0M6yCWrxXON7W29cceODOWuFNCusiCuB8EyfB98O004DdMx3q8QzC3aZ-ETIo-xXKRPMe4Ap7hx81CTk7P_be7AHzDjKfyVZv5obaPy-9QbLjsV6Q8TsfBUPLnlXd6vdB7gA"
+          src="/ekoe-asset/HOME/หนึ่งอย่างที่ดีจริง.png"
           alt="Ekoe Products Collection"
           className="w-full h-full object-cover"
         />

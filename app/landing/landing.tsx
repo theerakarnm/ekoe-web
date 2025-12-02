@@ -62,15 +62,15 @@ export function Landing({ loaderData }: LandingProps) {
       <Header isLandingMagic={!showMainHeader} />
       <main className="min-h-screen bg-white">
         <HeroSection />
-        <BestSellerSection 
-          products={loaderData?.bestSellers} 
+        <BestSellerSection
+          products={loaderData?.bestSellers}
           error={loaderData?.error}
         />
         <FeatureSection />
-        <NewArrivalsSection 
+        {/* <NewArrivalsSection 
           products={loaderData?.newArrivals} 
           error={loaderData?.error}
-        />
+        /> */}
         <BlogSection />
         <Footer />
       </main>

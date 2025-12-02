@@ -8,9 +8,9 @@ function Footer() {
       <div className="absolute h-48 w-[95%] md:w-[80%] left-1/2 -translate-x-1/2 -translate-y-[80%]  overflow-hidden py-6">
         <div className="absolute inset-0 bg-gray-300">
           <img
-            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2000&auto=format&fit=crop"
+            src="/ekoe-asset/Footer_photo.png"
             alt="Beach Grass"
-            className="w-full h-full object-cover"
+            className="w-full h-full"
           />
           <div className="absolute inset-0 bg-black/20">
           </div>
@@ -38,7 +38,8 @@ function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-20">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <h3 className="text-[6rem] -mb-6 font-serif">Ekoe</h3>
+              <img src="/ekoe-asset/Ekoe_Logo-01.png" alt="Ekoe Logo" className='-translate-x-10 invert' />
+              {/* <h3 className="text-[6rem] -mb-6 font-serif">Ekoe</h3> */}
               <p className="text-sm text-gray-400 mb-4 font-serif">
                 For moments That Matter - Follow Us
               </p>

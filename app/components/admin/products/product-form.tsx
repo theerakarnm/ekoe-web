@@ -280,7 +280,7 @@ export function ProductForm({ product }: ProductFormProps) {
         const newProduct = await createProduct(productData);
         showSuccess('Product created successfully', 'You can now upload images for this product');
         // Redirect to edit page so user can upload images
-        navigate(`/admin/products/${newProduct.id}/edit`);
+        navigate(`/admin/products/${newProduct.id}`);
         return;
       }
     } catch (error: any) {

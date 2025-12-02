@@ -97,10 +97,10 @@ export default function OnlineExecutive() {
 
             {/* Right Image */}
             <div className="relative mt-10 lg:mt-0">
-              <div className="aspect-[4/5] bg-gray-100 rounded-lg overflow-hidden relative">
+              <div className="aspect-4/5 bg-gray-100 rounded-lg overflow-hidden relative">
                 {/* Placeholder for the product set image */}
                 <img
-                  src="https://images.unsplash.com/photo-1618331835717-801e976710b2?q=80&w=1000&auto=format&fit=crop"
+                  src="/ekoe-asset/ONLINE EXECUTIVE/ONLINE_EXECUTIVE.png"
                   alt="Ekoe Product Set"
                   className="w-full h-full object-cover"
                 />

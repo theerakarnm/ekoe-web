@@ -96,7 +96,9 @@ export default function Header({
 
                 {/* Centered logo - adjust size for mobile */}
                 <div className="absolute left-1/2 transform -translate-x-1/2">
-                  <Link to="/" className="text-lg sm:text-xl lg:text-2xl font-serif text-gray-800">Ekoe</Link>
+                  <Link to="/" className="text-lg sm:text-xl lg:text-2xl font-serif text-gray-800">
+                    <img src="/ekoe-asset/Ekoe_Logo-01.png" alt="Ekoe Logo" className='w-28 ' />
+                  </Link>
                 </div>
 
                 {/* Desktop right-side navigation */}

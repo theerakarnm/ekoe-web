@@ -81,7 +81,7 @@ export default function ProductsIndexPage() {
   };
 
   const handleEdit = (id: string) => {
-    navigate(`/admin/products/${id}/edit`);
+    navigate(`/admin/products/${id}`);
   };
 
   const handleDelete = async (id: string) => {

@@ -78,7 +78,7 @@ export default function CouponsIndexPage() {
   };
 
   const handleEdit = (id: string) => {
-    navigate(`/admin/coupons/${id}/edit`);
+    navigate(`/admin/coupons/${id}`);
   };
 
   const handleDeactivate = async (id: string) => {

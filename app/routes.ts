@@ -50,7 +50,7 @@ export default [
     // Coupon routes
     route("admin/coupons", "routes/admin/coupons/index.tsx"),
     route("admin/coupons/new", "routes/admin/coupons/new.tsx"),
-    route("admin/coupons/:id/edit", "routes/admin/coupons/$id.edit.tsx"),
+    route("admin/coupons/:id", "routes/admin/coupons/$id.tsx"),
 
     // Order routes
     route("admin/orders", "routes/admin/orders/index.tsx"),

@@ -29,7 +29,7 @@ export function DiscountCodes({ codes }: DiscountCodesProps) {
       </div>
       <div className="flex overflow-x-auto gap-4 pb-2 -mx-4 px-4 scrollbar-hide">
         {codes.map((code, idx) => (
-          <div key={idx} className="flex-shrink-0 w-72 flex border-r border-gray-200 last:border-0 pr-4 mr-4 last:mr-0 last:pr-0">
+          <div key={idx} className="shrink-0 w-72 flex border-r border-gray-200 last:border-0 pr-4 mr-4 last:mr-0 last:pr-0">
             <div className="flex-1 pr-4">
               <div className="font-bold text-base mb-1">{code.title}</div>
               <div className="text-xs text-gray-400 mb-2">{code.condition}</div>

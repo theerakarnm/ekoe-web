@@ -25,7 +25,7 @@ const slides = [
     description: "",
     media: {
       type: 'video',
-      url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' // Placeholder nature video
+      url: '/ekoe-asset/branding-vid.mp4' // Placeholder nature video
     }
   },
   {
@@ -179,7 +179,7 @@ function HeroSection() {
 
               {/* Centered logo */}
               <div className="absolute left-1/2 transform -translate-x-1/2">
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-white tracking-tight">Ekoe</h1>
+                <img src="/ekoe-asset/Ekoe_Logo-01.png" alt="Ekoe Logo" className='w-32 invert' />
               </div>
 
               {/* Desktop right-side navigation */}

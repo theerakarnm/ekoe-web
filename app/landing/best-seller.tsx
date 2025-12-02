@@ -17,14 +17,14 @@ import {
 function transformProduct(product: Product): IProduct {
   const primaryImage = product.images?.find(img => img.isPrimary) || product.images?.[0];
   const variants = product.variants || [];
-  
+
   // Calculate price range from variants or use base price
   let priceTitle: string;
   if (variants.length > 0) {
     const prices = variants.map(v => v.price);
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
-    
+
     if (minPrice === maxPrice) {
       priceTitle = formatCurrencyFromCents(minPrice);
     } else {
@@ -58,7 +58,7 @@ function BestSellerSection({ products = [], isLoading = false, error = null }: B
     return (
       <div className="mx-auto *:mt-16 sm:*:mt-20 md:*:mt-24 mb-8 sm:mb-12 md:mb-16 container px-4 sm:px-6">
         <div className="relative">
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center mb-6 sm:mb-8 md:mb-10 text-[#858585]">Our Best Seller</h2>
+          <h2 className="font-serif text-3xl text-left mb-6 sm:mb-8 md:mb-10 ">Our Best Seller</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="space-y-3">
@@ -78,7 +78,7 @@ function BestSellerSection({ products = [], isLoading = false, error = null }: B
     return (
       <div className="mx-auto *:mt-16 sm:*:mt-20 md:*:mt-24 mb-8 sm:mb-12 md:mb-16 container px-4 sm:px-6">
         <div className="relative">
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center mb-6 sm:mb-8 md:mb-10 text-[#858585]">Our Best Seller</h2>
+          <h2 className="font-serif text-3xl text-left mb-6 sm:mb-8 md:mb-10 ">Our Best Seller</h2>
           <div className="text-center py-12">
             <p className="text-gray-600 mb-4">Unable to load products at this time.</p>
             <p className="text-sm text-gray-400">{error}</p>
@@ -93,7 +93,7 @@ function BestSellerSection({ products = [], isLoading = false, error = null }: B
     return (
       <div className="mx-auto *:mt-16 sm:*:mt-20 md:*:mt-24 mb-8 sm:mb-12 md:mb-16 container px-4 sm:px-6">
         <div className="relative">
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center mb-6 sm:mb-8 md:mb-10 text-[#858585]">Our Best Seller</h2>
+          <h2 className="font-serif text-3xl text-left mb-6 sm:mb-8 md:mb-10 ">Our Best Seller</h2>
           <div className="text-center py-12">
             <p className="text-gray-600">No products available at this time.</p>
           </div>
@@ -108,7 +108,7 @@ function BestSellerSection({ products = [], isLoading = false, error = null }: B
   return (
     <div className="mx-auto *:mt-16 sm:*:mt-20 md:*:mt-24 mb-8 sm:mb-12 md:mb-16 container px-4 sm:px-6">
       <div className="relative">
-        <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-center mb-6 sm:mb-8 md:mb-10 text-[#858585]">Our Best Seller</h2>
+        <h2 className="font-serif text-3xl text-left mb-6 sm:mb-8 md:mb-10 ">Our Best Seller</h2>
         <Carousel
           opts={{
             align: "start",

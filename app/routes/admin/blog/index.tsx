@@ -78,7 +78,7 @@ export default function BlogIndexPage() {
   };
 
   const handleEdit = (id: number) => {
-    navigate(`/admin/blog/${id}/edit`);
+    navigate(`/admin/blog/${id}`);
   };
 
   const handleDelete = async (id: number) => {

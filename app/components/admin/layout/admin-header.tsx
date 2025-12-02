@@ -30,13 +30,13 @@ export function AdminHeader() {
     for (let i = 1; i < pathSegments.length; i++) {
       const segment = pathSegments[i];
       const href = '/' + pathSegments.slice(0, i + 1).join('/');
-      
+
       // Format label
       let label = segment
         .split('-')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
-      
+
       // Handle special cases
       if (segment === 'new') {
         label = 'Create New';
@@ -74,7 +74,7 @@ export function AdminHeader() {
           to="/admin/dashboard"
           className="text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
         >
-          Admin
+          <img src="/ekoe-asset/Ekoe_Logo-01.png" alt="Ekoe Logo" className='w-28' />
         </Link>
         {breadcrumbs.map((crumb, index) => (
           <div key={crumb.href} className="flex items-center space-x-2">
