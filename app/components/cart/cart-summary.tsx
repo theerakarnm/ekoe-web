@@ -2,13 +2,54 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { formatCurrencyFromCents } from "~/lib/formatter";
 import { useCartStore } from "~/store/cart";
+import { Link } from "react-router";
+import { useState } from "react";
+import { validateDiscountCode } from "~/lib/services/cart.service";
+import { Loader2 } from "lucide-react";
 
 export function CartSummary() {
-  const getTotalPrice = useCartStore((state) => state.getTotalPrice);
-  const subtotal = getTotalPrice();
-  const shipping = 0; // Free shipping for now
-  const discount = 293; // Mock discount for now to match design
+  const subtotal = useCartStore((state) => state.getSubtotal());
+  const discount = useCartStore((state) => state.discountAmount);
+  const discountCode = useCartStore((state) => state.discountCode);
+  const items = useCartStore((state) => state.items);
+  const applyDiscountCode = useCartStore((state) => state.applyDiscountCode);
+  const removeDiscountCode = useCartStore((state) => state.removeDiscountCode);
+
+  // Only dealing with 0 shipping/tax for now as per previous implementation
   const total = subtotal - discount;
+
+  const [couponCode, setCouponCode] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+
+    setIsLoading(true);
+    setMessage(null);
+
+    try {
+      const cartItems = items.map(item => ({
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.quantity
+      }));
+
+      const result = await validateDiscountCode(couponCode, subtotal, cartItems);
+
+      if (result && result.isValid && result.discountAmount !== undefined) {
+        applyDiscountCode(result.code || couponCode, result.discountAmount);
+        setMessage({ type: 'success', text: `Coupon ${result.code || couponCode} applied!` });
+        setCouponCode("");
+      } else {
+        setMessage({ type: 'error', text: result?.error || "Invalid coupon code" });
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: "Failed to apply coupon" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="border border-gray-200 p-8">
@@ -23,30 +64,59 @@ export function CartSummary() {
           <span className="text-gray-600">Shipping</span>
           <span className="font-medium uppercase">Free</span>
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Discount</span>
-          <span className="font-medium">-{formatCurrencyFromCents(discount, { symbol: '$', decimals: 0 })}</span>
-        </div>
+        {discount > 0 && (
+          <div className="flex justify-between text-sm text-green-600">
+            <span className="">Discount ({discountCode})</span>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">-{formatCurrencyFromCents(discount, { symbol: '$', decimals: 0 })}</span>
+              <button
+                onClick={() => { removeDiscountCode(); setMessage(null); }}
+                className="text-xs underline text-red-500 hover:text-red-700"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="flex gap-2 mb-8">
-        <Input
-          placeholder="Coupon code"
-          className="h-10 bg-transparent border-gray-200 rounded-none placeholder:text-gray-300"
-        />
-        <Button className="h-10 px-6 bg-black text-white hover:bg-gray-800 rounded-none uppercase text-xs tracking-widest">
-          Apply
-        </Button>
+      <div className="flex flex-col gap-2 mb-8">
+        <div className="flex gap-2">
+          <Input
+            placeholder="Coupon code"
+            className="h-10 bg-transparent border-gray-200 rounded-none placeholder:text-gray-300"
+            value={couponCode}
+            onChange={(e) => setCouponCode(e.target.value)}
+            disabled={isLoading}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleApplyCoupon();
+            }}
+          />
+          <Button
+            onClick={handleApplyCoupon}
+            disabled={isLoading || !couponCode}
+            className="h-10 px-6 bg-black text-white hover:bg-gray-800 rounded-none uppercase text-xs tracking-widest min-w-[80px]"
+          >
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Apply"}
+          </Button>
+        </div>
+        {message && (
+          <p className={`text-xs ${message.type === 'error' ? 'text-red-500' : 'text-green-600'}`}>
+            {message.text}
+          </p>
+        )}
       </div>
 
       <div className="flex justify-between items-center mb-8 pt-4 border-t border-gray-100">
         <span className="font-serif text-lg">Total</span>
-        <span className="font-serif text-xl font-medium">{formatCurrencyFromCents(total, { symbol: '$' })}</span>
+        <span className="font-serif text-xl font-medium">{formatCurrencyFromCents(Math.max(0, total), { symbol: '$' })}</span>
       </div>
 
-      <Button className="w-full h-12 bg-black text-white hover:bg-gray-800 rounded-none uppercase tracking-widest text-sm">
-        Checkout
-      </Button>
+      <Link to="/checkout" className="block w-full">
+        <Button disabled={subtotal <= 0} className="w-full h-12 bg-black text-white hover:bg-gray-800 rounded-none uppercase tracking-widest text-sm">
+          Checkout
+        </Button>
+      </Link>
     </div>
   );
 }

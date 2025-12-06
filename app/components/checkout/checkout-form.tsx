@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Form as RemixForm, useActionData, useNavigation } from "react-router";
+import { useActionData, useNavigation, useSubmit } from "react-router";
 import { useCustomerAuthStore } from "~/store/customer-auth";
 import { useCartStore } from "~/store/cart";
 import { Button } from "~/components/ui/button";
@@ -59,10 +59,25 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
   const { user, profile, addresses, loadProfile, loadAddresses } = useCustomerAuthStore();
   const items = useCartStore((state) => state.items);
   const clearCart = useCartStore((state) => state.clearCart);
+  const submit = useSubmit();
   const actionData = useActionData<{ error?: string; code?: string; field?: string; details?: any }>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
-  
+
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
+    const formData = {
+      ...data,
+      items: JSON.stringify(
+        items.map((item) => ({
+          productId: item.productId,
+          variantId: item.variantId,
+          quantity: item.quantity,
+        }))
+      ),
+    };
+    submit(formData, { method: "post" });
+  };
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -93,12 +108,12 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
   useEffect(() => {
     if (user || profile || addresses.length > 0) {
       const defaultAddress = addresses.find(addr => addr.isDefault) || addresses[0];
-      
+
       // Pre-fill email from user
       if (user?.email) {
         form.setValue('email', user.email);
       }
-      
+
       // Pre-fill name from profile or default address
       if (profile?.firstName || defaultAddress?.firstName) {
         form.setValue('firstName', profile?.firstName || defaultAddress?.firstName || '');
@@ -106,12 +121,12 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
       if (profile?.lastName || defaultAddress?.lastName) {
         form.setValue('lastName', profile?.lastName || defaultAddress?.lastName || '');
       }
-      
+
       // Pre-fill phone from profile or default address
       if (profile?.phone || defaultAddress?.phone) {
         form.setValue('phone', profile?.phone || defaultAddress?.phone || '');
       }
-      
+
       // Pre-fill address from default address
       if (defaultAddress) {
         form.setValue('country', defaultAddress.country || 'Thailand');
@@ -124,7 +139,7 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
           form.setValue('company', defaultAddress.company);
         }
       }
-      
+
       // Pre-fill newsletter preference from profile
       if (profile?.newsletterSubscribed !== undefined) {
         form.setValue('newsletter', profile.newsletterSubscribed);
@@ -143,77 +158,57 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
   }, [navigation, clearCart]);
 
   return (
-    <RemixForm method="post" className="space-y-12 py-8 relative">
-      {/* Loading Overlay */}
-      {isSubmitting && (
-        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
-            <p className="text-lg font-medium">Processing your order...</p>
-            <p className="text-sm text-gray-600">Please do not close this page</p>
-          </div>
-        </div>
-      )}
-      {/* Error Display */}
-      {actionData?.error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Order Failed</AlertTitle>
-          <AlertDescription>
-            <div className="space-y-2">
-              <p>{actionData.error}</p>
-              {actionData.field && (
-                <p className="text-sm">
-                  Issue with field: <strong>{actionData.field}</strong>
-                </p>
-              )}
-              {actionData.code && (
-                <p className="text-xs opacity-75">Error code: {actionData.code}</p>
-              )}
-              {actionData.details && typeof actionData.details === 'object' && (
-                <div className="mt-2 text-sm space-y-1">
-                  {Object.entries(actionData.details).map(([key, value]) => (
-                    <p key={key}>
-                      <strong>{key}:</strong> {String(value)}
-                    </p>
-                  ))}
-                </div>
-              )}
-              <Button
-                type="submit"
-                variant="outline"
-                size="sm"
-                className="mt-2"
-                disabled={isSubmitting}
-              >
-                Retry Order
-              </Button>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12 py-8 relative">
+        {/* Loading Overlay */}
+        {isSubmitting && (
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div className="text-center">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mb-4"></div>
+              <p className="text-lg font-medium">Processing your order...</p>
+              <p className="text-sm text-gray-600">Please do not close this page</p>
             </div>
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Hidden field for cart items */}
-      <input
-        type="hidden"
-        name="items"
-        value={JSON.stringify(
-          items.map((item) => ({
-            productId: item.productId,
-            variantId: item.variantId,
-            quantity: item.quantity,
-          }))
+          </div>
         )}
-      />
-      
-      {/* Hidden field for payment method */}
-      <input
-        type="hidden"
-        name="paymentMethod"
-        value={form.watch('paymentMethod')}
-      />
+        {/* Error Display */}
+        {actionData?.error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Order Failed</AlertTitle>
+            <AlertDescription>
+              <div className="space-y-2">
+                <p>{actionData.error}</p>
+                {actionData.field && (
+                  <p className="text-sm">
+                    Issue with field: <strong>{actionData.field}</strong>
+                  </p>
+                )}
+                {actionData.code && (
+                  <p className="text-xs opacity-75">Error code: {actionData.code}</p>
+                )}
+                {actionData.details && typeof actionData.details === 'object' && (
+                  <div className="mt-2 text-sm space-y-1">
+                    {Object.entries(actionData.details).map(([key, value]) => (
+                      <p key={key}>
+                        <strong>{key}:</strong> {String(value)}
+                      </p>
+                    ))}
+                  </div>
+                )}
+                <Button
+                  type="submit"
+                  variant="outline"
+                  size="sm"
+                  className="mt-2"
+                  disabled={isSubmitting}
+                >
+                  Retry Order
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
 
-      <Form {...form}>
         {/* Contact Section */}
         <div className="space-y-4">
           <h2 className="font-serif text-2xl">Contact</h2>
@@ -522,8 +517,8 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
           />
         </div>
 
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-full h-14 bg-black text-white text-lg hover:bg-gray-800 uppercase tracking-widest"
           disabled={isValidating || isSubmitting || (validationResult !== null && !validationResult.isValid)}
         >
@@ -533,7 +528,7 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
         <p className="text-[10px] text-gray-400 text-center mt-4">
           เราใช้ข้อมูลส่วนตัวของคุณเพื่อจัดการคำสั่งซื้อ, เข้าถึงหน้าต่างๆ ในเว็บไซต์ รวมถึงจุดประสงค์อื่นๆ ตาม privacy policy
         </p>
-      </Form>
-    </RemixForm>
+      </form>
+    </Form>
   );
 }

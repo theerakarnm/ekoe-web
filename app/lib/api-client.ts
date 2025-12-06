@@ -118,14 +118,14 @@ apiClient.interceptors.response.use(
         // Determine if this is an admin or customer route
         const isAdminRoute = window.location.pathname.startsWith('/admin');
         const loginPath = isAdminRoute ? '/admin/login' : '/auth/login';
-        
+
         // Only redirect if not already on login page
         if (window.location.pathname !== loginPath) {
           window.location.href = loginPath;
         }
       }
     }
-    
+
     return Promise.reject(error);
   }
 );
@@ -155,7 +155,7 @@ export function handleApiError(error: unknown): never {
         if (typeof window === 'undefined') {
           throw redirect('/auth/login');
         }
-        
+
         throw new ApiClientError(
           data.message || 'Unauthorized',
           401,

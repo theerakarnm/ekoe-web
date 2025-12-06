@@ -95,12 +95,15 @@ export interface TwoC2PReturnResult {
  */
 export async function createPromptPayPayment(
   orderId: string,
-  amount: number
+  amount: number,
+  headers?: HeadersInit
 ): Promise<PromptPayPaymentResponse> {
   try {
+    const config = getAxiosConfig(headers);
     const response = await apiClient.post<SuccessResponseWrapper<PromptPayPaymentResponse>>(
       '/api/payments/promptpay',
-      { orderId, amount }
+      { orderId, amount },
+      config
     );
 
     return response.data.data;
@@ -121,12 +124,15 @@ export async function createPromptPayPayment(
 export async function initiate2C2PPayment(
   orderId: string,
   amount: number,
-  returnUrl: string
+  returnUrl: string,
+  headers?: HeadersInit
 ): Promise<TwoC2PPaymentResponse> {
   try {
+    const config = getAxiosConfig(headers);
     const response = await apiClient.post<SuccessResponseWrapper<TwoC2PPaymentResponse>>(
       '/api/payments/2c2p/initiate',
-      { orderId, amount, returnUrl }
+      { orderId, amount, returnUrl },
+      config
     );
 
     return response.data.data;
@@ -209,7 +215,7 @@ export async function manuallyVerifyPayment(
 ): Promise<{ message: string; paymentId: string }> {
   try {
     const config = getAxiosConfig(headers);
-    
+
     const response = await apiClient.post<SuccessResponseWrapper<{ message: string; paymentId: string }>>(
       `/api/admin/payments/${paymentId}/verify`,
       { note },
@@ -236,7 +242,7 @@ export async function getPaymentById(
 ): Promise<Payment> {
   try {
     const config = getAxiosConfig(headers);
-    
+
     const response = await apiClient.get<SuccessResponseWrapper<Payment>>(
       `/api/admin/payments/${paymentId}`,
       config
@@ -262,7 +268,7 @@ export async function getPaymentsByOrderId(
 ): Promise<Payment[]> {
   try {
     const config = getAxiosConfig(headers);
-    
+
     const response = await apiClient.get<SuccessResponseWrapper<{ data: Payment[] }>>(
       `/api/admin/payments?orderId=${orderId}`,
       config

@@ -62,21 +62,22 @@ export async function action({ request }: Route.ActionArgs) {
       discountCode: formData.get('discountCode') as string || undefined,
     };
 
-    // Create the order
-    const order = await createOrder(orderData);
+    // Create the order (pass headers for SSR authentication)
+    const order = await createOrder(orderData, request.headers);
+
 
     // Handle payment based on selected method
     if (paymentMethod === 'promptpay') {
       // Create PromptPay payment
-      const payment = await createPromptPayPayment(order.id, order.totalAmount);
-      
+      const payment = await createPromptPayPayment(order.id, order.totalAmount, request.headers);
+
       // Redirect to PromptPay QR page
       return redirect(`/payment/promptpay/${payment.paymentId}`);
     } else if (paymentMethod === 'credit_card') {
       // Initiate 2C2P payment
       const returnUrl = `${request.url.split('/checkout')[0]}/payment/2c2p/return`;
-      const payment = await initiate2C2PPayment(order.id, order.totalAmount, returnUrl);
-      
+      const payment = await initiate2C2PPayment(order.id, order.totalAmount, returnUrl, request.headers);
+
       // Redirect to 2C2P payment page
       return redirect(payment.paymentUrl);
     }

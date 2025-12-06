@@ -3,7 +3,7 @@
  * Handles order creation and cart validation for checkout flow
  */
 
-import { apiClient, handleApiError, type SuccessResponseWrapper } from '../api-client';
+import { apiClient, handleApiError, getAxiosConfig, type SuccessResponseWrapper } from '../api-client';
 import type { Product, ProductVariant } from './product.service';
 
 // ============================================================================
@@ -206,11 +206,16 @@ export interface ShippingMethod {
  * @returns Created order with order number and details
  * @throws {ApiClientError} - On validation errors, stock issues, or server errors
  */
-export async function createOrder(orderData: CreateOrderRequest): Promise<OrderDetail> {
+export async function createOrder(
+  orderData: CreateOrderRequest,
+  headers?: HeadersInit
+): Promise<OrderDetail> {
   try {
+    const config = getAxiosConfig(headers);
     const response = await apiClient.post<SuccessResponseWrapper<OrderDetail>>(
       '/api/orders',
-      orderData
+      orderData,
+      config
     );
 
     return response.data.data;
