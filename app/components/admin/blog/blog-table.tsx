@@ -48,8 +48,8 @@ interface BlogTableProps {
   onSearch: (search: string) => void;
   onStatusFilter: (status: string) => void;
   onSort: (sortBy: string, sortOrder: 'asc' | 'desc') => void;
-  onEdit: (id: number) => void;
-  onDelete: (id: number) => Promise<void>;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => Promise<void>;
   currentSearch: string;
   currentStatus: string;
   currentSortBy: string;

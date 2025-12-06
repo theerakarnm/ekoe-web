@@ -38,8 +38,8 @@ export default function EditBlogPost({ loaderData }: Route.ComponentProps) {
     try {
       await updateBlogPost(post.id, {
         ...data,
-        authorId: data.authorId ? parseInt(data.authorId as unknown as string, 10) : undefined,
-        categoryId: data.categoryId ? parseInt(data.categoryId as unknown as string, 10) : undefined,
+        authorId: data.authorId ? data.authorId : undefined,
+        categoryId: data.categoryId ? data.categoryId : undefined,
       });
       showSuccess('Blog post updated successfully');
       navigate('/admin/blog');

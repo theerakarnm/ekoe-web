@@ -77,11 +77,11 @@ export default function BlogIndexPage() {
     navigate(`?${params.toString()}`);
   };
 
-  const handleEdit = (id: number) => {
+  const handleEdit = (id: string) => {
     navigate(`/admin/blog/${id}`);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (isDeleting) return;
 
     setIsDeleting(true);

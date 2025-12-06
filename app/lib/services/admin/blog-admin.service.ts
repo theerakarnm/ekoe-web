@@ -89,7 +89,7 @@ export async function createBlogPost(data: Partial<BlogPost>, headers?: HeadersI
  * Update an existing blog post
  */
 export async function updateBlogPost(
-  id: number,
+  id: string,
   data: Partial<BlogPost>,
   headers?: HeadersInit
 ): Promise<BlogPost> {
@@ -104,7 +104,7 @@ export async function updateBlogPost(
 /**
  * Delete a blog post (soft delete)
  */
-export async function deleteBlogPost(id: number, headers?: HeadersInit): Promise<void> {
+export async function deleteBlogPost(id: string, headers?: HeadersInit): Promise<void> {
   try {
     await apiClient.delete(`/api/admin/blog/${id}`, getAxiosConfig(headers));
   } catch (error) {
