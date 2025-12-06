@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Alert, AlertDescription } from "~/components/ui/alert";
-import { Loader2, X, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, X, CheckCircle2 } from "lucide-react";
 import { validateDiscountCode, type DiscountValidation } from "~/lib/services/cart.service";
+import { DiscountValidationError } from "./discount-validation-error";
 import { useCartStore } from "~/store/cart";
 
 interface DiscountCodeInputProps {
@@ -73,27 +74,6 @@ export function DiscountCodeInput({ onDiscountApplied, onDiscountRemoved }: Disc
     }
   };
 
-  const getErrorMessage = (result: DiscountValidation): string => {
-    if (result.error) return result.error;
-    
-    switch (result.errorCode) {
-      case 'INVALID_CODE':
-        return 'This discount code is not valid.';
-      case 'EXPIRED':
-        return 'This discount code has expired.';
-      case 'USAGE_LIMIT_REACHED':
-        return 'This discount code has reached its usage limit.';
-      case 'MIN_PURCHASE_NOT_MET':
-        return 'Your order does not meet the minimum purchase requirement for this code.';
-      case 'NOT_APPLICABLE':
-        return 'This discount code is not applicable to items in your cart.';
-      case 'NOT_STARTED':
-        return 'This discount code is not yet active.';
-      default:
-        return 'Unable to apply this discount code.';
-    }
-  };
-
   return (
     <div className="space-y-3">
       {/* Applied Discount Display */}
@@ -153,12 +133,7 @@ export function DiscountCodeInput({ onDiscountApplied, onDiscountRemoved }: Disc
 
           {/* Error Message */}
           {validationResult && !validationResult.isValid && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                {getErrorMessage(validationResult)}
-              </AlertDescription>
-            </Alert>
+            <DiscountValidationError validation={validationResult} />
           )}
         </>
       )}

@@ -36,6 +36,61 @@ const recommendedProducts = [
 
 export default function Cart() {
   const items = useCartStore((state) => state.items);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const removeItem = useCartStore((state) => state.removeItem);
+
+  const [validationResult, setValidationResult] = useState<ValidatedCart | null>(null);
+  const [isValidating, setIsValidating] = useState(false);
+  const [showErrors, setShowErrors] = useState(true);
+
+  // Validate cart when items change
+  useEffect(() => {
+    async function performValidation() {
+      if (items.length === 0) {
+        setValidationResult(null);
+        return;
+      }
+
+      try {
+        setIsValidating(true);
+        setShowErrors(true);
+
+        const cartItems = items.map((item) => ({
+          productId: item.productId,
+          variantId: item.variantId,
+          quantity: item.quantity,
+        }));
+
+        const result = await validateCart(cartItems);
+        setValidationResult(result);
+
+        // Auto-handle validation errors
+        if (!result.isValid) {
+          result.errors.forEach((error) => {
+            if (error.type === 'out_of_stock' || error.type === 'product_not_found' || error.type === 'product_inactive') {
+              // Remove items that are out of stock or not found
+              removeItem(error.productId, error.variantId);
+            } else if (error.type === 'insufficient_stock') {
+              // Find the validated item to get available quantity
+              const validatedItem = result.items.find(
+                (item) => item.productId === error.productId && item.variantId === error.variantId
+              );
+              if (validatedItem && validatedItem.availableQuantity > 0) {
+                // Update to available quantity
+                updateQuantity(error.productId, validatedItem.availableQuantity, error.variantId);
+              }
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Cart validation error:', error);
+      } finally {
+        setIsValidating(false);
+      }
+    }
+
+    performValidation();
+  }, [items.length]); // Only validate when number of items changes
 
   return (
     <div className="min-h-screen bg-white font-sans text-[#1a1a1a]">
@@ -43,6 +98,24 @@ export default function Cart() {
 
       <main className="pt-32 pb-24">
         <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+          {/* Validation Errors */}
+          {validationResult && !validationResult.isValid && showErrors && (
+            <div className="mb-8">
+              <CartValidationErrors
+                errors={validationResult.errors}
+                onDismiss={() => setShowErrors(false)}
+              />
+            </div>
+          )}
+
+          {/* Loading State */}
+          {isValidating && (
+            <div className="mb-8 flex items-center justify-center gap-2 text-gray-600">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span className="text-sm">Validating cart items...</span>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Left Column - Cart Items */}
             <div className="lg:col-span-8">

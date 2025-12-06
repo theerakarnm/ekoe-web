@@ -7,7 +7,7 @@ import { useCustomerAuthStore } from "~/store/customer-auth";
 import { useCartStore } from "~/store/cart";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
-import type { ValidationResult } from "~/lib/services/order.service";
+import type { ValidatedCart } from "~/lib/services/cart.service";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import {
@@ -52,7 +52,7 @@ const formSchema = z.object({
 
 interface CheckoutFormProps {
   isValidating: boolean;
-  validationResult: ValidationResult | null;
+  validationResult: ValidatedCart | null;
 }
 
 export function CheckoutForm({ isValidating, validationResult }: CheckoutFormProps) {
