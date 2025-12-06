@@ -205,9 +205,10 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & { extendedSizes?
 
 
 export function meta({ data }: Route.MetaArgs) {
+  const product = data?.product;
   return [
-    { title: `${data?.product.name || 'Product'} - Ekoe` },
-    { name: "description", content: data?.product.metaDescription || data?.product.shortDescription || "Product Detail" },
+    { title: `${product?.name || 'Product'} - Ekoe` },
+    { name: "description", content: product?.metaDescription || product?.shortDescription || "Product Detail" },
   ];
 }
 
