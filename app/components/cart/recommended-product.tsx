@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 interface RecommendedProductProps {
   product: {
-    id: number;
+    id: string | number;
     name: string;
     image: string;
     price: number;
@@ -18,7 +18,7 @@ export function RecommendedProduct({ product }: RecommendedProductProps) {
 
   const handleAdd = () => {
     addItem({
-      productId: product.id,
+      productId: String(product.id),
       productName: product.name,
       image: product.image,
       price: product.price,

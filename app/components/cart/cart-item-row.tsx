@@ -13,17 +13,17 @@ export function CartItemRow({ item }: CartItemRowProps) {
   const removeItem = useCartStore((state) => state.removeItem);
 
   const handleIncrease = () => {
-    updateQuantity(item.productId, item.quantity + 1, item.size);
+    updateQuantity(item.productId, item.quantity + 1, item.variantId);
   };
 
   const handleDecrease = () => {
     if (item.quantity > 1) {
-      updateQuantity(item.productId, item.quantity - 1, item.size);
+      updateQuantity(item.productId, item.quantity - 1, item.variantId);
     }
   };
 
   const handleRemove = () => {
-    removeItem(item.productId, item.size);
+    removeItem(item.productId, item.variantId);
   };
 
   return (
@@ -39,8 +39,8 @@ export function CartItemRow({ item }: CartItemRowProps) {
         </div>
         <div className="flex flex-col justify-center">
           <h3 className="font-serif text-lg mb-1">{item.productName}</h3>
-          {item.size && (
-            <p className="text-sm text-gray-500">{item.size}</p>
+          {item.variantName && (
+            <p className="text-sm text-gray-500">{item.variantName}</p>
           )}
         </div>
       </div>

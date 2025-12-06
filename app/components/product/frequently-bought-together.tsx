@@ -103,7 +103,7 @@ export function FrequentlyBoughtTogether({ productId }: FrequentlyBoughtTogether
         const primaryImage = product.images?.find(img => img.isPrimary) || product.images?.[0];
         
         addItem({
-          productId: parseInt(product.id),
+          productId: String(product.id),
           productName: product.name,
           image: primaryImage?.url || '/placeholder-product.jpg',
           price: product.basePrice,

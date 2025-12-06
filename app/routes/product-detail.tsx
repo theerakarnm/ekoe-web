@@ -239,12 +239,12 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
     if (!selectedSize || isOutOfStock) return;
 
     addItem({
-      productId: +productData.productId,
+      productId: String(productData.productId),
       productName: productData.productName,
       image: productData.image.url,
       price: selectedSize.price,
       quantity: quantity,
-      size: selectedSize.value,
+      variantName: selectedSize.value,
     });
 
     toast.success(`Added ${quantity} x ${productData.productName} (${selectedSize.label}) to cart`);

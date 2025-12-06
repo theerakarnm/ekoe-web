@@ -12,13 +12,13 @@ function ProductCard({ product }: { product: IProduct }) {
     e.preventDefault();
 
     addItem({
-      productId: +product.productId,
+      productId: String(product.productId),
       productName: product.productName,
       image: product.image.url,
       price: product.quickCartPrice,
       quantity: 1,
-      // Default to first size if available, otherwise undefined
-      size: product.sizes?.[0]?.value
+      // Use variantName instead of size for display
+      variantName: product.sizes?.[0]?.value
     });
 
     toast.success(`Added ${product.productName} to cart`);

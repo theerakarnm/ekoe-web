@@ -12,17 +12,17 @@ export function CartItemCard({ item }: CartItemCardProps) {
   const removeItem = useCartStore((state) => state.removeItem);
 
   const handleIncrease = () => {
-    updateQuantity(item.productId, item.quantity + 1, item.size);
+    updateQuantity(item.productId, item.quantity + 1, item.variantId);
   };
 
   const handleDecrease = () => {
     if (item.quantity > 1) {
-      updateQuantity(item.productId, item.quantity - 1, item.size);
+      updateQuantity(item.productId, item.quantity - 1, item.variantId);
     }
   };
 
   const handleRemove = () => {
-    removeItem(item.productId, item.size);
+    removeItem(item.productId, item.variantId);
   };
 
   return (
@@ -42,8 +42,8 @@ export function CartItemCard({ item }: CartItemCardProps) {
           <div className="flex justify-between items-start pr-6">
             <h3 className="font-serif text-lg leading-tight mb-1">{item.productName}</h3>
           </div>
-          {item.size && (
-            <p className="text-sm text-gray-500 mb-2">{item.size}</p>
+          {item.variantName && (
+            <p className="text-sm text-gray-500 mb-2">{item.variantName}</p>
           )}
           <div className="font-serif text-base">
             {formatCurrencyFromCents(item.price, { symbol: '$' })}
