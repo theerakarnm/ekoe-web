@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useCartStore } from "~/store/cart";
 import { toast } from "sonner";
-import { useLoaderData } from "react-router";
 import type { Route } from "./+types/product-detail";
 import { Header } from "~/components/share/header";
 import { Footer } from "~/components/share/footer";
@@ -13,14 +12,15 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "~/components/ui/accordion";
-import { Separator } from "~/components/ui/separator";
 import { Star, Heart, ShoppingBag } from "lucide-react";
-import { ProductCard } from "~/components/share/product-card";
 import { ProductGallery } from "~/components/product/product-gallery";
 import { QuantitySelector } from "~/components/product/quantity-selector";
 import { DiscountCodes } from "~/components/product/discount-codes";
 import { ComplimentaryGift } from "~/components/product/complimentary-gift";
-import { getProduct, getRelatedProducts, type Product } from "~/lib/services/product.service";
+import { ProductTabs } from "~/components/product/product-tabs";
+import { RelatedProducts } from "~/components/product/related-products";
+import { FrequentlyBoughtTogether } from "~/components/product/frequently-bought-together";
+import { getProduct, type Product } from "~/lib/services/product.service";
 import { formatNumber } from "~/lib/formatter";
 
 // Mock Data used as defaults for missing API fields
@@ -134,13 +134,10 @@ export async function loader({ params }: Route.LoaderArgs) {
       throw new Response("Product ID is required", { status: 400 });
     }
     
-    // Fetch product and related products in parallel
-    const [product, relatedProducts] = await Promise.all([
-      getProduct(id),
-      getRelatedProducts(id, 4)
-    ]);
+    // Fetch product only - related products now handled by component
+    const product = await getProduct(id);
     
-    return { product, relatedProducts };
+    return { product };
   } catch (error: any) {
     // Handle 404 errors for non-existent products
     if (error?.statusCode === 404 || error?.response?.status === 404) {
@@ -215,9 +212,8 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function ProductDetail({ loaderData }: Route.ComponentProps) {
-  const { product: apiProduct, relatedProducts: apiRelatedProducts } = loaderData;
+  const { product: apiProduct } = loaderData;
   const productData = mapApiProductToDetail(apiProduct);
-  const relatedProducts = apiRelatedProducts?.map(p => mapApiProductToDetail(p)) || [];
   
   // Use extended sizes if available, otherwise fall back to regular sizes
   const availableSizes = productData.extendedSizes || productData.sizes?.map(s => ({ ...s, stockQuantity: 999, variantId: '' })) || [];
@@ -298,6 +294,8 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
               images={productData.galleryImages || []}
               selectedImage={selectedImage}
               onImageClick={handleImageClick}
+              enableZoom={true}
+              enableFullscreen={true}
             />
 
             {/* Right Column - Product Info */}
@@ -493,116 +491,22 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
 
-          {/* Ingredients Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24 items-start">
-            <div>
-              <h2 className="text-2xl font-serif mb-8">Key Ingredients</h2>
-              <Accordion type="single" collapsible className="w-full">
-                {productData.ingredients?.keyIngredients.map((ing, idx) => (
-                  <AccordionItem key={idx} value={`item-${idx}`}>
-                    <AccordionTrigger className="text-lg font-medium uppercase tracking-wide">
-                      {ing.name}
-                    </AccordionTrigger>
-                    <AccordionContent className="text-gray-600 leading-relaxed">
-                      {ing.description}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-                <AccordionItem value="full-list">
-                  <AccordionTrigger className="text-lg font-medium uppercase tracking-wide">
-                    Full Ingredients List
-                  </AccordionTrigger>
-                  <AccordionContent className="text-gray-600 leading-relaxed text-sm font-mono">
-                    {productData.ingredients?.fullList}
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-              <Button variant="outline" className="mt-8 uppercase tracking-widest text-xs h-12 px-8 border-black text-black hover:bg-black hover:text-white transition-colors">
-                See All Ingredients
-              </Button>
-            </div>
-            <div className="relative aspect-square lg:aspect-4/3 bg-gray-100">
-              <img
-                src="https://images.unsplash.com/photo-1615486511484-92e172cc4fe0?auto=format&fit=crop&q=80&w=1200"
-                alt="Ingredients"
-                className="w-full h-full object-cover"
-              />
-            </div>
+          {/* Frequently Bought Together */}
+          <div className="mb-24">
+            <FrequentlyBoughtTogether productId={apiProduct.id} />
           </div>
 
-          {/* Real Users Section */}
-          <div className="mb-24 bg-[#F9F5F0] p-8 md:p-16 rounded-2xl">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div className="relative aspect-4/5 lg:aspect-square overflow-hidden rounded-lg">
-                <img
-                  src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&q=80&w=1000"
-                  alt="Model"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent"></div>
-                <div className="absolute bottom-8 left-8 text-white">
-                  <div className="text-5xl font-serif italic mb-2">Loved</div>
-                  <div className="text-xl uppercase tracking-widest">By Real Users</div>
-                </div>
-              </div>
-              <div className="space-y-12">
-                <h3 className="text-sm uppercase tracking-widest text-gray-500 mb-8">
-                  เสียงจากผู้ใช้จริง
-                </h3>
-                <div className="space-y-10">
-                  <span className="text-xl md:text-2xl font-medium">
-                    {productData.userStats}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-400 mt-8 italic">
-                  ผลลัพธ์ที่พิสูจน์ได้ด้วยตัวเองจากการใช้จริงในทุกวัน
-                </p>
-              </div>
-            </div>
+          {/* Product Tabs - Replaces old sections */}
+          <div className="mb-24">
+            <ProductTabs product={productData} />
           </div>
 
-          {/* How to Use Section */}
-          <div className="mb-24 text-center">
-            <h2 className="text-3xl font-serif mb-16">How to Use Block</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-              {productData.howToUse?.steps.map((step, idx) => (
-                <div key={idx} className="flex flex-col items-center text-center group">
-                  <div className="w-24 h-24 rounded-full border border-gray-200 flex items-center justify-center mb-6 group-hover:border-black transition-colors duration-300">
-                    {/* Placeholder icons */}
-                    <div className="text-2xl font-serif">{idx + 1}</div>
-                  </div>
-                  <h3 className="text-lg font-medium text-[#4A90E2] mb-3">
-                    {step.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed max-w-[200px]">
-                    {step.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className="max-w-2xl mx-auto mb-12 p-4 bg-gray-50 rounded-lg border border-gray-100">
-              <p className="text-sm text-gray-700 flex items-center justify-center gap-2">
-                <span className="text-red-500">⚠️</span> {productData.howToUse?.note}
-              </p>
-            </div>
-
-            <Button className="h-14 px-12 bg-black text-white uppercase tracking-widest hover:bg-gray-800">
-              Add to My Ritual
-            </Button>
-          </div>
-
-          {/* Recommendations */}
-          {relatedProducts && relatedProducts.length > 0 && (
-            <div className="mb-24">
-              <h2 className="text-2xl font-serif mb-8">Also Loved</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {relatedProducts.map((product) => (
-                  <ProductCard key={product.productId} product={product} />
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Related Products */}
+          <RelatedProducts 
+            productId={apiProduct.id} 
+            title="You May Also Like"
+            limit={4}
+          />
         </div>
       </main>
 
