@@ -2,6 +2,8 @@ import { useSearchParams } from "react-router";
 import { useRef, useEffect } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs";
 import type { IProduct } from "~/interface/product.interface";
+import { IngredientsTab } from "./ingredients-tab";
+import { HowToUseTab } from "./how-to-use-tab";
 
 interface ProductTabsProps {
   product: IProduct;
@@ -178,11 +180,7 @@ export function ProductTabs({ product, defaultTab = "description" }: ProductTabs
           tabIndex={0}
           className="py-8 focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 rounded"
         >
-          <div className="prose max-w-none">
-            <p className="text-gray-500 text-sm mb-6">
-              Ingredients content will be displayed here
-            </p>
-          </div>
+          <IngredientsTab ingredients={product.ingredients} />
         </TabsContent>
 
         {/* How to Use Tab */}
@@ -194,11 +192,7 @@ export function ProductTabs({ product, defaultTab = "description" }: ProductTabs
           tabIndex={0}
           className="py-8 focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 rounded"
         >
-          <div className="prose max-w-none">
-            <p className="text-gray-500 text-sm mb-6">
-              How to use instructions will be displayed here
-            </p>
-          </div>
+          <HowToUseTab instructions={product.howToUse} />
         </TabsContent>
 
         {/* Reviews Tab */}
