@@ -4,10 +4,12 @@ import { redirect } from "react-router";
 import { CheckoutForm } from "~/components/checkout/checkout-form";
 import { CheckoutSummary } from "~/components/checkout/checkout-summary";
 import { CustomerAuthGuard } from "~/components/auth/customer-auth-guard";
-import { ShoppingCart, AlertCircle } from "lucide-react";
+import { ShoppingCart, AlertCircle, Loader2 } from "lucide-react";
 import { useCartStore } from "~/store/cart";
-import { validateCartItems, createOrder, type ValidationResult, type CreateOrderRequest } from "~/lib/services/order.service";
+import { createOrder, type CreateOrderRequest } from "~/lib/services/order.service";
 import { createPromptPayPayment, initiate2C2PPayment } from "~/lib/services/payment.service";
+import { validateCart, type ValidatedCart } from "~/lib/services/cart.service";
+import { CartValidationErrors } from "~/components/cart/cart-validation-errors";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { ApiClientError } from "~/lib/api-client";
@@ -106,13 +108,13 @@ export default function Checkout() {
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
 
-  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
+  const [validationResult, setValidationResult] = useState<ValidatedCart | null>(null);
   const [isValidating, setIsValidating] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   // Validate cart on mount
   useEffect(() => {
-    async function validateCart() {
+    async function performValidation() {
       if (items.length === 0) {
         setIsValidating(false);
         return;
@@ -129,22 +131,24 @@ export default function Checkout() {
           quantity: item.quantity,
         }));
 
-        const result = await validateCartItems(cartItems);
+        const result = await validateCart(cartItems);
         setValidationResult(result);
 
-        // Auto-update quantities if stock is insufficient
+        // Auto-handle validation errors
         if (!result.isValid) {
-          result.items.forEach((validationItem) => {
-            if (!validationItem.isValid && validationItem.availableStock > 0) {
-              // Update to available stock
-              updateQuantity(
-                validationItem.productId,
-                validationItem.availableStock,
-                validationItem.variantId
+          result.errors.forEach((error) => {
+            if (error.type === 'out_of_stock' || error.type === 'product_not_found' || error.type === 'product_inactive') {
+              // Remove items that are out of stock or not found
+              removeItem(error.productId, error.variantId);
+            } else if (error.type === 'insufficient_stock') {
+              // Find the validated item to get available quantity
+              const validatedItem = result.items.find(
+                (item) => item.productId === error.productId && item.variantId === error.variantId
               );
-            } else if (!validationItem.isValid && validationItem.availableStock === 0) {
-              // Remove item if out of stock
-              removeItem(validationItem.productId, validationItem.variantId);
+              if (validatedItem && validatedItem.availableQuantity > 0) {
+                // Update to available quantity
+                updateQuantity(error.productId, validatedItem.availableQuantity, error.variantId);
+              }
             }
           });
         }
@@ -156,7 +160,7 @@ export default function Checkout() {
       }
     }
 
-    validateCart();
+    performValidation();
   }, []); // Only run on mount
 
   return (
@@ -184,22 +188,18 @@ export default function Checkout() {
             </div>
           )}
 
+          {/* Cart Validation Errors */}
           {validationResult && !validationResult.isValid && (
             <div className="px-4 sm:px-6 lg:px-8 pt-6">
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Cart Updated</AlertTitle>
-                <AlertDescription>
-                  <div className="space-y-2">
-                    <p>Some items in your cart have been updated due to stock availability:</p>
-                    <ul className="list-disc list-inside space-y-1 text-sm">
-                      {validationResult.errors.map((error, index) => (
-                        <li key={index}>{error}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </AlertDescription>
-              </Alert>
+              <CartValidationErrors errors={validationResult.errors} />
+            </div>
+          )}
+
+          {/* Loading State */}
+          {isValidating && (
+            <div className="px-4 sm:px-6 lg:px-8 pt-6 flex items-center justify-center gap-2 text-gray-600">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span className="text-sm">Validating cart items...</span>
             </div>
           )}
 
