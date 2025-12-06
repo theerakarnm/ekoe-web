@@ -189,7 +189,34 @@ export async function getProduct(id: string): Promise<Product> {
 export async function getRelatedProducts(productId: string, limit: number = 4): Promise<Product[]> {
   try {
     const response = await apiClient.get<SuccessResponseWrapper<Product[]>>(
-      `/api/products/related/${productId}?limit=${limit}`
+      `/api/products/${productId}/related?limit=${limit}`
+    );
+
+    return response.data.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+}
+
+/**
+ * Frequently bought together bundle
+ */
+export interface FrequentlyBoughtTogether {
+  products: Product[];
+  totalPrice: number;
+  savings: number;
+}
+
+/**
+ * Get frequently bought together products for a given product
+ * 
+ * @param productId - Product ID to find frequently bought together products for
+ * @returns Bundle object with products, totalPrice, and savings
+ */
+export async function getFrequentlyBoughtTogether(productId: string): Promise<FrequentlyBoughtTogether> {
+  try {
+    const response = await apiClient.get<SuccessResponseWrapper<FrequentlyBoughtTogether>>(
+      `/api/products/${productId}/frequently-bought-together`
     );
 
     return response.data.data;
