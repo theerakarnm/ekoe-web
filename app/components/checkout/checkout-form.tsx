@@ -136,7 +136,7 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
   useEffect(() => {
     return () => {
       // This will run when navigating away from checkout
-      if (navigation.state === "loading" && navigation.location?.pathname.includes("/order-success")) {
+      if (navigation.state === "loading" && navigation.location?.pathname.includes("/order-confirmation")) {
         clearCart();
       }
     };
@@ -199,8 +199,8 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
         name="items"
         value={JSON.stringify(
           items.map((item) => ({
-            productId: String(item.productId),
-            variantId: item.size ? String(item.size) : undefined,
+            productId: item.productId,
+            variantId: item.variantId,
             quantity: item.quantity,
           }))
         )}

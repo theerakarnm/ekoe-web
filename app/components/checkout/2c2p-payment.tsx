@@ -170,9 +170,9 @@ export function TwoC2PReturnHandler({
 
         if (status.status === "completed") {
           setPaymentStatus("completed");
-          // Redirect to success page after a short delay
+          // Redirect to confirmation page after a short delay
           setTimeout(() => {
-            navigate(`/order-success/${orderId}`);
+            navigate(`/order-confirmation/${orderId}`);
           }, 2000);
         } else if (status.status === "failed") {
           setPaymentStatus("failed");
@@ -229,7 +229,7 @@ export function TwoC2PReturnHandler({
               </Alert>
 
               <div className="flex justify-center">
-                <Button onClick={() => navigate(`/order-success/${orderId}`)}>
+                <Button onClick={() => navigate(`/order-confirmation/${orderId}`)}>
                   View Order Details
                 </Button>
               </div>

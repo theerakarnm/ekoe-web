@@ -79,8 +79,8 @@ export async function action({ request }: Route.ActionArgs) {
       return redirect(payment.paymentUrl);
     }
 
-    // Fallback: redirect to success page (shouldn't happen)
-    return redirect(`/order-success/${order.id}`);
+    // Fallback: redirect to confirmation page (shouldn't happen)
+    return redirect(`/order-confirmation/${order.id}`);
   } catch (error) {
     console.error('Order creation error:', error);
 
@@ -124,8 +124,8 @@ export default function Checkout() {
 
         // Convert cart items to validation format
         const cartItems = items.map((item) => ({
-          productId: String(item.productId),
-          variantId: item.size ? String(item.size) : undefined,
+          productId: item.productId,
+          variantId: item.variantId,
           quantity: item.quantity,
         }));
 
@@ -138,13 +138,13 @@ export default function Checkout() {
             if (!validationItem.isValid && validationItem.availableStock > 0) {
               // Update to available stock
               updateQuantity(
-                Number(validationItem.productId),
+                validationItem.productId,
                 validationItem.availableStock,
                 validationItem.variantId
               );
             } else if (!validationItem.isValid && validationItem.availableStock === 0) {
               // Remove item if out of stock
-              removeItem(Number(validationItem.productId), validationItem.variantId);
+              removeItem(validationItem.productId, validationItem.variantId);
             }
           });
         }

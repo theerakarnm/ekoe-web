@@ -1,4 +1,5 @@
 import type { Route } from "./+types/cart";
+import { useState, useEffect } from "react";
 import { Header } from "~/components/share/header";
 import { Footer } from "~/components/share/footer";
 import { useCartStore } from "~/store/cart";
@@ -6,7 +7,9 @@ import { CartItemRow } from "~/components/cart/cart-item-row";
 import { CartItemCard } from "~/components/cart/cart-item-card";
 import { CartSummary } from "~/components/cart/cart-summary";
 import { RecommendedProduct } from "~/components/cart/recommended-product";
-import { Gift } from "lucide-react";
+import { CartValidationErrors } from "~/components/cart/cart-validation-errors";
+import { validateCart, type ValidatedCart } from "~/lib/services/cart.service";
+import { Gift, Loader2 } from "lucide-react";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -60,7 +63,7 @@ export default function Cart() {
                   </div>
                 ) : (
                   items.map((item) => (
-                    <div key={`${item.productId}-${item.size}`}>
+                    <div key={`${item.productId}-${item.variantId || 'default'}`}>
                       <div className="hidden md:block">
                         <CartItemRow item={item} />
                       </div>

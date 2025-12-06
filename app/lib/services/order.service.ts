@@ -183,6 +183,18 @@ export interface ValidationResult {
   errors: string[];
 }
 
+/**
+ * Shipping method information
+ */
+export interface ShippingMethod {
+  id: string;
+  name: string;
+  description: string;
+  cost: number; // in cents
+  estimatedDays: number;
+  carrier?: string;
+}
+
 // ============================================================================
 // API Functions
 // ============================================================================
@@ -367,3 +379,19 @@ export async function validateCartItems(items: CartItem[]): Promise<ValidationRe
   }
 }
 
+
+/**
+ * Get available shipping methods
+ * 
+ * @returns List of available shipping methods with costs and delivery estimates
+ */
+export async function getShippingMethods(): Promise<ShippingMethod[]> {
+  try {
+    const response = await apiClient.get<SuccessResponseWrapper<ShippingMethod[]>>(
+      '/api/orders/shipping-methods'
+    );
+    return response.data.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+}

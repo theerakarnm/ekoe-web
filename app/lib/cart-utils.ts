@@ -42,14 +42,14 @@ export function clearCartBackup(): void {
 }
 
 /**
- * Merge two cart arrays, combining items with same productId and size
+ * Merge two cart arrays, combining items with same productId and variantId
  */
 export function mergeCartItems(existingItems: CartItem[], newItems: CartItem[]): CartItem[] {
   const merged = [...existingItems];
   
   for (const newItem of newItems) {
     const existingIndex = merged.findIndex(
-      (item) => item.productId === newItem.productId && item.size === newItem.size
+      (item) => item.productId === newItem.productId && item.variantId === newItem.variantId
     );
     
     if (existingIndex > -1) {

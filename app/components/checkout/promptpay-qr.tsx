@@ -65,9 +65,9 @@ export function PromptPayQR({
           onPaymentComplete();
         }
         
-        // Redirect to success page after a short delay
+        // Redirect to confirmation page after a short delay
         setTimeout(() => {
-          navigate(`/order-success/${orderId}`);
+          navigate(`/order-confirmation/${orderId}`);
         }, 1500);
       } else if (status.status === "failed") {
         setPaymentStatus("failed");
@@ -247,7 +247,7 @@ export function PromptPayQR({
 
           {paymentStatus === "completed" && (
             <div className="flex justify-center">
-              <Button onClick={() => navigate(`/order-success/${orderId}`)}>
+              <Button onClick={() => navigate(`/order-confirmation/${orderId}`)}>
                 View Order Details
               </Button>
             </div>
