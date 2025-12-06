@@ -26,6 +26,18 @@ export const useAdminAuthStore = create<AdminAuthState>()(
       isLoading: true,
       login: async (email: string, password: string) => {
         try {
+
+          try {
+            await authClient.signOut();
+          } catch {
+            // Ignore errors when signing out (there might not be a session)
+          }
+
+          set({
+            user: null,
+            isAuthenticated: false,
+          });
+
           const { data, error } = await authClient.signIn.email({
             email,
             password,

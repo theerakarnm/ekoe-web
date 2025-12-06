@@ -1,35 +1,40 @@
 import { type RouteConfig, index, route, layout } from "@react-router/dev/routes";
 
 export default [
-  // Public routes
-  index("routes/home.tsx"),
-  route("online-executive", "routes/online-executive.tsx"),
-  route("shop", "routes/shop.tsx"),
-  route("product-detail/:id", "routes/product-detail.tsx"),
-  route("set-product-detail", "routes/set-product-detail.tsx"),
-  route("cart", "routes/cart.tsx"),
-  route("checkout", "routes/checkout.tsx"),
-
-  // Payment routes
-  route("payment/2c2p/return", "routes/payment/2c2p/return.tsx"),
-  route("payment/promptpay/:id", "routes/payment/promptpay/$id.tsx"),
-
-  // Order
-  route("order-success/:id", "routes/order-success/$id.tsx"),
 
   // Admin routes
   route("admin/login", "routes/admin/login.tsx"),
 
   // Customer auth routes
   route("auth/login", "routes/auth/login.tsx"),
-  route("auth/register", "routes/auth/register.tsx"),
-  route("auth/verify-email", "routes/auth/verify-email.tsx"),
-  route("auth/reset-password", "routes/auth/reset-password.tsx"),
-  route("auth/reset-password-confirm", "routes/auth/reset-password-confirm.tsx"),
-  route("auth/callback", "routes/auth/callback.tsx"),
 
-  // Customer account
-  route("account", "routes/account/index.tsx"),
+  layout("layouts/_layout.customer.tsx", [
+    // Public routes
+    index("routes/home.tsx"),
+    route("online-executive", "routes/online-executive.tsx"),
+    route("shop", "routes/shop.tsx"),
+    route("product-detail/:id", "routes/product-detail.tsx"),
+    route("set-product-detail", "routes/set-product-detail.tsx"),
+    route("cart", "routes/cart.tsx"),
+    route("checkout", "routes/checkout.tsx"),
+
+    // Payment routes
+    route("payment/2c2p/return", "routes/payment/2c2p/return.tsx"),
+    route("payment/promptpay/:id", "routes/payment/promptpay/$id.tsx"),
+
+    // Order
+    route("order-success/:id", "routes/order-success/$id.tsx"),
+
+    // Customer auth routes
+    route("auth/register", "routes/auth/register.tsx"),
+    route("auth/verify-email", "routes/auth/verify-email.tsx"),
+    route("auth/reset-password", "routes/auth/reset-password.tsx"),
+    route("auth/reset-password-confirm", "routes/auth/reset-password-confirm.tsx"),
+    route("auth/callback", "routes/auth/callback.tsx"),
+
+    // Customer account
+    route("account", "routes/account/index.tsx"),
+  ]),
 
   // Date Picker Demo
   route("date-picker-demo", "routes/date-picker-demo.tsx"),
