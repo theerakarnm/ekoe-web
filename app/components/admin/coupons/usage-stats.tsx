@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/com
 import { Skeleton } from '~/components/ui/skeleton';
 
 interface UsageStatsProps {
-  couponId: number;
+  couponId: string;
   couponCode: string;
 }
 

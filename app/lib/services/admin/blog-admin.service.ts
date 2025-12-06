@@ -10,16 +10,16 @@ import { apiClient, handleApiError, getAxiosConfig, type PaginatedResponse, type
 // ============================================================================
 
 export interface BlogPost {
-  id: number;
+  id: string;
   title: string;
   slug: string;
   excerpt?: string;
   content?: string;
   featuredImageUrl?: string;
   featuredImageAlt?: string;
-  authorId?: number;
+  authorId?: string;
   authorName?: string;
-  categoryId?: number;
+  categoryId?: string;
   categoryName?: string;
   metaTitle?: string;
   metaDescription?: string;

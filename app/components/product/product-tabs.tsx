@@ -4,6 +4,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs";
 import type { IProduct } from "~/interface/product.interface";
 import { IngredientsTab } from "./ingredients-tab";
 import { HowToUseTab } from "./how-to-use-tab";
+import { ReviewsTab } from "./reviews-tab";
 
 interface ProductTabsProps {
   product: IProduct;
@@ -204,11 +205,7 @@ export function ProductTabs({ product, defaultTab = "description" }: ProductTabs
           tabIndex={0}
           className="py-8 focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 rounded"
         >
-          <div className="prose max-w-none">
-            <p className="text-gray-500 text-sm mb-6">
-              Reviews will be displayed here
-            </p>
-          </div>
+          <ReviewsTab productId={product.productId.toString()} />
         </TabsContent>
       </Tabs>
     </div>
