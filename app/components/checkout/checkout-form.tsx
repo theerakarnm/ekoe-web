@@ -58,6 +58,7 @@ interface CheckoutFormProps {
 export function CheckoutForm({ isValidating, validationResult }: CheckoutFormProps) {
   const { user, profile, addresses, loadProfile, loadAddresses } = useCustomerAuthStore();
   const items = useCartStore((state) => state.items);
+  const discountCode = useCartStore((state) => state.discountCode);
   const clearCart = useCartStore((state) => state.clearCart);
   const submit = useSubmit();
   const actionData = useActionData<{ error?: string; code?: string; field?: string; details?: any }>();
@@ -74,6 +75,8 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
           quantity: item.quantity,
         }))
       ),
+      // Include discount code from cart store if applied
+      ...(discountCode ? { discountCode } : {}),
     };
     submit(formData, { method: "post" });
   };

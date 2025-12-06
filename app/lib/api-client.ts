@@ -224,6 +224,9 @@ export function handleApiError(error: unknown): never {
  * Helper to convert HeadersInit to Axios config
  * Useful for SSR when passing request headers to API calls
  * 
+ * Only forwards authentication-related headers (cookie) to preserve
+ * the axios client's default Content-Type for JSON requests
+ * 
  * @param headers - Headers from Request object or plain object
  * @returns Axios config with headers
  */
@@ -232,16 +235,27 @@ export function getAxiosConfig(headers?: HeadersInit): AxiosRequestConfig {
 
   const axiosHeaders: Record<string, string> = {};
 
+  // Headers to forward from the original request for authentication
+  const headersToForward = ['cookie', 'authorization'];
+
   if (headers instanceof Headers) {
     headers.forEach((value, key) => {
-      axiosHeaders[key] = value;
+      if (headersToForward.includes(key.toLowerCase())) {
+        axiosHeaders[key] = value;
+      }
     });
   } else if (Array.isArray(headers)) {
     headers.forEach(([key, value]) => {
-      axiosHeaders[key] = value;
+      if (headersToForward.includes(key.toLowerCase())) {
+        axiosHeaders[key] = value;
+      }
     });
   } else {
-    Object.assign(axiosHeaders, headers);
+    for (const [key, value] of Object.entries(headers)) {
+      if (headersToForward.includes(key.toLowerCase())) {
+        axiosHeaders[key] = value;
+      }
+    }
   }
 
   return { headers: axiosHeaders };
