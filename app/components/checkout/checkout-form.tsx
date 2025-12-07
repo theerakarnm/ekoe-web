@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { CreditCard, QrCode } from "lucide-react";
+import { CreditCard, QrCode, ExternalLink } from "lucide-react";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -43,11 +43,6 @@ const formSchema = z.object({
   postalCode: z.string().min(1, "Postal code is required"),
   phone: z.string().min(1, "Phone is required"),
   paymentMethod: z.enum(["credit_card", "promptpay"]),
-  cardNumber: z.string().optional(),
-  expiryDate: z.string().optional(),
-  securityCode: z.string().optional(),
-  nameOnCard: z.string().optional(),
-  billingSameAsShipping: z.boolean(),
 });
 
 interface CheckoutFormProps {
@@ -97,7 +92,6 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
       postalCode: "",
       phone: "",
       paymentMethod: "credit_card",
-      billingSameAsShipping: true,
     },
   });
 
@@ -422,77 +416,14 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
                       </div>
 
                       {field.value === 'credit_card' && (
-                        <div className="mt-4 space-y-4 pl-6">
-                          <FormField
-                            control={form.control}
-                            name="cardNumber"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <div className="relative">
-                                    <Input placeholder="Card number" {...field} className="h-12 bg-white" />
-                                    <div className="absolute right-3 top-3 text-gray-400">
-                                      <CreditCard size={20} />
-                                    </div>
-                                  </div>
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                          <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                              control={form.control}
-                              name="expiryDate"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormControl>
-                                    <Input placeholder="Expiration date (MM/YY)" {...field} className="h-12 bg-white" />
-                                  </FormControl>
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name="securityCode"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormControl>
-                                    <Input placeholder="Security code" {...field} className="h-12 bg-white" />
-                                  </FormControl>
-                                </FormItem>
-                              )}
-                            />
+                        <div className="mt-4 pl-6 space-y-2">
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <ExternalLink size={16} />
+                            <span>You will be redirected to our secure payment gateway to enter your card details</span>
                           </div>
-                          <FormField
-                            control={form.control}
-                            name="nameOnCard"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input placeholder="Name on card" {...field} className="h-12 bg-white" />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="billingSameAsShipping"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                  />
-                                </FormControl>
-                                <div className="space-y-1 leading-none">
-                                  <FormLabel className="text-sm font-normal text-gray-600">
-                                    Use shipping address as billing address
-                                  </FormLabel>
-                                </div>
-                              </FormItem>
-                            )}
-                          />
+                          <p className="text-xs text-gray-400">
+                            Your payment information is processed securely by 2C2P. We do not store your card details.
+                          </p>
                         </div>
                       )}
                     </div>
@@ -523,7 +454,7 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
         <Button
           type="submit"
           className="w-full h-14 bg-black text-white text-lg hover:bg-gray-800 uppercase tracking-widest"
-          disabled={isValidating || isSubmitting || (validationResult !== null && !validationResult.isValid)}
+          disabled={isValidating || isSubmitting || (validationResult !== null && !validationResult?.isValid)}
         >
           {isSubmitting ? 'Processing Order...' : isValidating ? 'Validating Cart...' : 'Pay Now'}
         </Button>

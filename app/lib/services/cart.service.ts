@@ -94,7 +94,7 @@ export interface DiscountValidation {
 export async function validateCart(items: CartItemInput[]): Promise<ValidatedCart> {
   try {
     const response = await apiClient.post<SuccessResponseWrapper<ValidatedCart>>(
-      '/cart/validate',
+      '/api/cart/validate',
       { items }
     );
     return response.data.data;
@@ -148,7 +148,7 @@ export async function getEligibleGifts(
 ): Promise<FreeGift[]> {
   try {
     const response = await apiClient.get<SuccessResponseWrapper<FreeGift[]>>(
-      '/cart/gifts',
+      '/api/cart/gifts',
       {
         params: {
           items: JSON.stringify(items),

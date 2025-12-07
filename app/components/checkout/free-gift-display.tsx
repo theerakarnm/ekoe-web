@@ -8,7 +8,7 @@ interface FreeGiftDisplayProps {
 }
 
 export function FreeGiftDisplay({ gifts, className = "" }: FreeGiftDisplayProps) {
-  if (gifts.length === 0) {
+  if (gifts?.length === 0) {
     return null;
   }
 
@@ -20,12 +20,12 @@ export function FreeGiftDisplay({ gifts, className = "" }: FreeGiftDisplayProps)
           <Gift className="h-5 w-5 text-gray-700" />
           <Sparkles className="h-3 w-3 text-amber-500 absolute -top-1 -right-1" />
         </div>
-        <h3 className="font-serif text-base font-medium">Free Gift{gifts.length > 1 ? 's' : ''} With Purchase</h3>
+        <h3 className="font-serif text-base font-medium">Free Gift{gifts?.length > 1 ? 's' : ''} With Purchase</h3>
       </div>
 
       {/* Gift List */}
       <div className="space-y-3">
-        {gifts.map((gift) => (
+        {gifts?.map((gift) => (
           <div
             key={gift.id}
             className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-md"
@@ -76,7 +76,7 @@ export function FreeGiftDisplay({ gifts, className = "" }: FreeGiftDisplayProps)
       <div className="mt-3 pt-3 border-t border-gray-200">
         <p className="text-xs text-gray-500 flex items-center gap-1">
           <Sparkles className="h-3 w-3" />
-          {gifts.length > 1 ? 'These gifts will' : 'This gift will'} be automatically added to your order
+          {gifts?.length > 1 ? 'These gifts will' : 'This gift will'} be automatically added to your order
         </p>
       </div>
     </div>

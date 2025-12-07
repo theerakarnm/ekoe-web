@@ -279,3 +279,26 @@ export async function getPaymentsByOrderId(
     handleApiError(error);
   }
 }
+
+/**
+ * Process 2C2P return data via backend (POST)
+ * Used when we receive a POST payload from 2C2P
+ * 
+ * @param paymentResponse - Raw payment response string (base64 or JWT)
+ * @returns Payment result from backend
+ */
+export async function process2C2PReturnData(
+  paymentResponse: string
+): Promise<TwoC2PReturnResult> {
+  try {
+    const response = await apiClient.post<SuccessResponseWrapper<TwoC2PReturnResult>>(
+      '/api/payments/2c2p/return-data',
+      { paymentResponse }
+    );
+
+    return response.data.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+}
+

@@ -1,11 +1,12 @@
 import type { Route } from "./+types/return";
 import { useEffect, useState } from "react";
-import { redirect } from "react-router";
+import { redirect, useActionData } from "react-router";
 import { handle2C2PReturn } from "~/lib/services/payment.service";
 import { CustomerAuthGuard } from "~/components/auth/customer-auth-guard";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { log } from "console";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -17,45 +18,109 @@ export function meta({ }: Route.MetaArgs) {
 /**
  * Loader function to handle 2C2P return and check payment status
  */
+/**
+ * Action function to handle 2C2P POST return (method: POST)
+ */
+export async function action({ request }: Route.ActionArgs) {
+  try {
+    const formData = await request.formData();
+    // 2C2P V4.3 sends 'paymentResponse' or 'frontendReturnData' in the POST body
+    const paymentResponse = formData.get('paymentResponse') as string || formData.get('frontendReturnData') as string;
+
+    if (!paymentResponse) {
+      return {
+        error: 'Missing payment response data',
+        status: 'error' as const,
+      };
+    }
+
+    // Call backend API to handle decoding and processing
+    let result;
+    try {
+      // Import dynamically if needed to avoid circular dep issues in some setups, but here static import is fine
+      // assuming process2C2PReturnData is exported from payment.service
+      const { process2C2PReturnData } = await import('~/lib/services/payment.service');
+      result = await process2C2PReturnData(paymentResponse);
+    } catch (apiError) {
+      console.error('Failed to process 2C2P return via backend:', apiError);
+      return {
+        error: 'Failed to process payment result',
+        status: 'error' as const,
+      };
+    }
+
+    if (!result) {
+      return {
+        error: 'No result from payment processing',
+        status: 'error' as const,
+      };
+    }
+
+    return {
+      result: {
+        message: result.message,
+        transactionRef: result.transactionRef,
+        status: result.status,
+      },
+      orderId: result.paymentId,
+      status: result.status,
+    };
+
+  } catch (error) {
+    console.error('Failed to process payment POST return:', error);
+    return {
+      error: 'Failed to process payment result',
+      status: 'error' as const,
+    };
+  }
+}
+
+/**
+ * Loader function to handle 2C2P return and check payment status (method: GET)
+ */
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
+
+  const form = await request.formData();
+  const paymentResponse = form.get('paymentResponse') as string;
+
+  console.log({ paymentResponse });
+
+
+
   const orderId = url.searchParams.get('order_id');
   const paymentStatus = url.searchParams.get('payment_status');
   const transactionRef = url.searchParams.get('transaction_ref');
 
-  // Validate required parameters
-  if (!orderId || !paymentStatus) {
-    return {
-      error: 'Invalid payment return parameters',
-      status: 'error' as const,
-    };
+  // If we have GET params, use existing logic
+  if (orderId && paymentStatus) {
+    try {
+      // Handle the return and get payment result
+      const result = await handle2C2PReturn(
+        orderId,
+        paymentStatus,
+        transactionRef || undefined
+      );
+
+      return {
+        result,
+        orderId,
+        status: result.status,
+      };
+    } catch (error) {
+      console.error('Failed to process payment return:', error);
+      return {
+        error: 'Failed to process payment result',
+        status: 'error' as const,
+        orderId,
+      };
+    }
   }
 
-  try {
-    // Handle the return and get payment result
-    const result = await handle2C2PReturn(
-      orderId,
-      paymentStatus,
-      transactionRef || undefined
-    );
-
-    // If payment is completed, we still return it so the UI can show success message
-    // and then redirect via client-side logic
-
-
-    return {
-      result,
-      orderId,
-      status: result.status,
-    };
-  } catch (error) {
-    console.error('Failed to process payment return:', error);
-    return {
-      error: 'Failed to process payment result. Please contact support if payment was deducted.',
-      status: 'error' as const,
-      orderId,
-    };
-  }
+  // If no params, check if we came from action (POST)
+  // Loader runs after action? No, typically one or the other handles the request.
+  // But usage of useActionData in component handles the POST result.
+  return null;
 }
 
 export default function TwoC2PReturnPage({ loaderData }: Route.ComponentProps) {
