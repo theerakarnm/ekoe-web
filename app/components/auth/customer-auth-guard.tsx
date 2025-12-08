@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { useCustomerAuthStore } from '~/store/customer-auth';
+import { useAuthStore } from '~/store/auth-store';
 import { useCartStore } from '~/store/cart';
 import { setReturnUrl } from '~/lib/auth-utils';
 import { saveCartBackup } from '~/lib/cart-utils';
@@ -12,7 +12,7 @@ interface CustomerAuthGuardProps {
 export function CustomerAuthGuard({ children }: CustomerAuthGuardProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, checkAuth, isLoading } = useCustomerAuthStore();
+  const { isAuthenticated, checkAuth, isLoading } = useAuthStore();
   const { items: cartItems } = useCartStore();
 
   useEffect(() => {

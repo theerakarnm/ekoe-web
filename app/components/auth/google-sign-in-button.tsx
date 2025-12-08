@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useCustomerAuthStore } from '~/store/customer-auth';
+import { useAuthStore } from '~/store/auth-store';
 import { Button } from '~/components/ui/button';
 
 interface GoogleSignInButtonProps {
@@ -9,7 +9,7 @@ interface GoogleSignInButtonProps {
 }
 
 export function GoogleSignInButton({ onError, disabled, returnUrl }: GoogleSignInButtonProps) {
-  const { signInWithGoogle } = useCustomerAuthStore();
+  const { signInWithGoogle } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleSignIn = async () => {
@@ -20,13 +20,13 @@ export function GoogleSignInButton({ onError, disabled, returnUrl }: GoogleSignI
       if (returnUrl && returnUrl !== '/') {
         localStorage.setItem('auth_return_url', returnUrl);
       }
-      
+
       await signInWithGoogle();
       // Note: User will be redirected to Google, so we won't reach here
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Google sign-in failed';
       setIsLoading(false);
-      
+
       if (onError) {
         onError(errorMessage);
       }

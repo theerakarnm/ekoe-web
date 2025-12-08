@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { useCustomerAuthStore } from '~/store/customer-auth';
+import { useAuthStore } from '~/store/auth-store';
 import { Button } from '~/components/ui/button';
 import { Badge } from '~/components/ui/badge';
 import { Loader2, Package, ExternalLink } from 'lucide-react';
@@ -42,7 +42,7 @@ const paymentStatusColors = {
 };
 
 export function OrderHistoryList() {
-  const { isAuthenticated } = useCustomerAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -74,7 +74,7 @@ export function OrderHistoryList() {
 
       const result = await response.json();
       const data: OrdersResponse = result.data;
-      
+
       setOrders(data.orders);
       setTotal(data.total);
     } catch (error) {

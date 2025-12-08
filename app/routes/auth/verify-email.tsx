@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { useCustomerAuthStore } from '~/store/customer-auth';
+import { useAuthStore } from '~/store/auth-store';
 import { handleApiError, showSuccess } from '~/lib/toast';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
@@ -10,7 +10,7 @@ import { AlertCircle, CheckCircle2, Mail } from 'lucide-react';
 export default function VerifyEmail() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, isEmailVerified, sendVerificationEmail, checkAuth } = useCustomerAuthStore();
+  const { user, isEmailVerified, sendVerificationEmail, checkAuth } = useAuthStore();
   const [isResending, setIsResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -119,8 +119,8 @@ export default function VerifyEmail() {
               {isVerifying
                 ? 'Please wait while we verify your email address'
                 : isEmailVerified
-                ? 'Your email has been successfully verified'
-                : `We've sent a verification email to ${user.email}`}
+                  ? 'Your email has been successfully verified'
+                  : `We've sent a verification email to ${user.email}`}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

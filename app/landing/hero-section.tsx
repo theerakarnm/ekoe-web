@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import { useCartStore } from '~/store/cart';
-import { useCustomerAuthStore } from '~/store/customer-auth';
+import { useAuthStore } from '~/store/auth-store';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 
 const slides = [
@@ -46,7 +46,7 @@ function HeroSection() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isDiscoverOpen, setIsDiscoverOpen] = useState(false);
-  const { user, isAuthenticated, signOut } = useCustomerAuthStore();
+  const { user, isAuthenticated, signOut } = useAuthStore();
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [mounted, setMounted] = useState(false);
@@ -54,7 +54,7 @@ function HeroSection() {
   useEffect(() => {
     setMounted(true);
     // Ensure auth state is fresh
-    useCustomerAuthStore.getState().checkAuth();
+    useAuthStore.getState().checkAuth();
   }, []);
 
   const totalItems = useCartStore((state) => state.getTotalItems());

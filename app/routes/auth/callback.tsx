@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import { useCustomerAuthStore } from "~/store/customer-auth";
+import { useAuthStore } from "~/store/auth-store";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
-  const { checkAuth, isAuthenticated } = useCustomerAuthStore();
+  const { checkAuth } = useAuthStore();
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -12,14 +12,22 @@ export default function AuthCallback() {
         // Check auth status which will verify the session cookies set by backend
         await checkAuth();
 
-        // Get return URL from storage or default to home
+        // Get the user to determine redirect based on role
+        const user = useAuthStore.getState().user;
+
+        // Get return URL from storage or default based on role
         const returnUrl = localStorage.getItem("auth_return_url") || "/";
         localStorage.removeItem("auth_return_url");
 
-        navigate(returnUrl);
+        // Redirect based on user role
+        if (user?.role === 'admin') {
+          navigate('/admin/dashboard', { replace: true });
+        } else {
+          navigate(returnUrl, { replace: true });
+        }
       } catch (error) {
         console.error("Auth callback error:", error);
-        navigate("/auth/login?error=callback_failed");
+        navigate("/auth/login?error=callback_failed", { replace: true });
       }
     };
 
@@ -35,3 +43,4 @@ export default function AuthCallback() {
     </div>
   );
 }
+

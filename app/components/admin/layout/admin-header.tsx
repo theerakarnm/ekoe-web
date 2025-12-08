@@ -1,6 +1,6 @@
 import { useLocation, Link } from 'react-router';
 import { ChevronRight, User, LogOut } from 'lucide-react';
-import { useAdminAuthStore } from '~/store/admin-auth';
+import { useAuthStore } from '~/store/auth-store';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,10 +15,10 @@ import { Separator } from '~/components/ui/separator';
 
 export function AdminHeader() {
   const location = useLocation();
-  const { user, logout } = useAdminAuthStore();
+  const { user, signOut } = useAuthStore();
 
   const handleLogout = async () => {
-    await logout();
+    await signOut();
   };
 
   // Generate breadcrumbs from current path

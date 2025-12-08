@@ -4,7 +4,7 @@ import { LayoutDashboard, Package, FileText, Ticket, ShoppingCart, Menu, X } fro
 import { cn } from '~/lib/utils';
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
-import { useAdminAuthStore } from '~/store/admin-auth';
+import { useAuthStore } from '~/store/auth-store';
 
 const navigationItems = [
   {
@@ -36,7 +36,7 @@ const navigationItems = [
 
 export function AdminSidebar() {
   const location = useLocation();
-  const { logout } = useAdminAuthStore();
+  const { signOut } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const isActiveRoute = (href: string) => {
@@ -44,7 +44,7 @@ export function AdminSidebar() {
   };
 
   const handleLogout = async () => {
-    await logout();
+    await signOut();
   };
 
   return (

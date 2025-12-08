@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useActionData, useNavigation, useSubmit } from "react-router";
-import { useCustomerAuthStore } from "~/store/customer-auth";
+import { useAuthStore } from "~/store/auth-store";
 import { useCartStore } from "~/store/cart";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
@@ -51,7 +51,7 @@ interface CheckoutFormProps {
 }
 
 export function CheckoutForm({ isValidating, validationResult }: CheckoutFormProps) {
-  const { user, profile, addresses, loadProfile, loadAddresses } = useCustomerAuthStore();
+  const { user, profile, addresses, loadProfile, loadAddresses } = useAuthStore();
   const items = useCartStore((state) => state.items);
   const discountCode = useCartStore((state) => state.discountCode);
   const clearCart = useCartStore((state) => state.clearCart);

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCustomerAuthStore } from '~/store/customer-auth';
+import { useAuthStore } from '~/store/auth-store';
 import { passwordResetRequestSchema, type PasswordResetRequestFormData } from '~/lib/auth-validation';
 import { handleApiError, showSuccess } from '~/lib/toast';
 import { Button } from '~/components/ui/button';
@@ -13,7 +13,7 @@ import { Alert, AlertDescription } from '~/components/ui/alert';
 import { AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 
 export default function ResetPassword() {
-  const { resetPassword } = useCustomerAuthStore();
+  const { resetPassword } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);

@@ -3,10 +3,11 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { authClient } from '../lib/auth-client';
 import { handleApiError, handleNetworkError } from '../lib/toast';
 
-interface CustomerUser {
+interface User {
   id: string;
   email: string;
   name: string;
+  role: 'admin' | 'customer';
   emailVerified: boolean;
   image?: string | null;
 }
@@ -49,8 +50,8 @@ interface CustomerAddress {
   updatedAt: Date;
 }
 
-interface CustomerAuthState {
-  user: CustomerUser | null;
+interface AuthState {
+  user: User | null;
   profile: CustomerProfile | null;
   addresses: CustomerAddress[];
   isAuthenticated: boolean;
@@ -79,7 +80,7 @@ interface CustomerAuthState {
   handleSessionExpired: () => void;
 }
 
-export const useCustomerAuthStore = create<CustomerAuthState>()(
+export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
@@ -114,6 +115,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
                 id: session.data.user.id,
                 email: session.data.user.email,
                 name: session.data.user.name || name,
+                role: (session.data.user.role as 'admin' | 'customer') || 'customer',
                 emailVerified: session.data.user.emailVerified || false,
                 image: session.data.user.image,
               },
@@ -148,6 +150,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
             user: null,
             isAuthenticated: false,
           });
+
           const { data, error } = await authClient.signIn.email({
             email,
             password,
@@ -164,11 +167,14 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
           const session = await authClient.getSession();
 
           if (session.data) {
+            const userRole = (session.data.user.role as 'admin' | 'customer') || 'customer';
+
             set({
               user: {
                 id: session.data.user.id,
                 email: session.data.user.email,
-                name: session.data.user.name || 'Customer',
+                name: session.data.user.name || 'User',
+                role: userRole,
                 emailVerified: session.data.user.emailVerified || false,
                 image: session.data.user.image,
               },
@@ -176,8 +182,10 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
               isEmailVerified: session.data.user.emailVerified || false,
             });
 
-            // Load profile after successful login
-            await get().loadProfile();
+            // Load profile after successful login (only for non-admin users)
+            if (userRole !== 'admin') {
+              await get().loadProfile();
+            }
           }
         } catch (error) {
           set({
@@ -227,7 +235,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
                 });
 
                 // Clear localStorage
-                localStorage.removeItem('customer-auth-storage');
+                localStorage.removeItem('auth-storage');
 
                 // Redirect to home page
                 window.location.href = '/';
@@ -242,7 +250,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
                   isAuthenticated: false,
                   isEmailVerified: false,
                 });
-                localStorage.removeItem('customer-auth-storage');
+                localStorage.removeItem('auth-storage');
                 window.location.href = '/';
               }
             }
@@ -257,7 +265,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
             isAuthenticated: false,
             isEmailVerified: false,
           });
-          localStorage.removeItem('customer-auth-storage');
+          localStorage.removeItem('auth-storage');
           window.location.href = '/';
         }
       },
@@ -280,27 +288,31 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
             });
 
             // Clear localStorage
-            localStorage.removeItem('customer-auth-storage');
+            localStorage.removeItem('auth-storage');
 
             return;
           }
+
+          const userRole = (data.user.role as 'admin' | 'customer') || 'customer';
 
           set({
             user: {
               id: data.user.id,
               email: data.user.email,
-              name: data.user.name || 'Customer',
+              name: data.user.name || 'User',
+              role: userRole,
               emailVerified: data.user.emailVerified || false,
               image: data.user.image,
-
             },
             isAuthenticated: true,
             isEmailVerified: data.user.emailVerified || false,
             isLoading: false,
           });
 
-          // Load profile after auth check
-          await get().loadProfile();
+          // Load profile after auth check (only for non-admin users)
+          if (userRole !== 'admin') {
+            await get().loadProfile();
+          }
         } catch (error) {
           console.error('Auth check error:', error);
 
@@ -315,7 +327,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
           });
 
           // Clear localStorage
-          localStorage.removeItem('customer-auth-storage');
+          localStorage.removeItem('auth-storage');
         }
       },
 
@@ -489,11 +501,11 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
         });
 
         // Clear localStorage
-        localStorage.removeItem('customer-auth-storage');
+        localStorage.removeItem('auth-storage');
 
         // Save current URL as return URL (if not already on auth page)
         const currentPath = window.location.pathname;
-        const authRoutes = ['/auth/login', '/auth/register', '/auth/verify-email', '/auth/reset-password', '/auth/reset-password-confirm', '/auth/callback'];
+        const authRoutes = ['/auth/login', '/auth/register', '/auth/verify-email', '/auth/reset-password', '/auth/reset-password-confirm', '/auth/callback', '/admin/login'];
         const isAuthRoute = authRoutes.some(route => currentPath.startsWith(route));
 
         if (!isAuthRoute && currentPath !== '/') {
@@ -505,7 +517,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
       },
     }),
     {
-      name: 'customer-auth-storage',
+      name: 'auth-storage',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         user: state.user,
@@ -516,3 +528,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
     }
   )
 );
+
+// Re-export for backward compatibility during migration
+export const useCustomerAuthStore = useAuthStore;
+export const useAdminAuthStore = useAuthStore;

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { useAdminAuthStore } from '~/store/admin-auth';
+import { useAuthStore } from '~/store/auth-store';
 
 interface AdminAuthGuardProps {
   children: React.ReactNode;
@@ -8,7 +8,7 @@ interface AdminAuthGuardProps {
 
 export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
   const navigate = useNavigate();
-  const { isAuthenticated, user, checkAuth, isLoading } = useAdminAuthStore();
+  const { isAuthenticated, user, checkAuth, isLoading } = useAuthStore();
 
   useEffect(() => {
     // Check authentication status on mount
@@ -18,17 +18,15 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
   useEffect(() => {
     if (isLoading) return;
 
-    console.log('Auth Guard User:', user);
-
     // Redirect to login if not authenticated
     if (!isAuthenticated) {
       navigate('/admin/login', { replace: true });
       return;
     }
 
-    // Check if user has admin role
+    // Check if user has admin role - redirect non-admins to landing page
     if (user?.role !== 'admin') {
-      navigate('/admin/login', { replace: true });
+      navigate('/', { replace: true });
     }
   }, [isAuthenticated, user, navigate, isLoading]);
 
@@ -48,3 +46,4 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
 
   return <>{children}</>;
 }
+

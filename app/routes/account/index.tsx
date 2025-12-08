@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useCustomerAuthStore } from '~/store/customer-auth';
+import { useAuthStore } from '~/store/auth-store';
 import { CustomerAuthGuard } from '~/components/auth/customer-auth-guard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
@@ -11,7 +11,7 @@ import { AddressManager } from '~/components/profile/address-manager';
 import { Link } from 'react-router';
 
 export default function AccountPage() {
-  const { user, signOut } = useCustomerAuthStore();
+  const { user, signOut } = useAuthStore();
   const [activeTab, setActiveTab] = useState('profile');
 
   const handleLogout = async () => {

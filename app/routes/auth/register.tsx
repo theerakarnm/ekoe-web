@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCustomerAuthStore } from '~/store/customer-auth';
+import { useAuthStore } from '~/store/auth-store';
 import { useCartStore } from '~/store/cart';
 import { registerSchema, type RegisterFormData } from '~/lib/auth-validation';
 import { setReturnUrl } from '~/lib/auth-utils';
@@ -18,7 +18,7 @@ import { AlertCircle } from 'lucide-react';
 export default function CustomerRegister() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { signUp, signInWithGoogle, isAuthenticated } = useCustomerAuthStore();
+  const { signUp, signInWithGoogle, isAuthenticated } = useAuthStore();
   const { items: cartItems, addItem } = useCartStore();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,12 +40,12 @@ export default function CustomerRegister() {
     if (backup && backup.length > 0) {
       // Merge backup with current cart
       const merged = mergeCartItems(cartItems, backup);
-      
+
       // Clear current cart and add merged items
       merged.forEach(item => {
         addItem(item);
       });
-      
+
       // Clear backup after restoration
       clearCartBackup();
     }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Search, User, ShoppingCart, ChevronDown, Menu, X, LogOut, Settings, Cog } from 'lucide-react';
 import { useCartStore } from '~/store/cart';
-import { useCustomerAuthStore } from '~/store/customer-auth';
+import { useAuthStore } from '~/store/auth-store';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Link } from 'react-router';
 import {
@@ -20,7 +20,7 @@ export default function Header({
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isDiscoverOpen, setIsDiscoverOpen] = useState(false);
   const totalItems = useCartStore((state) => state.getTotalItems());
-  const { user, isAuthenticated, signOut } = useCustomerAuthStore();
+  const { user, isAuthenticated, signOut } = useAuthStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

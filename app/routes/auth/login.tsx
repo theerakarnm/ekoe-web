@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCustomerAuthStore } from '~/store/customer-auth';
+import { useAuthStore } from '~/store/auth-store';
 import { useCartStore } from '~/store/cart';
 import { loginSchema, type LoginFormData } from '~/lib/auth-validation';
 import { setReturnUrl } from '~/lib/auth-utils';
@@ -14,16 +14,14 @@ import { Label } from '~/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { useAdminAuthStore } from '~/store/admin-auth';
 
 export default function CustomerLogin() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { signIn, signInWithGoogle, isAuthenticated, checkAuth, isLoading: customerAuthLoading } = useCustomerAuthStore();
-  const { checkAuth: checkAdminAuth, isLoading: adminAuthLoading, user } = useAdminAuthStore();
+  const { signIn, signInWithGoogle, isAuthenticated, user, checkAuth, isLoading } = useAuthStore();
   const { items: cartItems, addItem } = useCartStore();
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const returnUrl = searchParams.get('returnUrl') || '/';
@@ -53,40 +51,45 @@ export default function CustomerLogin() {
     }
   };
 
+  // Check auth on mount
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   // Redirect if already authenticated
   useEffect(() => {
-    if (adminAuthLoading) return;
-    if (isAuthenticated) {
+    if (isLoading) return;
+
+    if (isAuthenticated && user) {
       restoreCart();
-      navigate(returnUrl, { replace: true });
+      if (user.role === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        navigate(returnUrl, { replace: true });
+      }
     }
-  }, [isAuthenticated, navigate, returnUrl]);
-
-  useEffect(() => {
-    checkAdminAuth()
-  }, []);
-
-  useEffect(() => {
-    if (adminAuthLoading) return;
-    if (user?.role === 'admin') {
-      navigate('/admin/dashboard', { replace: true });
-    }
-  }, [user, adminAuthLoading])
+  }, [isAuthenticated, user, navigate, returnUrl, isLoading]);
 
   const onSubmit = async (data: LoginFormData) => {
     setError(null);
-    setIsLoading(true);
+    setIsSubmitting(true);
 
     try {
       await signIn(data.email, data.password);
       restoreCart();
-      navigate(returnUrl, { replace: true });
+
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser?.role === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        navigate(returnUrl, { replace: true });
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Authentication failed';
       setError(errorMessage);
       handleApiError(err, 'Failed to sign in');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -108,7 +111,8 @@ export default function CustomerLogin() {
     }
   };
 
-  if (customerAuthLoading || adminAuthLoading) {
+  // Show loading state while checking auth
+  if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -142,7 +146,7 @@ export default function CustomerLogin() {
                   type="email"
                   placeholder="you@example.com"
                   aria-invalid={!!errors.email}
-                  disabled={isLoading || isGoogleLoading}
+                  disabled={isSubmitting || isGoogleLoading}
                   {...register('email')}
                 />
                 {errors.email && (
@@ -165,7 +169,7 @@ export default function CustomerLogin() {
                   type="password"
                   placeholder="Enter your password"
                   aria-invalid={!!errors.password}
-                  disabled={isLoading || isGoogleLoading}
+                  disabled={isSubmitting || isGoogleLoading}
                   {...register('password')}
                 />
                 {errors.password && (
@@ -176,9 +180,9 @@ export default function CustomerLogin() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isLoading || isGoogleLoading}
+                disabled={isSubmitting || isGoogleLoading}
               >
-                {isLoading ? 'Signing in...' : 'Sign in'}
+                {isSubmitting ? 'Signing in...' : 'Sign in'}
               </Button>
 
               <div className="relative">
@@ -197,7 +201,7 @@ export default function CustomerLogin() {
                 variant="outline"
                 className="w-full"
                 onClick={handleGoogleSignIn}
-                disabled={isLoading || isGoogleLoading}
+                disabled={isSubmitting || isGoogleLoading}
               >
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                   <path
@@ -236,3 +240,4 @@ export default function CustomerLogin() {
     </div>
   );
 }
+
