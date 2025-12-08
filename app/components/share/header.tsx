@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, User, ShoppingCart, ChevronDown, Menu, X, LogOut, Settings } from 'lucide-react';
+import { Search, User, ShoppingCart, ChevronDown, Menu, X, LogOut, Settings, Cog } from 'lucide-react';
 import { useCartStore } from '~/store/cart';
 import { useCustomerAuthStore } from '~/store/customer-auth';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
@@ -136,6 +136,14 @@ export default function Header({
                             My Account
                           </Link>
                         </DropdownMenuItem>
+                        {
+                          <DropdownMenuItem asChild>
+                            <Link to="/admin/dashboard" className="w-full cursor-pointer flex items-center">
+                              <Cog className="mr-2 h-4 w-4" />
+                              Admin Portal
+                            </Link>
+                          </DropdownMenuItem>
+                        }
                         <DropdownMenuItem
                           className="text-red-600 focus:text-red-600 cursor-pointer flex items-center"
                           onClick={() => signOut()}

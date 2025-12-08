@@ -29,7 +29,7 @@ export function CustomerAuthGuard({ children }: CustomerAuthGuardProps) {
       if (cartItems.length > 0) {
         saveCartBackup(cartItems);
       }
-      
+
       // Save current URL as return URL
       const returnUrl = `${location.pathname}${location.search}`;
       setReturnUrl(returnUrl);

@@ -93,41 +93,40 @@ export default function TwoC2PReturnPage({ loaderData }: Route.ComponentProps) {
   }, [actionData]);
 
   return (
-    <CustomerAuthGuard>
-      <div className="min-h-screen bg-gray-50 font-sans">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <h1 className="text-2xl font-serif text-gray-800">Ekoe</h1>
-          </div>
-        </header>
+    <div className="min-h-screen bg-gray-50 font-sans">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <h1 className="text-2xl font-serif text-gray-800">Ekoe</h1>
+        </div>
+      </header>
 
-        <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          {/* Payment Success */}
-          {status === 'success' && (
-            <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-              </div>
-              <h2 className="text-2xl font-serif mb-2">Payment Successful!</h2>
-              <p className="text-gray-600 mb-6">
-                {'Your payment has been processed successfully.'}
-              </p>
-              {isRedirecting ? (
-                <div className="space-y-4">
-                  <p className="text-sm text-gray-600">Redirecting to order confirmation...</p>
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-                </div>
-              ) : (
-                <Button asChild>
-                  <a href={`/order-success/${data.invoiceNo}`}>View Order Details</a>
-                </Button>
-              )}
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Payment Success */}
+        {status === 'success' && (
+          <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+              <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
-          )}
+            <h2 className="text-2xl font-serif mb-2">Payment Successful!</h2>
+            <p className="text-gray-600 mb-6">
+              {'Your payment has been processed successfully.'}
+            </p>
+            {isRedirecting ? (
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600">Redirecting to order confirmation...</p>
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+              </div>
+            ) : (
+              <Button asChild>
+                <a href={`/order-success/${data.invoiceNo}`}>View Order Details</a>
+              </Button>
+            )}
+          </div>
+        )}
 
-          {/* Payment Failed */}
-          {/* {status === 'error' && (
+        {/* Payment Failed */}
+        {/* {status === 'error' && (
             <div className="space-y-6">
               <div className="bg-white rounded-lg shadow-sm p-8 text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
@@ -162,8 +161,8 @@ export default function TwoC2PReturnPage({ loaderData }: Route.ComponentProps) {
             </div>
           )} */}
 
-          {/* Payment Pending */}
-          {/* {status === 'pending' && (
+        {/* Payment Pending */}
+        {/* {status === 'pending' && (
             <div className="space-y-6">
               <div className="bg-white rounded-lg shadow-sm p-8 text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full mb-4">
@@ -202,8 +201,8 @@ export default function TwoC2PReturnPage({ loaderData }: Route.ComponentProps) {
             </div>
           )} */}
 
-          {/* Error State */}
-          {/* {status === 'error' && (
+        {/* Error State */}
+        {/* {status === 'error' && (
             <div className="space-y-6">
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -230,8 +229,7 @@ export default function TwoC2PReturnPage({ loaderData }: Route.ComponentProps) {
               </div>
             </div>
           )} */}
-        </main>
-      </div>
-    </CustomerAuthGuard>
+      </main>
+    </div>
   );
 }

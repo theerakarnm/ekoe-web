@@ -14,11 +14,13 @@ import { Label } from '~/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { useAdminAuthStore } from '~/store/admin-auth';
 
 export default function CustomerLogin() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { signIn, signInWithGoogle, isAuthenticated } = useCustomerAuthStore();
+  const { signIn, signInWithGoogle, isAuthenticated, checkAuth, isLoading: customerAuthLoading } = useCustomerAuthStore();
+  const { checkAuth: checkAdminAuth, isLoading: adminAuthLoading, user } = useAdminAuthStore();
   const { items: cartItems, addItem } = useCartStore();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,11 +55,23 @@ export default function CustomerLogin() {
 
   // Redirect if already authenticated
   useEffect(() => {
+    if (adminAuthLoading) return;
     if (isAuthenticated) {
       restoreCart();
       navigate(returnUrl, { replace: true });
     }
   }, [isAuthenticated, navigate, returnUrl]);
+
+  useEffect(() => {
+    checkAdminAuth()
+  }, []);
+
+  useEffect(() => {
+    if (adminAuthLoading) return;
+    if (user?.role === 'admin') {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [user, adminAuthLoading])
 
   const onSubmit = async (data: LoginFormData) => {
     setError(null);
@@ -93,6 +107,14 @@ export default function CustomerLogin() {
       setIsGoogleLoading(false);
     }
   };
+
+  if (customerAuthLoading || adminAuthLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
