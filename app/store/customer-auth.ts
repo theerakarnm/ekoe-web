@@ -292,6 +292,7 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
               name: data.user.name || 'Customer',
               emailVerified: data.user.emailVerified || false,
               image: data.user.image,
+
             },
             isAuthenticated: true,
             isEmailVerified: data.user.emailVerified || false,

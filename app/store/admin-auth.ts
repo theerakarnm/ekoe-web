@@ -71,7 +71,7 @@ export const useAdminAuthStore = create<AdminAuthState>()(
               id: session.data.user.id,
               email: session.data.user.email,
               name: session.data.user.name || 'Admin User',
-              role: session.data.user.role,
+              role: session.data.user.role || 'admin', // Since we validated above, we can default to admin if missing in type
             },
             isAuthenticated: true,
           });

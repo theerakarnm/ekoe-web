@@ -38,7 +38,13 @@ export default function AdminLogin() {
 
     try {
       await login(data.email, data.password);
-      navigate('/admin/dashboard', { replace: true });
+
+      const user = useAdminAuthStore.getState().user;
+      if (user?.role === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        setError('Login successful but admin privileges missing.');
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Authentication failed';
       setError(errorMessage);

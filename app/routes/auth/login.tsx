@@ -40,12 +40,12 @@ export default function CustomerLogin() {
     if (backup && backup.length > 0) {
       // Merge backup with current cart
       const merged = mergeCartItems(cartItems, backup);
-      
+
       // Clear current cart and add merged items
       merged.forEach(item => {
         addItem(item);
       });
-      
+
       // Clear backup after restoration
       clearCartBackup();
     }
