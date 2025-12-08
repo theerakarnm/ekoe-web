@@ -115,9 +115,8 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       // Check if we're in a browser environment
       if (typeof window !== 'undefined') {
-        // Determine if this is an admin or customer route
-        const isAdminRoute = window.location.pathname.startsWith('/admin');
-        const loginPath = isAdminRoute ? '/admin/login' : '/auth/login';
+        // Always redirect to unified login page
+        const loginPath = '/auth/login';
 
         // Only redirect if not already on login page
         if (window.location.pathname !== loginPath) {

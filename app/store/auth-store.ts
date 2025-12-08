@@ -505,7 +505,7 @@ export const useAuthStore = create<AuthState>()(
 
         // Save current URL as return URL (if not already on auth page)
         const currentPath = window.location.pathname;
-        const authRoutes = ['/auth/login', '/auth/register', '/auth/verify-email', '/auth/reset-password', '/auth/reset-password-confirm', '/auth/callback', '/admin/login'];
+        const authRoutes = ['/auth/login', '/auth/register', '/auth/verify-email', '/auth/reset-password', '/auth/reset-password-confirm', '/auth/callback'];
         const isAuthRoute = authRoutes.some(route => currentPath.startsWith(route));
 
         if (!isAuthRoute && currentPath !== '/') {

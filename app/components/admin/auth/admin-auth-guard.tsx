@@ -20,7 +20,7 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
 
     // Redirect to login if not authenticated
     if (!isAuthenticated) {
-      navigate('/admin/login', { replace: true });
+      navigate('/auth/login', { replace: true });
       return;
     }
 

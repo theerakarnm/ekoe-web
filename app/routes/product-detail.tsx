@@ -23,127 +23,23 @@ import { FrequentlyBoughtTogether } from "~/components/product/frequently-bought
 import { getProduct, type Product } from "~/lib/services/product.service";
 import { formatNumber } from "~/lib/formatter";
 
-// Mock Data used as defaults for missing API fields
-const MOCK_DEFAULTS: IProduct = {
-  productId: 1,
-  productName: "THE BODY OIL",
-  subtitle: "Absolute Rebalance Revitalizing",
-  priceTitle: "2,590 THB",
-  quickCartPrice: 2590,
-  image: {
-    url: "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&q=80&w=800",
-    description: "The Body Oil Bottle",
-  },
-  galleryImages: [
-    {
-      url: "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&q=80&w=800",
-      description: "The Body Oil 100ml Front",
-      associatedSize: "100ml",
-    },
-    {
-      url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=800",
-      description: "The Body Oil 100ml Texture",
-      associatedSize: "100ml",
-    },
-    {
-      url: "https://images.unsplash.com/photo-1629198688000-71f23e745b6e?auto=format&fit=crop&q=80&w=800",
-      description: "The Body Oil 200ml Front",
-      associatedSize: "200ml",
-    },
-    {
-      url: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=800",
-      description: "The Body Oil 200ml Lifestyle",
-      associatedSize: "200ml",
-    },
-  ],
-  rating: 4.9,
-  reviewCount: 124,
-  tags: ["Vegan", "Cruelty Free", "Non-Toxic", "PEG Free", "Nano Free"],
-  description: [
-    "ออยล์บำรุงผิวกายเนื้อบางเบา ซึมซาบไว ไม่เหนียวเหนอะหนะ",
-    "ช่วยเติมความชุ่มชื้นให้ผิวดูโกลว์ สุขภาพดี",
-    "พร้อมกลิ่นหอมผ่อนคลายจากธรรมชาติ",
-  ],
-  benefits: [
-    "เติมความชุ่มชื้น",
-    "ผิวดูโกลว์",
-    "ซึมซาบไว",
-    "กลิ่นหอมผ่อนคลาย",
-  ],
-  sizes: [
-    { label: "100 ml", value: "100ml", price: 2590 },
-    { label: "200 ml", value: "200ml", price: 4590 },
-  ],
-  ingredients: {
-    keyIngredients: [
-      {
-        name: "CHILEAN HAZELNUT OIL",
-        description: "Rich in Vitamin A and E, helps to moisturize and nourish the skin.",
-      },
-      {
-        name: "JOJOBA OIL",
-        description: "Similar to skin's natural sebum, provides deep hydration without clogging pores.",
-      },
-    ],
-    fullList: "Caprylic/Capric Triglyceride, Helianthus Annuus (Sunflower) Seed Oil, Simmondsia Chinensis (Jojoba) Seed Oil, Gevuina Avellana Seed Oil, ...",
-  },
-  userStats: "กว่า 98% รู้สึกถึงการซึมซาบอย่างรวดเร็ว 93% สังเกตว่าผิวดูกระจ่างใสขึ้นและ 96% รู้สึกว่าผิวชุ่มชื้นทันที",
-  howToUse: {
-    steps: [
-      {
-        title: "ก่อนอาบน้ำ",
-        description: "นวดออยล์ลงบนผิวแห้ง ทิ้งไว้ 10-15 นาที เพื่อบำรุงล้ำลึก แล้วล้างออก",
-        icon: "shower",
-      },
-      {
-        title: "หลังอาบน้ำ",
-        description: "ลูบไล้ออยล์ลงบนผิวหมาดๆ ทันที เพื่อกักเก็บความชุ่มชื้น",
-        icon: "drop",
-      },
-      {
-        title: "ระหว่างวัน",
-        description: "ทาบริเวณที่แห้งกร้าน เช่น ข้อศอก เข่า เพื่อเพิ่มความชุ่มชื้น",
-        icon: "sun",
-      },
-      {
-        title: "Mix",
-        description: "ผสมกับโลชั่นที่ใช้ประจำ เพื่อเพิ่มประสิทธิภาพการบำรุง",
-        icon: "mix",
-      },
-    ],
-    note: "Pro Tip: วอร์มออยล์บนฝ่ามือ 3-5 วินาที ก่อนทาลงบนผิว เพื่อให้กลิ่นหอมระเหยได้ดีขึ้น",
-  },
-  discountCodes: [
-    { title: "ลดทันที 999.-", condition: "เมื่อยอดสั่งซื้อมากกว่า 1,500 บาท", code: "WELCOME10" },
-    { title: "ลดทันที 999.-", condition: "เมื่อยอดสั่งซื้อมากกว่า 1,500 บาท", code: "BODYOIL20" },
-  ],
-  complimentaryGift: {
-    name: "Mini Body Scrub (50g)",
-    description: "Exfoliate and renew your skin with our gentle body scrub.",
-    image: "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&q=80&w=800",
-    value: "390 THB",
-  },
-  whyItWorks: "การทำงานร่วมกันของ The Oil Bar ที่ทำความสะอาดพร้อมคงความชุ่มชื้น และ The Body Oil ที่ช่วยล็อคความชุ่มชื้นและบำรุงล้ำลึก ทำให้ผิวได้รับการดูแลอย่างเต็มประสิทธิภาพในทุกขั้นตอน",
-  goodFor: "เหมาะสำหรับทุกสภาพผิว โดยเฉพาะผิวแห้งที่ต้องการความชุ่มชื้นเป็นพิเศษ และผู้ที่ต้องการผิวโกลว์สวยอย่างเป็นธรรมชาติ",
-};
-
 export async function loader({ params }: Route.LoaderArgs) {
   try {
     const { id } = params as { id: string };
     if (!id) {
       throw new Response("Product ID is required", { status: 400 });
     }
-    
+
     // Fetch product only - related products now handled by component
     const product = await getProduct(id);
-    
+
     return { product };
   } catch (error: any) {
     // Handle 404 errors for non-existent products
     if (error?.statusCode === 404 || error?.response?.status === 404) {
       throw new Response("Product Not Found", { status: 404 });
     }
-    
+
     // Re-throw other errors
     throw new Response("Failed to load product", { status: 500 });
   }
@@ -163,13 +59,13 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & { extendedSizes?
     url: img.url,
     description: img.altText || img.description || apiProduct.name,
     associatedSize: img.variantId ? apiProduct.variants?.find(v => v.id === img.variantId?.toString())?.value : undefined
-  })) || MOCK_DEFAULTS.galleryImages;
+  })) || [];
 
   const sizes = apiProduct.variants?.map(v => ({
     label: v.name,
     value: v.value,
     price: v.price
-  })) || MOCK_DEFAULTS.sizes;
+  })) || [];
 
   // Extended sizes with stock information
   const extendedSizes = apiProduct.variants?.map(v => ({
@@ -181,23 +77,21 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & { extendedSizes?
   })) || [];
 
   return {
-    ...MOCK_DEFAULTS, // Use defaults for missing fields
     productId: apiProduct.id,
     productName: apiProduct.name,
-    subtitle: apiProduct.subtitle || MOCK_DEFAULTS.subtitle,
+    subtitle: apiProduct.subtitle || "",
     priceTitle: sizes && sizes.length > 0
       ? `${formatNumber(Math.min(...sizes.map(s => s.price)), { decimalPlaces: 0 })} - ${formatNumber(Math.max(...sizes.map(s => s.price)), { decimalPlaces: 0 })} THB`
       : `${formatNumber(apiProduct.basePrice, { decimalPlaces: 0 })} THB`,
     quickCartPrice: apiProduct.basePrice,
     image: {
-      url: primaryImage?.url || MOCK_DEFAULTS.image.url,
-      description: primaryImage?.altText || MOCK_DEFAULTS.image.description,
+      url: primaryImage?.url || "",
+      description: primaryImage?.altText || "",
     },
-    galleryImages: galleryImages?.length ? galleryImages : MOCK_DEFAULTS.galleryImages,
-    rating: parseFloat(apiProduct.rating || '0') || MOCK_DEFAULTS.rating,
-    reviewCount: apiProduct.reviewCount || MOCK_DEFAULTS.reviewCount,
-    description: apiProduct.description ? [apiProduct.description] : MOCK_DEFAULTS.description,
-    sizes: sizes?.length ? sizes : MOCK_DEFAULTS.sizes,
+    galleryImages: galleryImages?.length ? galleryImages : [],
+    rating: parseFloat(apiProduct.rating || '0') || 0,
+    description: apiProduct.description ? [apiProduct.description] : [],
+    sizes: sizes?.length ? sizes : [],
     extendedSizes: extendedSizes.length ? extendedSizes : undefined,
   };
 }
@@ -215,17 +109,17 @@ export function meta({ data }: Route.MetaArgs) {
 export default function ProductDetail({ loaderData }: Route.ComponentProps) {
   const { product: apiProduct } = loaderData;
   const productData = mapApiProductToDetail(apiProduct);
-  
+
   // Use extended sizes if available, otherwise fall back to regular sizes
   const availableSizes = productData.extendedSizes || productData.sizes?.map(s => ({ ...s, stockQuantity: 999, variantId: '' })) || [];
   const [selectedSize, setSelectedSize] = useState<ExtendedSize | undefined>(availableSizes[0]);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(productData.image.url);
-  
+
   // Check if selected size is out of stock
   const isOutOfStock = selectedSize ? selectedSize.stockQuantity === 0 : false;
   const maxQuantity = selectedSize ? selectedSize.stockQuantity : 999;
-  
+
   const handleQuantityChange = (delta: number) => {
     setQuantity((prev) => {
       const newQuantity = prev + delta;
@@ -395,19 +289,18 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                     {availableSizes.map((size) => {
                       const sizeOutOfStock = size.stockQuantity === 0;
                       const isLowStock = size.stockQuantity > 0 && size.stockQuantity <= 5;
-                      
+
                       return (
                         <button
                           key={size.value}
                           onClick={() => !sizeOutOfStock && handleSizeClick(size)}
                           disabled={sizeOutOfStock}
-                          className={`px-4 py-2 border text-sm transition-all relative ${
-                            selectedSize?.value === size.value
-                              ? "border-black bg-black text-white"
-                              : sizeOutOfStock
+                          className={`px-4 py-2 border text-sm transition-all relative ${selectedSize?.value === size.value
+                            ? "border-black bg-black text-white"
+                            : sizeOutOfStock
                               ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
                               : "border-gray-200 hover:border-gray-400"
-                          }`}
+                            }`}
                         >
                           {size.label}
                           {sizeOutOfStock && (
@@ -492,19 +385,109 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
 
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24 items-start">
+            <div>
+              <h2 className="text-2xl font-serif mb-8">Key Ingredients</h2>
+              <Accordion type="single" collapsible className="w-full">
+                {productData.ingredients?.keyIngredients.map((ing, idx) => (
+                  <AccordionItem key={idx} value={`item-${idx}`}>
+                    <AccordionTrigger className="text-lg font-medium uppercase tracking-wide">
+                      {ing.name}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-gray-600 leading-relaxed">
+                      {ing.description}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+                <AccordionItem value="full-list">
+                  <AccordionTrigger className="text-lg font-medium uppercase tracking-wide">
+                    Full Ingredients List
+                  </AccordionTrigger>
+                  <AccordionContent className="text-gray-600 leading-relaxed text-sm font-mono">
+                    {productData.ingredients?.fullList}
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+              <Button variant="outline" className="mt-8 uppercase tracking-widest text-xs h-12 px-8 border-black text-black hover:bg-black hover:text-white transition-colors">
+                See All Ingredients
+              </Button>
+            </div>
+            <div className="relative aspect-square lg:aspect-4/3 bg-gray-100">
+              <img
+                src="https://images.unsplash.com/photo-1615486511484-92e172cc4fe0?auto=format&fit=crop&q=80&w=1200"
+                alt="Ingredients"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+
+          <div className="mb-24 bg-[#F9F5F0] p-8 md:p-16 rounded-2xl">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="relative aspect-4/5 lg:aspect-square overflow-hidden rounded-lg">
+                <img
+                  src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&q=80&w=1000"
+                  alt="Model"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent"></div>
+                <div className="absolute bottom-8 left-8 text-white">
+                  <div className="text-5xl font-serif italic mb-2">Loved</div>
+                  <div className="text-xl uppercase tracking-widest">By Real Users</div>
+                </div>
+              </div>
+              <div className="space-y-12">
+                <h3 className="text-sm uppercase tracking-widest text-gray-500 mb-8">
+                  เสียงจากผู้ใช้จริง
+                </h3>
+                <div className="space-y-10">
+                  <span className="text-xl md:text-2xl font-medium">
+                    {productData.userStats}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-400 mt-8 italic">
+                  ผลลัพธ์ที่พิสูจน์ได้ด้วยตัวเองจากการใช้จริงในทุกวัน
+                </p>
+              </div>
+            </div>
+
+
+          </div>
+
+          <div className="mb-24 text-center">
+            <h2 className="text-3xl font-serif mb-16">How to Use Block</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+              {productData.howToUse?.steps.map((step, idx) => (
+                <div key={idx} className="flex flex-col items-center text-center group">
+                  <div className="w-24 h-24 rounded-full border border-gray-200 flex items-center justify-center mb-6 group-hover:border-black transition-colors duration-300">
+                    {/* Placeholder icons */}
+                    <div className="text-2xl font-serif">{idx + 1}</div>
+                  </div>
+                  <h3 className="text-lg font-medium text-[#4A90E2] mb-3">
+                    {step.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 leading-relaxed max-w-[200px]">
+                    {step.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="max-w-2xl mx-auto mb-12 p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <p className="text-sm text-gray-700 flex items-center justify-center gap-2">
+                <span className="text-red-500">⚠️</span> {productData.howToUse?.note}
+              </p>
+            </div>
+          </div>
+
+
           {/* Frequently Bought Together */}
           <div className="mb-24">
             <FrequentlyBoughtTogether productId={apiProduct.id} />
           </div>
 
-          {/* Product Tabs - Replaces old sections */}
-          <div className="mb-24">
-            <ProductTabs product={productData} />
-          </div>
-
           {/* Related Products */}
-          <RelatedProducts 
-            productId={apiProduct.id} 
+          <RelatedProducts
+            productId={apiProduct.id}
             title="You May Also Like"
             limit={4}
           />

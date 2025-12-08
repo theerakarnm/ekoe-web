@@ -2,9 +2,6 @@ import { type RouteConfig, index, route, layout } from "@react-router/dev/routes
 
 export default [
 
-  // Admin routes
-  route("admin/login", "routes/admin/login.tsx"),
-
   // Customer auth routes
   route("auth/login", "routes/auth/login.tsx"),
 

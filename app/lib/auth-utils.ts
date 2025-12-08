@@ -68,7 +68,6 @@ export function isAuthRoute(pathname: string): boolean {
     '/auth/reset-password',
     '/auth/reset-password-confirm',
     '/auth/callback',
-    '/admin/login',
   ];
 
   return authRoutes.some(route => pathname.startsWith(route));
