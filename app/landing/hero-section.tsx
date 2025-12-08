@@ -53,6 +53,8 @@ function HeroSection() {
 
   useEffect(() => {
     setMounted(true);
+    // Ensure auth state is fresh
+    useCustomerAuthStore.getState().checkAuth();
   }, []);
 
   const totalItems = useCartStore((state) => state.getTotalItems());
@@ -188,7 +190,9 @@ function HeroSection() {
 
               {/* Centered logo */}
               <div className="absolute left-1/2 transform -translate-x-1/2">
-                <img src="/ekoe-asset/Ekoe_Logo-01.png" alt="Ekoe Logo" className='w-32 invert' />
+                <Link to="/">
+                  <img src="/ekoe-asset/Ekoe_Logo-01.png" alt="Ekoe Logo" className='w-32 invert' />
+                </Link>
               </div>
 
               {/* Desktop right-side navigation */}
