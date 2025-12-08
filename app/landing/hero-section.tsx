@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { ChevronDown, Menu, Search, ShoppingCart, X } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { ChevronDown, Menu, Search, ShoppingCart, X, User, LogOut } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -16,6 +16,8 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import { useCartStore } from '~/store/cart';
+import { useCustomerAuthStore } from '~/store/customer-auth';
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 
 const slides = [
   {
@@ -42,9 +44,16 @@ const slides = [
 
 function HeroSection() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isShopOpen, setIsShopOpen] = useState(false);
+  const [isDiscoverOpen, setIsDiscoverOpen] = useState(false);
+  const { user, isAuthenticated, signOut } = useCustomerAuthStore();
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const totalItems = useCartStore((state) => state.getTotalItems());
   const displayCount = mounted ? totalItems : 0;
@@ -187,12 +196,55 @@ function HeroSection() {
                 <button className="text-white hover:text-gray-200 transition-colors">
                   <Search className="h-5 w-5" />
                 </button>
-                <a href="#" className="text-white hover:text-gray-200 text-sm tracking-wide transition-colors">
+                <Link to="/shop" className="text-white hover:text-gray-200 text-sm tracking-wide transition-colors">
                   SEARCH
-                </a>
-                <Link to="/admin/login" className="text-white hover:text-gray-200 text-sm hidden xl:block">
-                  LOGIN/REGISTER
                 </Link>
+                {mounted && isAuthenticated && user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="outline-none">
+                      <Avatar className="h-8 w-8 cursor-pointer border border-white/20">
+                        <AvatarImage src={user.image || ''} alt={user.name} />
+                        <AvatarFallback className="bg-white/10 text-white">
+                          {user.name ? user.name.charAt(0).toUpperCase() : 'C'}
+                        </AvatarFallback>
+                      </Avatar>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56 bg-white text-gray-900">
+                      <div className="flex items-center justify-start gap-2 p-2">
+                        <div className="flex flex-col space-y-1 leading-none">
+                          {user.name && <p className="font-medium">{user.name}</p>}
+                          {user.email && (
+                            <p className="w-[200px] truncate text-sm text-muted-foreground">
+                              {user.email}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <DropdownMenuItem asChild>
+                        <Link to="/account" className="w-full cursor-pointer flex items-center">
+                          <User className="mr-2 h-4 w-4" />
+                          My Account
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-red-600 focus:text-red-600 cursor-pointer flex items-center"
+                        onClick={() => signOut()}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Log out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Link to="/auth/login" className="text-white hover:text-gray-200 text-sm hidden xl:block">
+                    LOGIN
+                  </Link>
+                )}
+                {!mounted || !isAuthenticated ? (
+                  <Link to="/auth/login" className="text-white hover:text-gray-200 xl:hidden">
+                    <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </Link>
+                ) : null}
                 <Link to="/cart" className="text-white hover:text-gray-200 relative">
                   <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
                   <span className="absolute -top-2 -right-2 bg-white text-black text-xs rounded-full h-3 w-3 sm:h-4 sm:w-4 flex items-center justify-center">
@@ -203,6 +255,20 @@ function HeroSection() {
 
               {/* Mobile right-side icons */}
               <div className="lg:hidden flex items-center space-x-4">
+                {mounted && isAuthenticated && user ? (
+                  <Link to="/account" className="text-white hover:text-gray-200">
+                    <Avatar className="h-6 w-6 border border-white/20">
+                      <AvatarImage src={user.image || ''} alt={user.name} />
+                      <AvatarFallback className="bg-white/10 text-white text-xs">
+                        {user.name ? user.name.charAt(0).toUpperCase() : 'C'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Link>
+                ) : (
+                  <Link to="/auth/login" className="text-white hover:text-gray-200">
+                    <User className="h-6 w-6" />
+                  </Link>
+                )}
                 <button className="text-white hover:text-gray-200">
                   <ShoppingCart className="h-6 w-6" />
                 </button>
@@ -213,22 +279,77 @@ function HeroSection() {
             {isMobileMenuOpen && (
               <div className="lg:hidden absolute top-20 left-0 right-0 bg-black/90 backdrop-blur-md border-t border-white/10 text-white z-50 rounded-b-2xl shadow-xl">
                 <nav className="flex flex-col p-6 space-y-4">
-                  <a href="/online-executive" className="text-lg font-medium py-2 border-b border-white/10">
+                  <Link
+                    to="/online-executive"
+                    className="text-lg font-medium py-2 border-b border-white/10"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
                     ONLINE EXECUTIVE
-                  </a>
-                  <button className="flex items-center justify-between text-lg font-medium py-2 border-b border-white/10">
-                    SHOP <ChevronDown className="h-5 w-5" />
-                  </button>
-                  <button className="flex items-center justify-between text-lg font-medium py-2 border-b border-white/10">
-                    DISCOVER <ChevronDown className="h-5 w-5" />
-                  </button>
+                  </Link>
+                  <div>
+                    <button
+                      onClick={() => setIsShopOpen(!isShopOpen)}
+                      className="flex items-center justify-between w-full text-lg font-medium py-2 border-b border-white/10"
+                    >
+                      SHOP <ChevronDown className={`h-5 w-5 transform transition-transform ${isShopOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {isShopOpen && (
+                      <div className="pl-4 py-2 space-y-2 flex flex-col mt-1">
+                        <Link to="/shop?category=new-arrivals" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>New Arrivals</Link>
+                        <Link to="/shop?category=best-sellers" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Best Sellers</Link>
+                        <Link to="/shop?category=skincare" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Skincare</Link>
+                        <Link to="/shop?category=sets" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Sets & Bundles</Link>
+                        <Link to="/shop" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>View All</Link>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <button
+                      onClick={() => setIsDiscoverOpen(!isDiscoverOpen)}
+                      className="flex items-center justify-between w-full text-lg font-medium py-2 border-b border-white/10"
+                    >
+                      DISCOVER <ChevronDown className={`h-5 w-5 transform transition-transform ${isDiscoverOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {isDiscoverOpen && (
+                      <div className="pl-4 py-2 space-y-2 flex flex-col mt-1">
+                        <Link to="/about" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Our Story</Link>
+                        <Link to="/ingredients" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Ingredients</Link>
+                        <Link to="/blog" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Blog</Link>
+                      </div>
+                    )}
+                  </div>
                   <div className="pt-4 space-y-4">
-                    <a href="#" className="flex items-center text-lg font-medium py-2">
+                    <Link to="/shop" className="flex items-center text-lg font-medium py-2">
                       <Search className="h-5 w-5 mr-3" /> SEARCH
-                    </a>
-                    <a href="#" className="block text-lg font-medium py-2">
-                      LOGIN/REGISTER
-                    </a>
+                    </Link>
+                    {mounted && isAuthenticated && user ? (
+                      <>
+                        <Link
+                          to="/account"
+                          className="flex items-center text-lg font-medium py-2"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <User className="h-5 w-5 mr-3" /> MY ACCOUNT
+                        </Link>
+                        <button
+                          onClick={() => {
+                            signOut();
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="flex items-center text-red-500 hover:text-red-400 text-lg font-medium py-2 w-full text-left"
+                        >
+                          <LogOut className="h-5 w-5 mr-3" /> LOGOUT
+                        </button>
+                      </>
+                    ) : (
+                      <Link
+                        to="/auth/login"
+                        className="block text-lg font-medium py-2"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        LOGIN/REGISTER
+                      </Link>
+                    )}
                   </div>
                 </nav>
               </div>

@@ -181,7 +181,7 @@ export async function validateDiscountCode(
 ): Promise<DiscountValidation> {
   try {
     const response = await apiClient.post<SuccessResponseWrapper<DiscountValidation>>(
-      '/cart/discount/validate',
+      '/api/cart/discount/validate',
       { code, subtotal, items }
     );
     return response.data.data;

@@ -8,7 +8,7 @@ import { ShippingMethodSelector } from "./shipping-method-selector";
 export function CheckoutSummary() {
   const items = useCartStore((state) => state.items);
   const getSubtotal = useCartStore((state) => state.getSubtotal);
-  const getDiscountAmount = useCartStore((state) => state.getDiscountAmount);
+  const discountAmount = useCartStore((state) => state.discountAmount);
   const eligibleGifts = useCartStore((state) => state.eligibleGifts);
   const fetchEligibleGifts = useCartStore((state) => state.fetchEligibleGifts);
 
@@ -16,7 +16,7 @@ export function CheckoutSummary() {
   const [selectedShippingMethod, setSelectedShippingMethod] = useState<string>();
 
   const subtotal = getSubtotal();
-  const discount = getDiscountAmount();
+  const discount = discountAmount;
   const total = subtotal + shippingCost - discount;
 
   // Fetch eligible gifts when cart changes

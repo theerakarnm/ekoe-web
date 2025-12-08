@@ -454,7 +454,7 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
         <Button
           type="submit"
           className="w-full h-14 bg-black text-white text-lg hover:bg-gray-800 uppercase tracking-widest"
-          disabled={isValidating || isSubmitting || (validationResult !== null && !validationResult?.isValid)}
+          disabled={isValidating || isSubmitting || (validationResult !== null)}
         >
           {isSubmitting ? 'Processing Order...' : isValidating ? 'Validating Cart...' : 'Pay Now'}
         </Button>

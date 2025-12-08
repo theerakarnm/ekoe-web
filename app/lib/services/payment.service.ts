@@ -293,7 +293,7 @@ export async function process2C2PReturnData(
   try {
     const response = await apiClient.post<SuccessResponseWrapper<TwoC2PReturnResult>>(
       '/api/payments/2c2p/return-data',
-      { paymentResponse }
+      { payload: paymentResponse }
     );
 
     return response.data.data;
