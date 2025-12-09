@@ -400,3 +400,21 @@ export async function getShippingMethods(): Promise<ShippingMethod[]> {
     handleApiError(error);
   }
 }
+
+/**
+ * Get order details by invoice number (from 2C2P payment return)
+ * 
+ * @param invoiceNo - Invoice number from payment provider
+ * @returns Order details including items, addresses, and status history
+ */
+export async function getOrderByInvoiceNo(invoiceNo: string): Promise<OrderDetail> {
+  try {
+    const response = await apiClient.get<SuccessResponseWrapper<OrderDetail>>(
+      `/api/orders/invoice/${invoiceNo}`
+    );
+    return response.data.data;
+  } catch (error) {
+    handleApiError(error);
+  }
+}
+
