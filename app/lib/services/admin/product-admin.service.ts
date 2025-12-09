@@ -41,6 +41,7 @@ export interface Product {
   };
   howToUse?: {
     steps: { title: string; description: string; icon?: string }[];
+    proTips?: string[];
     note?: string;
   };
   complimentaryGift?: {

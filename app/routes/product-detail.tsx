@@ -93,6 +93,17 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & { extendedSizes?
     description: apiProduct.description ? [apiProduct.description] : [],
     sizes: sizes?.length ? sizes : [],
     extendedSizes: extendedSizes.length ? extendedSizes : undefined,
+    // Additional product details from API
+    ingredients: apiProduct.ingredients,
+    howToUse: apiProduct.howToUse,
+    goodFor: apiProduct.goodFor || undefined,
+    whyItWorks: apiProduct.whyItWorks || undefined,
+    complimentaryGift: apiProduct.complimentaryGift ? {
+      name: apiProduct.complimentaryGift.name || "",
+      description: apiProduct.complimentaryGift.description || "",
+      image: apiProduct.complimentaryGift.image || "",
+      value: apiProduct.complimentaryGift.value,
+    } : undefined,
   };
 }
 
@@ -109,6 +120,9 @@ export function meta({ data }: Route.MetaArgs) {
 export default function ProductDetail({ loaderData }: Route.ComponentProps) {
   const { product: apiProduct } = loaderData;
   const productData = mapApiProductToDetail(apiProduct);
+
+  console.log(productData);
+
 
   // Use extended sizes if available, otherwise fall back to regular sizes
   const availableSizes = productData.extendedSizes || productData.sizes?.map(s => ({ ...s, stockQuantity: 999, variantId: '' })) || [];
@@ -389,7 +403,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             <div>
               <h2 className="text-2xl font-serif mb-8">Key Ingredients</h2>
               <Accordion type="single" collapsible className="w-full">
-                {productData.ingredients?.keyIngredients.map((ing, idx) => (
+                {productData.ingredients?.keyIngredients?.map((ing, idx) => (
                   <AccordionItem key={idx} value={`item-${idx}`}>
                     <AccordionTrigger className="text-lg font-medium uppercase tracking-wide">
                       {ing.name}
@@ -456,7 +470,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
           <div className="mb-24 text-center">
             <h2 className="text-3xl font-serif mb-16">How to Use Block</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-              {productData.howToUse?.steps.map((step, idx) => (
+              {productData.howToUse?.steps?.map((step, idx) => (
                 <div key={idx} className="flex flex-col items-center text-center group">
                   <div className="w-24 h-24 rounded-full border border-gray-200 flex items-center justify-center mb-6 group-hover:border-black transition-colors duration-300">
                     {/* Placeholder icons */}
@@ -477,6 +491,18 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                 <span className="text-red-500">⚠️</span> {productData.howToUse?.note}
               </p>
             </div>
+
+            {/* Pro Tips */}
+            {productData.howToUse?.proTips && productData.howToUse.proTips.length > 0 && (
+              <div className="max-w-2xl mx-auto mb-12 space-y-4">
+                <h3 className="text-lg font-medium text-center mb-4">💡 Pro Tips</h3>
+                {productData.howToUse.proTips.map((tip, index) => (
+                  <div key={index} className="p-4 bg-amber-50 border border-amber-100 rounded-lg">
+                    <p className="text-sm text-gray-700">{tip}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
 

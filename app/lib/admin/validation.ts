@@ -77,6 +77,7 @@ export const productHowToUseSchema = z.object({
     description: z.string().min(1, 'Step description is required'),
     icon: z.string().optional(),
   })).optional(),
+  proTips: z.array(z.string().min(1, 'Pro tip cannot be empty')).optional(),
   note: z.string().optional(),
 });
 

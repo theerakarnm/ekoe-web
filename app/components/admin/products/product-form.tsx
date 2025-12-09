@@ -116,6 +116,7 @@ export function ProductForm({ product }: ProductFormProps) {
       whyItWorks: product?.whyItWorks || '',
       howToUse: {
         steps: product?.howToUse?.steps || [],
+        proTips: product?.howToUse?.proTips || [],
         note: product?.howToUse?.note || '',
       },
       complimentaryGift: {
@@ -259,6 +260,7 @@ export function ProductForm({ product }: ProductFormProps) {
         } : undefined,
         howToUse: howToUse ? {
           steps: howToUse.steps || [],
+          proTips: howToUse.proTips || [],
           note: howToUse.note,
         } : undefined,
         // Filter out empty values for optional fields

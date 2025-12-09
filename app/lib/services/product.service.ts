@@ -70,6 +70,24 @@ export interface Product {
   deletedAt: string | null;
   variants?: ProductVariant[];
   images?: ProductImage[];
+  // Additional product details
+  ingredients?: {
+    keyIngredients?: { name: string; description: string }[];
+    fullList?: string;
+  };
+  howToUse?: {
+    steps?: { title: string; description: string; icon?: string }[];
+    proTips?: string[];
+    note?: string;
+  };
+  complimentaryGift?: {
+    name?: string;
+    description?: string;
+    image?: string;
+    value?: string;
+  };
+  goodFor?: string;
+  whyItWorks?: string;
 }
 
 /**
@@ -141,7 +159,7 @@ export interface PriceRange {
 export async function getProducts(params: ProductFilterParams = {}): Promise<PaginatedProducts> {
   try {
     const queryParams = new URLSearchParams();
-    
+
     if (params.search) queryParams.append('search', params.search);
     if (params.categories?.length) queryParams.append('categories', params.categories.join(','));
     if (params.minPrice !== undefined) queryParams.append('minPrice', params.minPrice.toString());

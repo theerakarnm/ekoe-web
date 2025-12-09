@@ -17,19 +17,20 @@ export interface IProduct {
   benefits?: string[];
   sizes?: { label: string; value: string; price: number }[];
   ingredients?: {
-    keyIngredients: { name: string; description: string }[];
-    fullList: string;
+    keyIngredients?: { name: string; description: string }[];
+    fullList?: string;
   };
   howToUse?: {
-    steps: { title: string; description: string; icon?: string }[];
+    steps?: { title: string; description: string; icon?: string }[];
+    proTips?: string[];
     note?: string;
   };
   userStats?: string;
   discountCodes?: { title: string; condition: string; code: string }[];
   complimentaryGift?: {
-    name: string;
-    description: string;
-    image: string;
+    name?: string;
+    description?: string;
+    image?: string;
     value?: string;
   };
   whyItWorks?: string;

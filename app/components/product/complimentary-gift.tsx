@@ -1,7 +1,7 @@
 interface Gift {
-  name: string;
-  description: string;
-  image: string;
+  name?: string;
+  description?: string;
+  image?: string;
   value?: string;
 }
 
