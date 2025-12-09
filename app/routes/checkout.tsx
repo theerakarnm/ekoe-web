@@ -1,6 +1,6 @@
 import type { Route } from "./+types/checkout";
 import { useState, useEffect } from "react";
-import { redirect } from "react-router";
+import { Link, redirect } from "react-router";
 import { CheckoutForm } from "~/components/checkout/checkout-form";
 import { CheckoutSummary } from "~/components/checkout/checkout-summary";
 import { CustomerAuthGuard } from "~/components/auth/customer-auth-guard";
@@ -199,7 +199,7 @@ export default function Checkout() {
               <h2 className="text-2xl font-serif mb-2">Your cart is empty</h2>
               <p className="text-gray-600 mb-6">Add some items to your cart to continue shopping.</p>
               <Button asChild>
-                <a href="/products">Continue Shopping</a>
+                <Link to="/shop">Continue Shopping</Link>
               </Button>
             </div>
           )}

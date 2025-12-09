@@ -410,7 +410,7 @@ export default function OrderSuccessByInvoice() {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button asChild variant="outline" size="lg">
-            <Link to="/products">Continue Shopping</Link>
+            <Link to="/shop">Continue Shopping</Link>
           </Button>
           <Button asChild size="lg">
             <Link to="/">Return to Home</Link>

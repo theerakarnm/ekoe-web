@@ -20,7 +20,7 @@ export default [
     route("payment/promptpay/:id", "routes/payment/promptpay/$id.tsx"),
 
     // Order
-    route("order-success/:id", "routes/order-success/$id.tsx"),
+    route("order-success/:invoiceNo", "routes/order-success/$invoiceNo.tsx"),
 
     // Customer auth routes
     route("auth/register", "routes/auth/register.tsx"),

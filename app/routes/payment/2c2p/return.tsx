@@ -1,7 +1,6 @@
 import type { Route } from "./+types/return";
 import { useEffect, useState } from "react";
 import { redirect, useActionData } from "react-router";
-import { handle2C2PReturn, process2C2PReturnData } from "~/lib/services/payment.service";
 import { CustomerAuthGuard } from "~/components/auth/customer-auth-guard";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
