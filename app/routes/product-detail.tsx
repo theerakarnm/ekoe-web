@@ -99,6 +99,17 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & { extendedSizes?
     options
   }));
 
+  const variants = groupedVariants.map(g => ({
+    label: g.type,
+    details: g.options.map(o => ({
+      id: o.variantId,
+      label: o.label,
+      value: o.value,
+      price: o.price,
+      stockQuantity: o.stockQuantity,
+    }))
+  }));
+
   return {
     productId: apiProduct.id,
     productName: apiProduct.name,
@@ -117,6 +128,7 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & { extendedSizes?
     sizes: sizes?.length ? sizes : [],
     extendedSizes: extendedSizes.length ? extendedSizes : undefined,
     groupedVariants: groupedVariants.length ? groupedVariants : undefined,
+    variants: variants.length ? variants : undefined,
     // Additional product details from API
     ingredients: apiProduct.ingredients,
     howToUse: apiProduct.howToUse,
