@@ -74,6 +74,7 @@ export interface Product {
   ingredients?: {
     keyIngredients?: { name: string; description: string }[];
     fullList?: string;
+    image?: string;
   };
   howToUse?: {
     steps?: { title: string; description: string; icon?: string }[];
@@ -88,6 +89,10 @@ export interface Product {
   };
   goodFor?: string;
   whyItWorks?: string;
+  realUserReviews?: {
+    image?: string;
+    content?: string;
+  };
 }
 
 /**

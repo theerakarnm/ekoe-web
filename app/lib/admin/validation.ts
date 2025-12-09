@@ -69,6 +69,7 @@ export const productIngredientSchema = z.object({
     description: z.string().min(1, 'Ingredient description is required'),
   })).optional(),
   fullList: z.string().optional(),
+  image: z.string().optional(),
 });
 
 export const productHowToUseSchema = z.object({
@@ -84,8 +85,13 @@ export const productHowToUseSchema = z.object({
 export const productComplimentaryGiftSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
-  image: z.url('Must be a valid image URL').optional().or(z.literal('')),
+  image: z.string().optional(),
   value: z.string().optional(),
+});
+
+export const realUserReviewsSchema = z.object({
+  image: z.string().optional(),
+  content: z.string().optional(),
 });
 
 export const productSchema = z.object({
@@ -125,6 +131,7 @@ export const productSchema = z.object({
   whyItWorks: z.string().optional(),
   howToUse: productHowToUseSchema.optional(),
   complimentaryGift: productComplimentaryGiftSchema.optional(),
+  realUserReviews: realUserReviewsSchema.optional(),
 }).refine(
   (data) => {
     // If compareAtPrice is provided, it should be greater than basePrice

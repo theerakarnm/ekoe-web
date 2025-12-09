@@ -38,6 +38,7 @@ export interface Product {
   ingredients?: {
     keyIngredients: { name: string; description: string }[];
     fullList: string;
+    image?: string;
   };
   howToUse?: {
     steps: { title: string; description: string; icon?: string }[];
@@ -52,6 +53,10 @@ export interface Product {
   };
   whyItWorks?: string;
   goodFor?: string;
+  realUserReviews?: {
+    image?: string;
+    content?: string;
+  };
 }
 
 export interface ProductImage {
@@ -265,6 +270,35 @@ export async function deleteProductImage(
       `/api/admin/products/${productId}/images/${imageId}`,
       getAxiosConfig(headers)
     );
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
+/**
+ * Upload a generic image (for ingredients, complimentary gifts, real user reviews, etc.)
+ * Returns the uploaded image URL
+ */
+export async function uploadGenericImage(
+  file: File,
+  headers?: HeadersInit
+): Promise<string> {
+  try {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const config = getAxiosConfig(headers);
+    config.headers = {
+      ...config.headers,
+      'Content-Type': 'multipart/form-data',
+    };
+
+    const response = await apiClient.post<SuccessResponseWrapper<{ url: string }>>(
+      `/api/admin/upload-image`,
+      formData,
+      config
+    );
+    return response.data.data.url;
   } catch (error) {
     throw handleApiError(error);
   }

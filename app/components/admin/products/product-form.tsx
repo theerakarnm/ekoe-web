@@ -26,6 +26,7 @@ import { VariantManager } from './variant-manager';
 import { IngredientsManager } from './ingredients-manager';
 import { HowToUseManager } from './how-to-use-manager';
 import { ComplimentaryGiftForm } from './complimentary-gift-form';
+import { RealUserReviewsForm } from './real-user-reviews-form';
 import {
   Form,
   FormControl,
@@ -111,6 +112,7 @@ export function ProductForm({ product }: ProductFormProps) {
       ingredients: {
         keyIngredients: product?.ingredients?.keyIngredients || [],
         fullList: product?.ingredients?.fullList || '',
+        image: product?.ingredients?.image || '',
       },
       goodFor: product?.goodFor || '',
       whyItWorks: product?.whyItWorks || '',
@@ -124,6 +126,10 @@ export function ProductForm({ product }: ProductFormProps) {
         description: product?.complimentaryGift?.description || '',
         image: product?.complimentaryGift?.image || '',
         value: product?.complimentaryGift?.value || '',
+      },
+      realUserReviews: {
+        image: product?.realUserReviews?.image || '',
+        content: product?.realUserReviews?.content || '',
       },
     },
   });
@@ -250,18 +256,23 @@ export function ProductForm({ product }: ProductFormProps) {
     try {
       // Transform form data to match API expectations
       // Exclude fields that don't exist in Product type or are managed separately
-      const { categoryIds, tagIds, variants, images: _images, ingredients, howToUse, ...productFields } = data;
+      const { categoryIds, tagIds, variants, images: _images, ingredients, howToUse, realUserReviews, ...productFields } = data;
 
       const productData: Partial<Product> = {
         ...productFields,
         ingredients: ingredients ? {
           keyIngredients: ingredients.keyIngredients || [],
           fullList: ingredients.fullList || '',
+          image: ingredients.image || undefined,
         } : undefined,
         howToUse: howToUse ? {
           steps: howToUse.steps || [],
           proTips: howToUse.proTips || [],
           note: howToUse.note,
+        } : undefined,
+        realUserReviews: realUserReviews ? {
+          image: realUserReviews.image || undefined,
+          content: realUserReviews.content || undefined,
         } : undefined,
         // Filter out empty values for optional fields
         compareAtPrice: data.compareAtPrice || undefined,
@@ -658,6 +669,12 @@ export function ProductForm({ product }: ProductFormProps) {
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4">Complimentary Gift</h2>
           <ComplimentaryGiftForm control={form.control} />
+        </Card>
+
+        {/* Real User Reviews - เสียงจากผู้ใช้จริง */}
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">เสียงจากผู้ใช้จริง (Loved by Real Users)</h2>
+          <RealUserReviewsForm control={form.control} />
         </Card>
 
         {/* Variants */}

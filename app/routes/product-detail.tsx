@@ -104,6 +104,10 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & { extendedSizes?
       image: apiProduct.complimentaryGift.image || "",
       value: apiProduct.complimentaryGift.value,
     } : undefined,
+    realUserReviews: apiProduct.realUserReviews ? {
+      image: apiProduct.realUserReviews.image || "",
+      content: apiProduct.realUserReviews.content || "",
+    } : undefined,
   };
 }
 
@@ -435,37 +439,38 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
 
-          <div className="mb-24 bg-[#F9F5F0] p-8 md:p-16 rounded-2xl">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div className="relative aspect-4/5 lg:aspect-square overflow-hidden rounded-lg">
-                <img
-                  src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&q=80&w=1000"
-                  alt="Model"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent"></div>
-                <div className="absolute bottom-8 left-8 text-white">
-                  <div className="text-5xl font-serif italic mb-2">Loved</div>
-                  <div className="text-xl uppercase tracking-widest">By Real Users</div>
+          {/* Loved by Real Users - เสียงจากผู้ใช้จริง */}
+          {(productData.realUserReviews?.image || productData.realUserReviews?.content) && (
+            <div className="mb-24 bg-[#F9F5F0] p-8 md:p-16 rounded-2xl">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div className="relative aspect-4/5 lg:aspect-square overflow-hidden rounded-lg">
+                  <img
+                    src={productData.realUserReviews?.image || "https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&q=80&w=1000"}
+                    alt="Real User Reviews"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent"></div>
+                  <div className="absolute bottom-8 left-8 text-white">
+                    <div className="text-5xl font-serif italic mb-2">Loved</div>
+                    <div className="text-xl uppercase tracking-widest">By Real Users</div>
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-12">
-                <h3 className="text-sm uppercase tracking-widest text-gray-500 mb-8">
-                  เสียงจากผู้ใช้จริง
-                </h3>
-                <div className="space-y-10">
-                  <span className="text-xl md:text-2xl font-medium">
-                    {productData.userStats}
-                  </span>
+                <div className="space-y-12">
+                  <h3 className="text-sm uppercase tracking-widest text-gray-500 mb-8">
+                    เสียงจากผู้ใช้จริง
+                  </h3>
+                  <div className="space-y-10">
+                    <div className="text-xl md:text-2xl font-medium whitespace-pre-line">
+                      {productData.realUserReviews?.content || productData.userStats}
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-8 italic">
+                    ผลลัพธ์ที่พิสูจน์ได้ด้วยตัวเองจากการใช้จริงในทุกวัน
+                  </p>
                 </div>
-                <p className="text-xs text-gray-400 mt-8 italic">
-                  ผลลัพธ์ที่พิสูจน์ได้ด้วยตัวเองจากการใช้จริงในทุกวัน
-                </p>
               </div>
             </div>
-
-
-          </div>
+          )}
 
           <div className="mb-24 text-center">
             <h2 className="text-3xl font-serif mb-16">How to Use Block</h2>
@@ -484,12 +489,6 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                   </p>
                 </div>
               ))}
-            </div>
-
-            <div className="max-w-2xl mx-auto mb-12 p-4 bg-gray-50 rounded-lg border border-gray-100">
-              <p className="text-sm text-gray-700 flex items-center justify-center gap-2">
-                <span className="text-red-500">⚠️</span> {productData.howToUse?.note}
-              </p>
             </div>
 
             {/* Pro Tips */}

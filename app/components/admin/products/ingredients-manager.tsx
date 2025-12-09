@@ -9,7 +9,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '~/components/ui/form';
+import { SingleImageUploader } from './single-image-uploader';
 import type { ProductFormData } from '~/lib/admin/validation';
 
 interface IngredientsManagerProps {
@@ -31,6 +33,28 @@ export function IngredientsManager({ control }: IngredientsManagerProps) {
 
   return (
     <div className="space-y-6">
+      {/* Ingredients Section Image */}
+      <FormField
+        control={control}
+        name="ingredients.image"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Ingredients Section Image</FormLabel>
+            <FormControl>
+              <SingleImageUploader
+                value={field.value || ''}
+                onChange={(url) => field.onChange(url)}
+                placeholder="Upload an image for the ingredients section"
+              />
+            </FormControl>
+            <FormDescription>
+              This image will be displayed alongside the key ingredients
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       {/* Key Ingredients */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -130,3 +154,4 @@ export function IngredientsManager({ control }: IngredientsManagerProps) {
     </div>
   );
 }
+

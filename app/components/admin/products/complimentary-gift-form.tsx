@@ -1,6 +1,6 @@
 import { type Control } from 'react-hook-form';
-import { Input } from '~/components/ui/input';
 import { Textarea } from '~/components/ui/textarea';
+import { Input } from '~/components/ui/input';
 import {
   FormControl,
   FormField,
@@ -8,6 +8,7 @@ import {
   FormLabel,
   FormMessage,
 } from '~/components/ui/form';
+import { SingleImageUploader } from './single-image-uploader';
 import type { ProductFormData } from '~/lib/admin/validation';
 
 interface ComplimentaryGiftFormProps {
@@ -55,9 +56,13 @@ export function ComplimentaryGiftForm({ control }: ComplimentaryGiftFormProps) {
         name="complimentaryGift.image"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Image URL</FormLabel>
+            <FormLabel>Gift Image</FormLabel>
             <FormControl>
-              <Input {...field} value={field.value || ''} placeholder="https://..." />
+              <SingleImageUploader
+                value={field.value || ''}
+                onChange={(url) => field.onChange(url)}
+                placeholder="Upload gift image"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -80,3 +85,4 @@ export function ComplimentaryGiftForm({ control }: ComplimentaryGiftFormProps) {
     </div>
   );
 }
+
