@@ -17,8 +17,12 @@ import {
   uploadProductImage,
   updateProductImage,
   deleteProductImage,
+  createProductVariant,
+  updateProductVariant,
+  deleteProductVariant,
   type Product,
   type ProductImage,
+  type ProductVariant,
 } from '~/lib/services/admin/product-admin.service';
 import { PriceInput } from './price-input';
 import { ImageUploader } from './image-uploader';
@@ -82,7 +86,7 @@ export function ProductForm({ product }: ProductFormProps) {
 
   // Initialize form with default values or existing product data
   const form = useForm<ProductFormData>({
-    resolver: zodResolver(productSchema),
+    resolver: zodResolver(productSchema) as any,
     defaultValues: {
       name: product?.name || '',
       slug: product?.slug || '',
@@ -97,16 +101,18 @@ export function ProductForm({ product }: ProductFormProps) {
       metaTitle: product?.metaTitle || '',
       metaDescription: product?.metaDescription || '',
       trackInventory: product?.trackInventory ?? true,
-      variants: product?.variants?.map(v => ({
+      variants: (product?.variants?.map((v) => ({
+        id: v.id,
+        variantType: (v.variantType || 'Size') as string,
         name: v.name,
         value: v.value,
-        sku: v.sku,
+        sku: v.sku || undefined,
         price: v.price,
         compareAtPrice: v.compareAtPrice,
         stockQuantity: v.stockQuantity,
         lowStockThreshold: v.lowStockThreshold,
         isActive: v.isActive,
-      })) || [],
+      })) || []) as any, // Cast to any to avoid strict type matching issues with optional fields in defaultValues
       categoryIds: product?.categories?.map((c) => c.id) || [],
       tagIds: product?.tags?.map((t) => t.id) || [],
       ingredients: {
@@ -285,17 +291,46 @@ export function ProductForm({ product }: ProductFormProps) {
         // as they don't exist directly in the Product interface or have different structures
       };
 
+      let productId = product?.id;
+
       if (isEditing && product) {
         await updateProduct(product.id, productData);
-        showSuccess('Product updated successfully');
-        navigate('/admin/products');
+        productId = product.id;
       } else {
         const newProduct = await createProduct(productData);
-        showSuccess('Product created successfully', 'You can now upload images for this product');
-        // Redirect to edit page so user can upload images
-        navigate(`/admin/products/${newProduct.id}`);
-        return;
+        productId = newProduct.id;
       }
+
+      // Save variants if present
+      if (productId && variants && variants.length > 0) {
+        // Get existing variants to compare
+        const existingVariants = product?.variants || [];
+        const existingVariantIds = new Set(existingVariants.map(v => v.id));
+        const newVariantIds = new Set(variants.filter(v => v.id).map(v => v.id));
+
+        // Delete removed variants
+        for (const existing of existingVariants) {
+          if (!newVariantIds.has(existing.id)) {
+            await deleteProductVariant(productId, existing.id);
+          }
+        }
+
+        // Create or update variants
+        for (const variant of variants) {
+          if (variant.id && existingVariantIds.has(variant.id)) {
+            // Update existing variant
+            const { id, ...variantData } = variant;
+            await updateProductVariant(productId, id, variantData);
+          } else {
+            // Create new variant
+            const { id, ...variantData } = variant;
+            await createProductVariant(productId, variantData as any);
+          }
+        }
+      }
+
+      showSuccess(isEditing ? 'Product updated successfully' : 'Product created successfully');
+      navigate('/admin/products');
     } catch (error: any) {
       console.error('Failed to save product:', error);
 

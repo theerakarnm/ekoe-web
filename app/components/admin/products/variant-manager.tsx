@@ -5,6 +5,13 @@ import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Checkbox } from '~/components/ui/checkbox';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select';
+import {
   FormControl,
   FormField,
   FormItem,
@@ -13,6 +20,8 @@ import {
 } from '~/components/ui/form';
 import type { ProductFormData } from '~/lib/admin/validation';
 import { PriceInput } from './price-input';
+
+const VARIANT_TYPES = ['Size', 'Color', 'Volume', 'Weight', 'Material', 'Style', 'Other'] as const;
 
 interface VariantManagerProps {
   control: Control<ProductFormData>;
@@ -26,6 +35,7 @@ export function VariantManager({ control }: VariantManagerProps) {
 
   const addVariant = () => {
     append({
+      variantType: 'Size',
       name: '',
       value: '',
       sku: '',
@@ -73,17 +83,45 @@ export function VariantManager({ control }: VariantManagerProps) {
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                control={control}
+                name={`variants.${index}.variantType`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Variant Type</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value || 'Size'}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {VARIANT_TYPES.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={control}
                 name={`variants.${index}.name`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>Display Name</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder="e.g., Size, Color, Volume"
+                        placeholder="e.g., 100 ml, Red"
                       />
                     </FormControl>
                     <FormMessage />

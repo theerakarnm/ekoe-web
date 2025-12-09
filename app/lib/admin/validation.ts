@@ -42,6 +42,7 @@ export const dateValidator = z
 export const productVariantSchema = z.object({
   id: z.string().optional(),
   productId: z.string().optional(),
+  variantType: z.string().min(1, 'Variant type is required').default('Size'),
   sku: z.string().optional(),
   name: z.string().min(1, 'Variant name is required'),
   value: z.string().min(1, 'Variant value is required'),

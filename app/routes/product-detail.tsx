@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useCartStore } from "~/store/cart";
 import { toast } from "sonner";
 import type { Route } from "./+types/product-detail";
@@ -51,9 +51,16 @@ interface ExtendedSize {
   price: number;
   stockQuantity: number;
   variantId: string;
+  variantType: string;
 }
 
-function mapApiProductToDetail(apiProduct: Product): IProduct & { extendedSizes?: ExtendedSize[] } {
+// Grouped variants by type
+interface GroupedVariant {
+  type: string;
+  options: ExtendedSize[];
+}
+
+function mapApiProductToDetail(apiProduct: Product): IProduct & { extendedSizes?: ExtendedSize[]; groupedVariants?: GroupedVariant[] } {
   const primaryImage = apiProduct.images?.find(img => img.isPrimary) || apiProduct.images?.[0];
   const galleryImages = apiProduct.images?.map(img => ({
     url: img.url,
@@ -67,14 +74,30 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & { extendedSizes?
     price: v.price
   })) || [];
 
-  // Extended sizes with stock information
+  // Extended sizes with stock and variant type information
   const extendedSizes = apiProduct.variants?.map(v => ({
     label: v.name,
     value: v.value,
     price: v.price,
     stockQuantity: v.stockQuantity,
-    variantId: v.id
+    variantId: v.id,
+    variantType: (v as { variantType?: string }).variantType || 'Size'
   })) || [];
+
+  // Group variants by variantType
+  const variantsByType = new Map<string, ExtendedSize[]>();
+  extendedSizes.forEach(variant => {
+    const type = variant.variantType;
+    if (!variantsByType.has(type)) {
+      variantsByType.set(type, []);
+    }
+    variantsByType.get(type)!.push(variant);
+  });
+
+  const groupedVariants: GroupedVariant[] = Array.from(variantsByType.entries()).map(([type, options]) => ({
+    type,
+    options
+  }));
 
   return {
     productId: apiProduct.id,
@@ -93,6 +116,7 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & { extendedSizes?
     description: apiProduct.description ? [apiProduct.description] : [],
     sizes: sizes?.length ? sizes : [],
     extendedSizes: extendedSizes.length ? extendedSizes : undefined,
+    groupedVariants: groupedVariants.length ? groupedVariants : undefined,
     // Additional product details from API
     ingredients: apiProduct.ingredients,
     howToUse: apiProduct.howToUse,
@@ -123,20 +147,52 @@ export function meta({ data }: Route.MetaArgs) {
 
 export default function ProductDetail({ loaderData }: Route.ComponentProps) {
   const { product: apiProduct } = loaderData;
-  const productData = mapApiProductToDetail(apiProduct);
+  const productData = useMemo(() => mapApiProductToDetail(apiProduct), [apiProduct]);
 
   console.log(productData);
 
-
   // Use extended sizes if available, otherwise fall back to regular sizes
-  const availableSizes = productData.extendedSizes || productData.sizes?.map(s => ({ ...s, stockQuantity: 999, variantId: '' })) || [];
-  const [selectedSize, setSelectedSize] = useState<ExtendedSize | undefined>(availableSizes[0]);
+  const availableSizes = useMemo(() =>
+    productData.extendedSizes || productData.sizes?.map((s: { label: string; value: string; price: number }) => ({ ...s, stockQuantity: 999, variantId: '', variantType: 'Size' })) || [],
+    [productData]
+  );
+
+  // Initialize selections
+  const initialSelections = useMemo(() => {
+    const selections: Record<string, ExtendedSize> = {};
+    if (productData.groupedVariants && productData.groupedVariants.length > 0) {
+      productData.groupedVariants.forEach(group => {
+        if (group.options.length > 0) {
+          selections[group.type] = group.options[0];
+        }
+      });
+    } else if (availableSizes.length > 0) {
+      selections['Size'] = availableSizes[0];
+    }
+    return selections;
+  }, [productData.groupedVariants, availableSizes]);
+
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, ExtendedSize>>(initialSelections);
+
+  // Sync state if initialSelections changes
+  useEffect(() => {
+    setSelectedOptions(initialSelections);
+  }, [initialSelections]);
+
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(productData.image.url);
 
-  // Check if selected size is out of stock
-  const isOutOfStock = selectedSize ? selectedSize.stockQuantity === 0 : false;
-  const maxQuantity = selectedSize ? selectedSize.stockQuantity : 999;
+  // Derived state
+  const isOutOfStock = Object.values(selectedOptions).some(opt => opt.stockQuantity === 0);
+
+  const maxQuantity = Object.values(selectedOptions).length > 0
+    ? Math.min(...Object.values(selectedOptions).map(o => o.stockQuantity))
+    : 999;
+
+  const currentPrice = useMemo(() => {
+    const variantsPrice = Object.values(selectedOptions).reduce((sum, opt) => sum + opt.price, 0);
+    return variantsPrice > 0 ? variantsPrice : productData.quickCartPrice;
+  }, [selectedOptions, productData.quickCartPrice]);
 
   const handleQuantityChange = (delta: number) => {
     setQuantity((prev) => {
@@ -148,45 +204,60 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
   const addItem = useCartStore((state) => state.addItem);
 
   const handleAddToCart = () => {
-    if (!selectedSize || isOutOfStock) return;
+    if (isOutOfStock) return;
+
+    const selectedInfos = Object.values(selectedOptions).sort((a, b) => a.variantType.localeCompare(b.variantType));
+    const variantName = selectedInfos.map(s => `${s.variantType}: ${s.label}`).join(', ');
 
     addItem({
       productId: String(productData.productId),
       productName: productData.productName,
       image: productData.image.url,
-      price: selectedSize.price,
+      price: currentPrice,
       quantity: quantity,
-      variantName: selectedSize.value,
+      variantName: variantName || undefined,
     });
 
-    toast.success(`Added ${quantity} x ${productData.productName} (${selectedSize.label}) to cart`);
+    toast.success(`Added ${quantity} x ${productData.productName} to cart`);
+  };
+
+  const handleOptionSelect = (type: string, option: ExtendedSize) => {
+    setSelectedOptions(prev => ({
+      ...prev,
+      [type]: option
+    }));
+
+    // Reset quantity if strictly needed, though logic uses derived maxQuantity
+    if (quantity > option.stockQuantity) {
+      setQuantity(Math.max(1, option.stockQuantity));
+    }
+
+    // Update image if associated
+    const associatedImage = productData.galleryImages?.find(
+      (img) => img.associatedSize === option.value
+    );
+    if (associatedImage) {
+      setSelectedImage(associatedImage.url);
+    }
   };
 
   const handleImageClick = (img: { url: string; associatedSize?: string }) => {
     setSelectedImage(img.url);
     if (img.associatedSize) {
-      const size = availableSizes.find((s) => s.value === img.associatedSize);
-      if (size) {
-        setSelectedSize(size);
-        // Reset quantity if it exceeds new size's stock
-        if (quantity > size.stockQuantity) {
-          setQuantity(Math.max(1, size.stockQuantity));
+      if (productData.groupedVariants) {
+        for (const group of productData.groupedVariants) {
+          const opt = group.options.find(o => o.value === img.associatedSize);
+          if (opt) {
+            handleOptionSelect(group.type, opt);
+            break;
+          }
+        }
+      } else {
+        const foundOption = availableSizes.find((s: ExtendedSize) => s.value === img.associatedSize);
+        if (foundOption) {
+          handleOptionSelect('Size', foundOption);
         }
       }
-    }
-  };
-
-  const handleSizeClick = (size: ExtendedSize) => {
-    setSelectedSize(size);
-    // Reset quantity if it exceeds new size's stock
-    if (quantity > size.stockQuantity) {
-      setQuantity(Math.max(1, size.stockQuantity));
-    }
-    const associatedImage = productData.galleryImages?.find(
-      (img) => img.associatedSize === size.value
-    );
-    if (associatedImage) {
-      setSelectedImage(associatedImage.url);
     }
   };
 
@@ -296,49 +367,93 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
 
               <div className="space-y-6 pt-6 border-t border-gray-100">
                 {/* Size Selection */}
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-medium">Size</span>
-                    <Button variant={'link'} className="text-xs text-gray-500 underline">
-                      Size Guide
-                    </Button>
-                  </div>
-                  <div className="flex gap-3">
-                    {availableSizes.map((size) => {
-                      const sizeOutOfStock = size.stockQuantity === 0;
-                      const isLowStock = size.stockQuantity > 0 && size.stockQuantity <= 5;
-
-                      return (
-                        <button
-                          key={size.value}
-                          onClick={() => !sizeOutOfStock && handleSizeClick(size)}
-                          disabled={sizeOutOfStock}
-                          className={`px-4 py-2 border text-sm transition-all relative ${selectedSize?.value === size.value
-                            ? "border-black bg-black text-white"
-                            : sizeOutOfStock
-                              ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
-                              : "border-gray-200 hover:border-gray-400"
-                            }`}
-                        >
-                          {size.label}
-                          {sizeOutOfStock && (
-                            <span className="absolute inset-0 flex items-center justify-center">
-                              <span className="w-full h-px bg-gray-400 rotate-[-20deg]"></span>
-                            </span>
+                {/* Variant Selection */}
+                <div className="space-y-6">
+                  {productData.groupedVariants && productData.groupedVariants.length > 0 ? (
+                    productData.groupedVariants.map((group) => (
+                      <div key={group.type}>
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm font-medium">{group.type}</span>
+                          {group.type === 'Size' && (
+                            <Button variant={'link'} className="text-xs text-gray-500 underline">
+                              Size Guide
+                            </Button>
                           )}
-                          {isLowStock && !sizeOutOfStock && (
-                            <span className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full"></span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
+                        </div>
+                        <div className="flex flex-wrap gap-3">
+                          {group.options.map((option) => {
+                            const outOfStock = option.stockQuantity === 0;
+                            const isSelected = selectedOptions[group.type]?.value === option.value;
+                            return (
+                              <button
+                                key={option.value}
+                                onClick={() => !outOfStock && handleOptionSelect(group.type, option)}
+                                disabled={outOfStock}
+                                className={`px-4 py-2 border text-sm transition-all relative ${isSelected
+                                  ? "border-black bg-black text-white"
+                                  : outOfStock
+                                    ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                                    : "border-gray-200 hover:border-gray-400"
+                                  }`}
+                              >
+                                {option.label}
+                                {outOfStock && (
+                                  <span className="absolute inset-0 flex items-center justify-center">
+                                    <span className="w-full h-px bg-gray-400 rotate-[-20deg]"></span>
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm font-medium">Size</span>
+                        <Button variant={'link'} className="text-xs text-gray-500 underline">
+                          Size Guide
+                        </Button>
+                      </div>
+                      <div className="flex gap-3">
+                        {availableSizes.map((size: ExtendedSize) => {
+                          const isSelected = selectedOptions['Size']?.value === size.value;
+                          const sizeOutOfStock = size.stockQuantity === 0;
+                          const isLowStock = size.stockQuantity > 0 && size.stockQuantity <= 5;
+                          return (
+                            <button
+                              key={size.value}
+                              onClick={() => !sizeOutOfStock && handleOptionSelect('Size', size)}
+                              disabled={sizeOutOfStock}
+                              className={`px-4 py-2 border text-sm transition-all relative ${isSelected
+                                ? "border-black bg-black text-white"
+                                : sizeOutOfStock
+                                  ? "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                                  : "border-gray-200 hover:border-gray-400"
+                                }`}
+                            >
+                              {size.label}
+                              {sizeOutOfStock && (
+                                <span className="absolute inset-0 flex items-center justify-center">
+                                  <span className="w-full h-px bg-gray-400 rotate-[-20deg]"></span>
+                                </span>
+                              )}
+                              {isLowStock && !sizeOutOfStock && (
+                                <span className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full"></span>
+                              )}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
                   {isOutOfStock && (
                     <p className="text-sm text-red-600 mt-2">Out of Stock</p>
                   )}
-                  {!isOutOfStock && selectedSize && selectedSize.stockQuantity <= 5 && (
+                  {!isOutOfStock && maxQuantity <= 5 && (
                     <p className="text-sm text-orange-600 mt-2">
-                      Only {selectedSize.stockQuantity} left in stock
+                      Only {maxQuantity} left in stock
                     </p>
                   )}
                 </div>
@@ -356,7 +471,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                     onClick={handleAddToCart}
                     disabled={isOutOfStock}
                   >
-                    {isOutOfStock ? 'Out of Stock' : `Add to Cart - ${formatNumber((selectedSize?.price || 0) * quantity, { decimalPlaces: 0 })} THB`}
+                    {isOutOfStock ? 'Out of Stock' : `Add to Cart - ${formatNumber(currentPrice * quantity, { decimalPlaces: 0 })} THB`}
                   </Button>
                 </div>
 

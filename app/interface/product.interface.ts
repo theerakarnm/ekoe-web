@@ -16,6 +16,16 @@ export interface IProduct {
   description?: string[];
   benefits?: string[];
   sizes?: { label: string; value: string; price: number }[];
+  variants?: {
+    label: string;
+    details: {
+      id: string;
+      label: string;
+      value: string;
+      price: number;
+      stockQuantity: number;
+    }[];
+  }[];
   ingredients?: {
     keyIngredients?: { name: string; description: string }[];
     fullList?: string;

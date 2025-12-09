@@ -15,6 +15,7 @@ import { apiClient, handleApiError, type SuccessResponseWrapper } from '../api-c
 export interface ProductVariant {
   id: string;
   productId: string;
+  variantType: string; // e.g., "Size", "Color", "Volume"
   sku: string | null;
   name: string;
   value: string;

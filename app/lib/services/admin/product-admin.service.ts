@@ -74,6 +74,7 @@ export interface ProductImage {
 export interface ProductVariant {
   id: string;
   productId: string;
+  variantType: string; // e.g., "Size", "Color", "Volume"
   sku?: string;
   name: string;
   value: string;
@@ -299,6 +300,72 @@ export async function uploadGenericImage(
       config
     );
     return response.data.data.url;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
+// Variant CRUD functions
+export async function getProductVariants(
+  productId: string,
+  headers?: HeadersInit
+): Promise<ProductVariant[]> {
+  try {
+    const response = await apiClient.get<SuccessResponseWrapper<ProductVariant[]>>(
+      `/api/admin/products/${productId}/variants`,
+      getAxiosConfig(headers)
+    );
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
+export async function createProductVariant(
+  productId: string,
+  data: Omit<ProductVariant, 'id' | 'productId' | 'createdAt' | 'updatedAt'>,
+  headers?: HeadersInit
+): Promise<ProductVariant> {
+  try {
+    const response = await apiClient.post<SuccessResponseWrapper<ProductVariant>>(
+      `/api/admin/products/${productId}/variants`,
+      data,
+      getAxiosConfig(headers)
+    );
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
+export async function updateProductVariant(
+  productId: string,
+  variantId: string,
+  data: Partial<Omit<ProductVariant, 'id' | 'productId' | 'createdAt' | 'updatedAt'>>,
+  headers?: HeadersInit
+): Promise<ProductVariant> {
+  try {
+    const response = await apiClient.put<SuccessResponseWrapper<ProductVariant>>(
+      `/api/admin/products/${productId}/variants/${variantId}`,
+      data,
+      getAxiosConfig(headers)
+    );
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
+export async function deleteProductVariant(
+  productId: string,
+  variantId: string,
+  headers?: HeadersInit
+): Promise<void> {
+  try {
+    await apiClient.delete(
+      `/api/admin/products/${productId}/variants/${variantId}`,
+      getAxiosConfig(headers)
+    );
   } catch (error) {
     throw handleApiError(error);
   }
