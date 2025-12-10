@@ -24,6 +24,7 @@ import {
   type ProductImage,
   type ProductVariant,
 } from '~/lib/services/admin/product-admin.service';
+import { ProductPreview } from './product-preview';
 import { PriceInput } from './price-input';
 import { ImageUploader } from './image-uploader';
 import { VariantManager } from './variant-manager';
@@ -52,7 +53,7 @@ import {
 } from '~/components/ui/select';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Card } from '~/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 interface ProductFormProps {
   product?: Product;
@@ -62,6 +63,7 @@ export function ProductForm({ product }: ProductFormProps) {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<ProductImage[]>(product?.images || []);
+  const [showPreview, setShowPreview] = useState(false);
   const isEditing = !!product;
 
   // Keyboard shortcuts
@@ -355,436 +357,491 @@ export function ProductForm({ product }: ProductFormProps) {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Basic Information */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel required>Product Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Enter product name"
-                      onChange={(e) => handleNameChange(e.target.value)}
-                      onBlur={field.onBlur}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+    <div className="relative">
+      <div className="flex justify-end mb-4 sticky top-4 z-10 pointer-events-none">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setShowPreview(!showPreview)}
+          className="pointer-events-auto bg-white shadow-sm"
+        >
+          {showPreview ? (
+            <>
+              <EyeOff className="w-4 h-4 mr-2" />
+              Hide Preview
+            </>
+          ) : (
+            <>
+              <Eye className="w-4 h-4 mr-2" />
+              Show Preview
+            </>
+          )}
+        </Button>
+      </div>
+
+      <div className="flex gap-6 items-start">
+        <div className={`transition-all duration-300 ${showPreview ? 'w-[60%]' : 'w-full'}`}>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {/* Basic Information */}
+              <Card className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel required>Product Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Enter product name"
+                            onChange={(e) => handleNameChange(e.target.value)}
+                            onBlur={field.onBlur}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="slug"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel required>Slug</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="product-slug" />
+                        </FormControl>
+                        <FormDescription>
+                          URL-friendly version of the name
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="subtitle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Subtitle</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value || ''}
+                            placeholder="Brief product subtitle"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="shortDescription"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Short Description</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            value={field.value || ''}
+                            placeholder="Brief description for product listings"
+                            rows={3}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Description</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            value={field.value || ''}
+                            placeholder="Detailed product description"
+                            rows={6}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </Card>
+
+              {/* Pricing */}
+              <Card className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Pricing</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="basePrice"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel required>Base Price</FormLabel>
+                        <FormControl>
+                          <PriceInput
+                            {...field}
+                            onChange={field.onChange}
+                            placeholder="0.00"
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Price in dollars (e.g., 29.99)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="compareAtPrice"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Compare At Price</FormLabel>
+                        <FormControl>
+                          <PriceInput
+                            {...field}
+                            value={field.value || undefined}
+                            onChange={field.onChange}
+                            placeholder="0.00"
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Original price for showing discounts
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Price Preview */}
+                <div className="mt-4 p-4 bg-muted/50 rounded-lg flex items-center justify-center gap-3">
+                  <span className="text-sm text-muted-foreground">Preview:</span>
+                  {form.watch('compareAtPrice') && form.watch('compareAtPrice')! > (form.watch('basePrice') || 0) && (
+                    <span className="text-lg text-muted-foreground line-through">
+                      ${formatPrice(form.watch('compareAtPrice')!)}
+                    </span>
+                  )}
+                  <span className="text-xl font-bold">
+                    ${formatPrice(form.watch('basePrice') || 0)}
+                  </span>
+                </div>
+              </Card>
+
+              {/* Product Settings */}
+              <Card className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Product Settings</h2>
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="productType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel required>Product Type</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select product type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="single">Single Product</SelectItem>
+                            <SelectItem value="set">Product Set</SelectItem>
+                            <SelectItem value="bundle">Bundle</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel required>Status</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="draft">Draft</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="archived">Archived</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="featured"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Featured Product</FormLabel>
+                          <FormDescription>
+                            Display this product in featured sections
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="trackInventory"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Track Inventory</FormLabel>
+                          <FormDescription>
+                            Enable inventory tracking for this product
+                          </FormDescription>
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </Card>
+
+              {/* Images */}
+              {isEditing && (
+                <Card className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Product Images</h2>
+                  <ImageUploader
+                    images={images}
+                    onUpload={handleImageUpload}
+                    onReorder={handleImageReorder}
+                    onDelete={handleImageDelete}
+                    onSetPrimary={handleSetPrimary}
+                    onUpdateAltText={handleAltTextUpdate}
+                    onUpdateDescription={handleDescriptionUpdate}
+                  />
+                </Card>
               )}
-            />
 
-            <FormField
-              control={form.control}
-              name="slug"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel required>Slug</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="product-slug" />
-                  </FormControl>
-                  <FormDescription>
-                    URL-friendly version of the name
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
+              {!isEditing && (
+                <Card className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Product Images</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Save the product first to upload images
+                  </p>
+                </Card>
               )}
-            />
-
-            <FormField
-              control={form.control}
-              name="subtitle"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subtitle</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      value={field.value || ''}
-                      placeholder="Brief product subtitle"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="shortDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Short Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      value={field.value || ''}
-                      placeholder="Brief description for product listings"
-                      rows={3}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      value={field.value || ''}
-                      placeholder="Detailed product description"
-                      rows={6}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </Card>
-
-        {/* Pricing */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Pricing</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="basePrice"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel required>Base Price</FormLabel>
-                  <FormControl>
-                    <PriceInput
-                      {...field}
-                      onChange={field.onChange}
-                      placeholder="0.00"
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Price in dollars (e.g., 29.99)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="compareAtPrice"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Compare At Price</FormLabel>
-                  <FormControl>
-                    <PriceInput
-                      {...field}
-                      value={field.value || undefined}
-                      onChange={field.onChange}
-                      placeholder="0.00"
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Original price for showing discounts
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Price Preview */}
-          <div className="mt-4 p-4 bg-muted/50 rounded-lg flex items-center justify-center gap-3">
-            <span className="text-sm text-muted-foreground">Preview:</span>
-            {form.watch('compareAtPrice') && form.watch('compareAtPrice')! > (form.watch('basePrice') || 0) && (
-              <span className="text-lg text-muted-foreground line-through">
-                ${formatPrice(form.watch('compareAtPrice')!)}
-              </span>
-            )}
-            <span className="text-xl font-bold">
-              ${formatPrice(form.watch('basePrice') || 0)}
-            </span>
-          </div>
-        </Card>
-
-        {/* Product Settings */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Product Settings</h2>
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="productType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel required>Product Type</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select product type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="single">Single Product</SelectItem>
-                      <SelectItem value="set">Product Set</SelectItem>
-                      <SelectItem value="bundle">Bundle</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel required>Status</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="draft">Draft</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="archived">Archived</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="featured"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Featured Product</FormLabel>
-                    <FormDescription>
-                      Display this product in featured sections
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="trackInventory"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Track Inventory</FormLabel>
-                    <FormDescription>
-                      Enable inventory tracking for this product
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
-          </div>
-        </Card>
-
-        {/* Images */}
-        {isEditing && (
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Product Images</h2>
-            <ImageUploader
-              images={images}
-              onUpload={handleImageUpload}
-              onReorder={handleImageReorder}
-              onDelete={handleImageDelete}
-              onSetPrimary={handleSetPrimary}
-              onUpdateAltText={handleAltTextUpdate}
-              onUpdateDescription={handleDescriptionUpdate}
-            />
-          </Card>
-        )}
-
-        {!isEditing && (
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Product Images</h2>
-            <p className="text-sm text-muted-foreground">
-              Save the product first to upload images
-            </p>
-          </Card>
-        )}
 
 
 
-        {/* Additional Details */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Additional Details</h2>
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="goodFor"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Good For</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      value={field.value || ''}
-                      placeholder="Who is this product good for?"
-                      rows={3}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Additional Details */}
+              <Card className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Additional Details</h2>
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="goodFor"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Good For</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            value={field.value || ''}
+                            placeholder="Who is this product good for?"
+                            rows={3}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-            <FormField
-              control={form.control}
-              name="whyItWorks"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Why It Works</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      value={field.value || ''}
-                      placeholder="Explain the science or benefits..."
-                      rows={3}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </Card>
+                  <FormField
+                    control={form.control}
+                    name="whyItWorks"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Why It Works</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            value={field.value || ''}
+                            placeholder="Explain the science or benefits..."
+                            rows={3}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </Card>
 
-        {/* Ingredients */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Ingredients</h2>
-          <IngredientsManager control={form.control} />
-        </Card>
+              {/* Ingredients */}
+              <Card className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Ingredients</h2>
+                <IngredientsManager control={form.control} />
+              </Card>
 
-        {/* How To Use */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">How To Use</h2>
-          <HowToUseManager control={form.control} />
-        </Card>
+              {/* How To Use */}
+              <Card className="p-6">
+                <h2 className="text-xl font-semibold mb-4">How To Use</h2>
+                <HowToUseManager control={form.control} />
+              </Card>
 
-        {/* Complimentary Gift */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Complimentary Gift</h2>
-          <ComplimentaryGiftForm control={form.control} />
-        </Card>
+              {/* Complimentary Gift */}
+              <Card className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Complimentary Gift</h2>
+                <ComplimentaryGiftForm control={form.control} />
+              </Card>
 
-        {/* Real User Reviews - เสียงจากผู้ใช้จริง */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">เสียงจากผู้ใช้จริง (Loved by Real Users)</h2>
-          <RealUserReviewsForm control={form.control} />
-        </Card>
+              {/* Real User Reviews - เสียงจากผู้ใช้จริง */}
+              <Card className="p-6">
+                <h2 className="text-xl font-semibold mb-4">เสียงจากผู้ใช้จริง (Loved by Real Users)</h2>
+                <RealUserReviewsForm control={form.control} />
+              </Card>
 
-        {/* Variants */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Product Variants</h2>
-          <VariantManager control={form.control} />
-        </Card>
+              {/* Variants */}
+              <Card className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Product Variants</h2>
+                <VariantManager control={form.control} />
+              </Card>
 
-        {/* SEO */}
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">SEO</h2>
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="metaTitle"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Meta Title</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      value={field.value || ''}
-                      placeholder="SEO title for search engines"
-                      maxLength={255}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    {field.value?.length || 0}/255 characters
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* SEO */}
+              <Card className="p-6">
+                <h2 className="text-xl font-semibold mb-4">SEO</h2>
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="metaTitle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Meta Title</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value || ''}
+                            placeholder="SEO title for search engines"
+                            maxLength={255}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          {field.value?.length || 0}/255 characters
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-            <FormField
-              control={form.control}
-              name="metaDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Meta Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      value={field.value || ''}
-                      placeholder="SEO description for search engines"
-                      rows={3}
-                      maxLength={500}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    {field.value?.length || 0}/500 characters
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </Card>
+                  <FormField
+                    control={form.control}
+                    name="metaDescription"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Meta Description</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            value={field.value || ''}
+                            placeholder="SEO description for search engines"
+                            rows={3}
+                            maxLength={500}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          {field.value?.length || 0}/500 characters
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </Card>
 
-        {/* Form Actions */}
-        <div className="flex items-center justify-end gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate('/admin/products')}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="animate-spin" />}
-            {isEditing ? 'Update Product' : 'Create Product'}
-          </Button>
+              {/* Form Actions */}
+              <div className="flex items-center justify-end gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/admin/products')}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting && <Loader2 className="animate-spin" />}
+                  {isEditing ? 'Update Product' : 'Create Product'}
+                </Button>
+              </div>
+            </form>
+          </Form >
         </div>
-      </form>
-    </Form >
+
+        {/* Preview Panel */}
+        <div
+          className={`
+            fixed right-0 top-0 bottom-0 bg-gray-50 border-l border-gray-200 z-50 
+            transition-transform duration-300 ease-in-out w-[40%] min-w-[375px] max-w-[600px]
+            shadow-xl
+            ${showPreview ? 'translate-x-0' : 'translate-x-full'}
+          `}
+        >
+          <div className="h-full flex flex-col">
+            <div className="p-4 border-b bg-white flex justify-between items-center">
+              <h3 className="font-semibold text-sm">Product Live Preview</h3>
+              <Button variant="ghost" size="icon" onClick={() => setShowPreview(false)}>
+                <EyeOff className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-hidden p-4">
+              {showPreview && (
+                <ProductPreview
+                  data={form.watch()}
+                  images={images}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
