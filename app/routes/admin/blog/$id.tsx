@@ -7,9 +7,9 @@ import type { BlogPostFormData } from '~/lib/admin/validation';
 import { showSuccess, showError } from '~/lib/admin/toast';
 
 export async function loader({ params, request }: Route.LoaderArgs) {
-  const id = parseInt(params.id, 10);
+  const { id } = params;
 
-  if (isNaN(id)) {
+  if (!id) {
     throw new Response('Invalid blog post ID', { status: 400 });
   }
 

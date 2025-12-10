@@ -91,7 +91,7 @@ export async function getBlogPosts(
 /**
  * Get a single blog post by ID
  */
-export async function getBlogPost(id: number, headers?: HeadersInit): Promise<BlogPost> {
+export async function getBlogPost(id: string, headers?: HeadersInit): Promise<BlogPost> {
   try {
     const response = await apiClient.get<SuccessResponseWrapper<BlogPost>>(`/api/admin/blog/${id}`, getAxiosConfig(headers));
     return response.data.data;
