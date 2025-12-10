@@ -5,6 +5,9 @@
 
 import { toast } from 'sonner';
 
+// Re-export toast for direct usage
+export { toast };
+
 /**
  * Display a success toast notification
  */
