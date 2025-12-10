@@ -1,7 +1,7 @@
 import type { ContentBlock, ProductBlock } from '~/interface/blog.interface';
 import { ProductCard } from '~/components/share/product-card';
 import { cn } from '~/lib/utils';
-import type { IProduct } from '~/interface/product.interface';
+import { useNavigate } from 'react-router';
 
 
 interface ContentRendererProps {
@@ -88,30 +88,69 @@ function BlockRenderer({ block }: { block: ContentBlock }) {
 }
 
 import { formatCurrencyFromCents } from "~/lib/formatter";
+import { useCartStore } from "~/store/cart";
+import { toast } from "sonner";
+import { Link } from "react-router";
 
 function ProductBlockRenderer({ block }: { block: ProductBlock }) {
-  // Construct a partial product object compatible with ProductCard
-  const product: IProduct = {
-    productId: block.productId,
-    productName: block.productName,
-    image: {
-      url: block.productImage || '',
-      description: block.productName
-    },
-    // Assuming productPrice is in cents consistently
-    quickCartPrice: block.productPrice,
-    priceTitle: formatCurrencyFromCents(block.productPrice, { symbol: '$' }),
-    // Optional fields
-    subtitle: '',
-    rating: 0,
-    reviewCount: 0,
+  const addItem = useCartStore((state) => state.addItem);
+  const navigate = useNavigate();
+
+  const handleAddToCart = () => {
+    addItem({
+      productId: block.productId,
+      productName: block.productName,
+      image: block.productImage || '',
+      price: block.productPrice,
+      quantity: 1,
+      variantName: 'Standard'
+    });
+    toast.success(`Added ${block.productName} to cart`);
   };
 
   return (
-    <div id={block.id} className="my-8 flex justify-center">
-      <div className="max-w-xs w-full">
-        <ProductCard product={product} />
+    <div id={block.id} className="my-12">
+      <div role='button' onClick={() => navigate(`/product-detail/${block.productId}`)} className="border border-gray-200 bg-white flex flex-col md:flex-row overflow-hidden cursor-pointer">
+        {/* Left Side: Image */}
+        <div className="md:w-[35%] aspect-4/3 md:aspect-auto md:min-h-[100px] relative">
+          <img
+            src={block.productImage}
+            alt={block.productName}
+            className="w-full h-full object-cover absolute inset-0"
+          />
+        </div>
+
+        {/* Right Side: Content */}
+        <div className="md:w-[65%] px-6 py-4 flex flex-col justify-center">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="font-serif text-xl text-gray-900 pr-4">
+              {block.productName}
+            </h3>
+            <span className="font-serif text-xl font-medium text-gray-900 shrink-0">
+              {formatCurrencyFromCents(block.productPrice, { symbol: '$' })}
+            </span>
+          </div>
+
+          <div className="prose prose-sm text-gray-500 mb-6 font-light text-md">
+            {/* Note: The description is not currently in the ProductBlock schema. 
+                 Using a generic placeholder or leaving mostly empty until schema update. 
+                 The reference implies a description, but we only have name/price.
+                 We will render nothing for now to keep it clean, or could add an optional field. 
+             */}
+            <p>Experience the ultimate skincare luxury with {block.productName}.</p>
+          </div>
+
+          <div>
+            <button
+              onClick={handleAddToCart}
+              className="px-8 py-3 bg-black text-white text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors"
+            >
+              Buy Now
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
