@@ -1,7 +1,7 @@
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useEffect } from 'react';
-import { Loader2, X } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { blogPostSchema, generateSlug, type BlogPostFormData } from '~/lib/admin/validation';
 import type { BlogPost } from '~/lib/services/admin/blog-admin.service';
 import { useKeyboardShortcuts } from '~/lib/admin/use-keyboard-shortcuts';
@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { SingleImageUploader } from '~/components/admin/products/single-image-uploader';
 import { BlockEditor, type ContentBlock } from './block-editor';
 
 interface BlogFormProps {
@@ -30,9 +31,6 @@ interface BlogFormProps {
 
 export function BlogForm({ initialData, onSubmit, onCancel }: BlogFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [featuredImagePreview, setFeaturedImagePreview] = useState<string | undefined>(
-    initialData?.featuredImageUrl
-  );
   const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>(
     initialData?.contentBlocks || []
   );
@@ -111,10 +109,7 @@ export function BlogForm({ initialData, onSubmit, onCancel }: BlogFormProps) {
     }
   }, [title, initialData, setValue]);
 
-  // Update image preview
-  useEffect(() => {
-    setFeaturedImagePreview(featuredImageUrl || undefined);
-  }, [featuredImageUrl]);
+
 
   // Sync contentBlocks with form state
   useEffect(() => {
@@ -135,16 +130,7 @@ export function BlogForm({ initialData, onSubmit, onCancel }: BlogFormProps) {
     }
   };
 
-  const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const url = e.target.value;
-    setValue('featuredImageUrl', url);
-  };
 
-  const clearFeaturedImage = () => {
-    setValue('featuredImageUrl', '');
-    setValue('featuredImageAlt', '');
-    setFeaturedImagePreview(undefined);
-  };
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
@@ -304,46 +290,22 @@ export function BlogForm({ initialData, onSubmit, onCancel }: BlogFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="featuredImageUrl">Image URL</Label>
-            <div className="flex gap-2">
-              <Input
-                id="featuredImageUrl"
-                {...register('featuredImageUrl')}
-                onChange={handleImageUrlChange}
-                placeholder="https://example.com/image.jpg"
-                disabled={isSubmitting}
-              />
-              {featuredImagePreview && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={clearFeaturedImage}
-                  disabled={isSubmitting}
-                  title="Clear image"
-                >
-                  <X className="size-4" />
-                </Button>
-              )}
-            </div>
+            <Label>Featured Image</Label>
+            <SingleImageUploader
+              value={featuredImageUrl}
+              onChange={(url) => setValue('featuredImageUrl', url)}
+              onRemove={() => setValue('featuredImageUrl', '')}
+              className="w-full max-w-md aspect-video"
+            />
             {errors.featuredImageUrl && (
               <p className="text-sm text-destructive">{errors.featuredImageUrl.message}</p>
             )}
+            <Input
+              type="hidden"
+              id="featuredImageUrl"
+              {...register('featuredImageUrl')}
+            />
           </div>
-
-          {featuredImagePreview && (
-            <div className="space-y-2">
-              <Label>Preview</Label>
-              <div className="relative aspect-video w-full max-w-md overflow-hidden rounded-md border">
-                <img
-                  src={featuredImagePreview}
-                  alt="Featured image preview"
-                  className="size-full object-cover"
-                  onError={() => setFeaturedImagePreview(undefined)}
-                />
-              </div>
-            </div>
-          )}
 
           <div className="space-y-2">
             <Label htmlFor="featuredImageAlt">Alt Text</Label>
