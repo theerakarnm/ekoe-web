@@ -67,5 +67,6 @@ export default [
     route("admin/promotions/new", "routes/admin/promotions/new.tsx"),
     route("admin/promotions/:id", "routes/admin/promotions/$id.tsx"),
     route("admin/promotions/:id/analytics", "routes/admin/promotions/$id.analytics.tsx"),
+    route("admin/promotions/:id/edit", "routes/admin/promotions/$id.edit.tsx"),
   ]),
 ] satisfies RouteConfig;
