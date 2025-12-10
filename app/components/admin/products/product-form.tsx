@@ -283,12 +283,11 @@ export function ProductForm({ product }: ProductFormProps) {
         } : undefined,
 
         // Include setItems only if it IS a set
-        setItems: (data.productType === 'set' && setItems) ? setItems.map((item, index) => ({
-          setProductId: '', // Will be handled by backend
-          includedProductId: item.productId,
+        // Note: API input format uses productId/quantity, but Product type reflects DB output with setProductId/includedProductId
+        setItems: (data.productType === 'set' && setItems) ? setItems.map((item) => ({
+          productId: item.productId,
           quantity: item.quantity,
-          sortOrder: index
-        })) : undefined,
+        })) as any : undefined,
 
         // Include benefits only if it IS a set
         benefits: (data.productType === 'set' && benefits) ? benefits : undefined,

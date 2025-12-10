@@ -13,20 +13,22 @@ import {
 } from '~/components/ui/table';
 import { Search, Plus, Trash2, Package } from 'lucide-react';
 import type { ProductFormData } from '~/lib/admin/validation';
-import { type Product } from '~/lib/services/admin/product-admin.service';
+import { getProducts, type Product } from '~/lib/services/admin/product-admin.service';
 import { useDebounce } from '~/hooks/use-debounce';
 
 interface ProductSetManagerProps {
   control: Control<ProductFormData>;
 }
 
-// Temporary mock search function until we can hook into actual API
-// In a real app, this should probably be passed as a prop or use a React Query hook
-async function searchProducts(query: string) {
-  const response = await fetch(`/api/products?search=${encodeURIComponent(query)}&limit=5`);
-  if (!response.ok) return [];
-  const data = await response.json();
-  return data.products || [];
+// Search products using the admin product service
+async function searchProducts(query: string): Promise<Product[]> {
+  try {
+    const result = await getProducts({ search: query, limit: 10, status: 'active' });
+    return result.data || [];
+  } catch (error) {
+    console.error('Search failed:', error);
+    return [];
+  }
 }
 
 export function ProductSetManager({ control }: ProductSetManagerProps) {
