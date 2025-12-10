@@ -7,11 +7,13 @@ import { FeatureSection } from "./feature-section";
 import BlogSection from "./blog-section";
 import { Footer } from "~/components/share/footer";
 import type { Product } from "~/lib/services/product.service";
+import type { BlogPost } from "~/interface/blog.interface";
 
 interface LandingProps {
   loaderData?: {
     bestSellers: Product[];
     newArrivals: Product[];
+    blogs?: BlogPost[];
     error: string | null;
   };
 }
@@ -71,7 +73,7 @@ export function Landing({ loaderData }: LandingProps) {
           products={loaderData?.newArrivals} 
           error={loaderData?.error}
         /> */}
-        <BlogSection />
+        <BlogSection posts={loaderData?.blogs} />
         <Footer />
       </main>
     </div>

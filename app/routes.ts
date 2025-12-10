@@ -5,9 +5,12 @@ export default [
   // Customer auth routes
   route("auth/login", "routes/auth/login.tsx"),
 
+
   layout("layouts/_layout.customer.tsx", [
     // Public routes
     index("routes/home.tsx"),
+    route("blogs", "routes/blogs/index.tsx"),
+    route("blogs/:id", "routes/blogs/$id.tsx"),
     route("online-executive", "routes/online-executive.tsx"),
     route("shop", "routes/shop.tsx"),
     route("product-detail/:id", "routes/product-detail.tsx"),
