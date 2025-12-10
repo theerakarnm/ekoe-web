@@ -1,7 +1,7 @@
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useEffect } from 'react';
-import { Loader2, Upload, X } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 import { blogPostSchema, generateSlug, type BlogPostFormData } from '~/lib/admin/validation';
 import type { BlogPost } from '~/lib/services/admin/blog-admin.service';
 import { useKeyboardShortcuts } from '~/lib/admin/use-keyboard-shortcuts';
@@ -17,10 +17,13 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { RichTextEditor } from './rich-text-editor';
+import { BlockEditor, type ContentBlock } from './block-editor';
 
 interface BlogFormProps {
-  initialData?: BlogPost;
+  initialData?: BlogPost & {
+    subtitle?: string;
+    contentBlocks?: ContentBlock[];
+  };
   onSubmit: (data: any) => Promise<void>;
   onCancel: () => void;
 }
@@ -29,6 +32,9 @@ export function BlogForm({ initialData, onSubmit, onCancel }: BlogFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [featuredImagePreview, setFeaturedImagePreview] = useState<string | undefined>(
     initialData?.featuredImageUrl
+  );
+  const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>(
+    initialData?.contentBlocks || []
   );
 
   // Keyboard shortcuts
@@ -62,35 +68,38 @@ export function BlogForm({ initialData, onSubmit, onCancel }: BlogFormProps) {
     resolver: zodResolver(blogPostSchema),
     defaultValues: initialData
       ? {
-          title: initialData.title,
-          slug: initialData.slug,
-          excerpt: initialData.excerpt || '',
-          content: initialData.content || '',
-          featuredImageUrl: initialData.featuredImageUrl || '',
-          featuredImageAlt: initialData.featuredImageAlt || '',
-          authorName: initialData.authorName || '',
-          categoryName: initialData.categoryName || '',
-          metaTitle: initialData.metaTitle || '',
-          metaDescription: initialData.metaDescription || '',
-          status: initialData.status,
-        }
+        title: initialData.title,
+        subtitle: initialData.subtitle || '',
+        slug: initialData.slug,
+        excerpt: initialData.excerpt || '',
+        content: initialData.content || '',
+        contentBlocks: initialData.contentBlocks || [],
+        featuredImageUrl: initialData.featuredImageUrl || '',
+        featuredImageAlt: initialData.featuredImageAlt || '',
+        authorName: initialData.authorName || '',
+        categoryName: initialData.categoryName || '',
+        metaTitle: initialData.metaTitle || '',
+        metaDescription: initialData.metaDescription || '',
+        status: initialData.status,
+      }
       : {
-          title: '',
-          slug: '',
-          excerpt: '',
-          content: '',
-          featuredImageUrl: '',
-          featuredImageAlt: '',
-          authorName: '',
-          categoryName: '',
-          metaTitle: '',
-          metaDescription: '',
-          status: 'draft' as const,
-        },
+        title: '',
+        subtitle: '',
+        slug: '',
+        excerpt: '',
+        content: '',
+        contentBlocks: [],
+        featuredImageUrl: '',
+        featuredImageAlt: '',
+        authorName: '',
+        categoryName: '',
+        metaTitle: '',
+        metaDescription: '',
+        status: 'draft' as const,
+      },
   });
 
   const title = watch('title');
-  const content = watch('content');
   const featuredImageUrl = watch('featuredImageUrl');
   const status = watch('status');
 
@@ -107,10 +116,18 @@ export function BlogForm({ initialData, onSubmit, onCancel }: BlogFormProps) {
     setFeaturedImagePreview(featuredImageUrl || undefined);
   }, [featuredImageUrl]);
 
-  const onFormSubmit = async (data: any) => {
+  // Sync contentBlocks with form state
+  useEffect(() => {
+    setValue('contentBlocks', contentBlocks as any);
+  }, [contentBlocks, setValue]);
+
+  const onFormSubmit = async (data: BlogPostFormData) => {
     setIsSubmitting(true);
     try {
-      await onSubmit(data);
+      await onSubmit({
+        ...data,
+        contentBlocks,
+      });
     } catch (error) {
       // Error is handled in parent component
     } finally {
@@ -155,6 +172,23 @@ export function BlogForm({ initialData, onSubmit, onCancel }: BlogFormProps) {
             )}
           </div>
 
+          {/* NEW: Subtitle field */}
+          <div className="space-y-2">
+            <Label htmlFor="subtitle">Subtitle</Label>
+            <Input
+              id="subtitle"
+              {...register('subtitle')}
+              placeholder="A brief subtitle or tagline"
+              disabled={isSubmitting}
+            />
+            {errors.subtitle && (
+              <p className="text-sm text-destructive">{errors.subtitle.message}</p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Optional subtitle displayed below the main title
+            </p>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="slug">
               Slug <span className="text-destructive">*</span>
@@ -192,9 +226,7 @@ export function BlogForm({ initialData, onSubmit, onCancel }: BlogFormProps) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="authorName">
-                Author Name <span className="text-destructive">*</span>
-              </Label>
+              <Label htmlFor="authorName">Author Name</Label>
               <Input
                 id="authorName"
                 {...register('authorName')}
@@ -245,26 +277,20 @@ export function BlogForm({ initialData, onSubmit, onCancel }: BlogFormProps) {
         </CardContent>
       </Card>
 
-      {/* Content */}
+      {/* Content Blocks */}
       <Card>
         <CardHeader>
           <CardTitle>Content</CardTitle>
           <CardDescription>
-            Write the main content of your blog post
+            Build your blog post using content blocks. Add text, images, products, and more.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            <Label htmlFor="content">
-              Content <span className="text-destructive">*</span>
-            </Label>
-            <RichTextEditor
-              value={content}
-              onChange={(value) => setValue('content', value)}
-              placeholder="Write your blog post content here..."
-              error={errors.content?.message}
-            />
-          </div>
+          <BlockEditor
+            value={contentBlocks}
+            onChange={setContentBlocks}
+            error={errors.contentBlocks?.message}
+          />
         </CardContent>
       </Card>
 

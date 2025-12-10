@@ -12,9 +12,12 @@ import { apiClient, handleApiError, getAxiosConfig, type PaginatedResponse, type
 export interface BlogPost {
   id: string;
   title: string;
+  subtitle?: string;
   slug: string;
   excerpt?: string;
   content?: string;
+  contentBlocks?: ContentBlock[];
+  tableOfContents?: TableOfContentsItem[];
   featuredImageUrl?: string;
   featuredImageAlt?: string;
   authorId?: string;
@@ -28,6 +31,30 @@ export interface BlogPost {
   createdAt: string;
   updatedAt: string;
   publishedAt?: string;
+}
+
+// Content block types
+interface ContentBlock {
+  id: string;
+  anchorId?: string;
+  type: 'text' | 'image' | 'product' | 'heading' | 'quote';
+  content?: string;
+  url?: string;
+  alt?: string;
+  caption?: string;
+  productId?: string;
+  productName?: string;
+  productSlug?: string;
+  productPrice?: number;
+  productImage?: string;
+  level?: 1 | 2 | 3;
+  author?: string;
+}
+
+interface TableOfContentsItem {
+  id: string;
+  level: number;
+  text: string;
 }
 
 export interface GetBlogPostsParams {

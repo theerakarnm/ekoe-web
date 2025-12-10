@@ -155,11 +155,68 @@ export type ProductImageFormData = z.infer<typeof productImageSchema>;
 // Blog Post Schemas
 // ============================================================================
 
+// Content block metadata (shared by all blocks)
+const blockMetadataSchema = z.object({
+  id: z.string(),
+  anchorId: z.string().optional(),
+});
+
+// Text block
+const textBlockSchema = blockMetadataSchema.extend({
+  type: z.literal('text'),
+  content: z.string(),
+});
+
+// Image block
+const imageBlockSchema = blockMetadataSchema.extend({
+  type: z.literal('image'),
+  url: z.string(),
+  alt: z.string().optional(),
+  caption: z.string().optional(),
+});
+
+// Product block
+const productBlockSchema = blockMetadataSchema.extend({
+  type: z.literal('product'),
+  productId: z.string(),
+  productName: z.string(),
+  productSlug: z.string(),
+  productPrice: z.number(),
+  productImage: z.string().optional(),
+});
+
+// Heading block (used for table of contents)
+const headingBlockSchema = blockMetadataSchema.extend({
+  type: z.literal('heading'),
+  level: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+  content: z.string(),
+});
+
+// Quote block
+const quoteBlockSchema = blockMetadataSchema.extend({
+  type: z.literal('quote'),
+  content: z.string(),
+  author: z.string().optional(),
+});
+
+// Union of all block types
+export const contentBlockSchema = z.discriminatedUnion('type', [
+  textBlockSchema,
+  imageBlockSchema,
+  productBlockSchema,
+  headingBlockSchema,
+  quoteBlockSchema,
+]);
+
+export type ContentBlock = z.infer<typeof contentBlockSchema>;
+
 export const blogPostSchema = z.object({
   title: z.string().min(1, 'Title is required').max(500, 'Title too long'),
+  subtitle: z.string().max(500, 'Subtitle too long').optional(),
   slug: slugValidator,
   excerpt: z.string().max(1000, 'Excerpt too long').optional(),
-  content: z.string().min(1, 'Content is required'),
+  content: z.string().optional(), // Legacy field, kept for backward compatibility
+  contentBlocks: z.array(contentBlockSchema).optional(),
 
   // Featured image
   featuredImageUrl: urlValidator,
@@ -167,7 +224,7 @@ export const blogPostSchema = z.object({
 
   // Author
   authorId: z.string().optional(),
-  authorName: z.string().min(1, 'Author name is required').max(255, 'Author name too long'),
+  authorName: z.string().max(255, 'Author name too long').optional(),
 
   // Category
   categoryId: z.string().optional(),
@@ -181,15 +238,17 @@ export const blogPostSchema = z.object({
   status: z.enum(['draft', 'published', 'archived']).default('draft'),
 }).refine(
   (data) => {
-    // If status is published, ensure required fields are present
+    // If status is published, ensure either content or contentBlocks is present
     if (data.status === 'published') {
-      return data.content && data.content.length > 0;
+      const hasContent = data.content && data.content.length > 0;
+      const hasBlocks = data.contentBlocks && data.contentBlocks.length > 0;
+      return hasContent || hasBlocks;
     }
     return true;
   },
   {
     message: 'Content is required for published posts',
-    path: ['content'],
+    path: ['contentBlocks'],
   }
 );
 
