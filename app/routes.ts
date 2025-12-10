@@ -61,5 +61,11 @@ export default [
     // Customer routes
     route("admin/customers", "routes/admin/customers/index.tsx"),
     route("admin/customers/:id", "routes/admin/customers/$id.tsx"),
+
+    // Promotion routes
+    route("admin/promotions", "routes/admin/promotions/index.tsx"),
+    route("admin/promotions/new", "routes/admin/promotions/new.tsx"),
+    route("admin/promotions/:id", "routes/admin/promotions/$id.tsx"),
+    route("admin/promotions/:id/analytics", "routes/admin/promotions/$id.analytics.tsx"),
   ]),
 ] satisfies RouteConfig;

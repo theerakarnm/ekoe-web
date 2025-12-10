@@ -1,36 +1,46 @@
 
+import { useLoaderData, Link } from 'react-router';
 import { Header } from "../components/share/header";
 import { Footer } from "../components/share/footer";
 import { Calendar } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
+import { getActivePromotions, type PromotionDisplayData } from '~/lib/services/promotion.service';
 
-const MOCK_DATA = {
-  validDateRange: "ตั้งแต 15 พฤศจิกายน - 15 มกราคม 2569",
-  cards: [
-    {
-      id: 1,
-      title: "สำหรับการเริ่มต้นที่ดีที่สุด",
-      items: [
-        "ลด 15% ทุกคำสั่งซื้อ — ไม่มีขั้นต่ำ",
-        "ลด 20% สำหรับ Duo Set — คู่ดูแลที่ออกแบบมาเพื่อผิวที่ดีที่สุดของคุณ"
-      ],
-      buttonText: "Discover More"
-    },
-    {
-      id: 2,
-      subtitle: "GLOW & GIFT",
-      title: "ของขวัญขอบคุณในทุกการดูแล",
-      items: [
-        "ช้อปครบ 500 บาท <span class=\"font-bold\">รับฟรี \"Glow On the Go\" 1 ชิ้น</span>",
-        "ช้อปครบ 1,500 บาท <span class=\"font-bold\">รับฟรี \"Glow On the Go\" 2 ชิ้น</span>"
-      ],
-      buttonText: "More Beauty Finds"
-    }
-  ]
-};
+// Loader function to fetch active promotions
+export async function loader() {
+  try {
+    const promotionData = await getActivePromotions();
+    return { promotionData };
+  } catch (error) {
+    console.error('Failed to load promotions:', error);
+    // Return fallback data if API fails
+    return {
+      promotionData: {
+        dateRange: "ตั้งแต 15 พฤศจิกายน - 15 มกราคม 2569",
+        promotions: [
+          {
+            id: "fallback-1",
+            name: "สำหรับการเริ่มต้นที่ดีที่สุด",
+            description: "โปรโมชั่นพิเศษสำหรับลูกค้าใหม่",
+            type: "percentage_discount",
+            benefits: [
+              "ลด 15% ทุกคำสั่งซื้อ — ไม่มีขั้นต่ำ",
+              "ลด 20% สำหรับ Duo Set — คู่ดูแลที่ออกแบบมาเพื่อผิวที่ดีที่สุดของคุณ"
+            ],
+            conditions: []
+          }
+        ]
+      }
+    };
+  }
+}
 
 export default function OnlineExecutive() {
+  const { promotionData } = useLoaderData<{ promotionData: PromotionDisplayData }>();
+
+  console.log();
+  
   return (
     <div className="min-h-screen bg-white font-serif">
       <Header />
@@ -61,33 +71,69 @@ export default function OnlineExecutive() {
                 </p>
               </div>
 
-              <div className="flex items-center space-x-2 text-gray-800 font-medium">
+              
+              {promotionData.promotions.length > 0 ? (
+                promotionData.promotions.map((promotion) => (
+                <>
+                  <div className="flex items-center space-x-2 text-gray-800 font-medium">
                 <Calendar className="h-5 w-5" />
-                <span>{MOCK_DATA.validDateRange}</span>
+                <span>
+                  {promotion.dateRange}
+                </span>
               </div>
 
-              {MOCK_DATA.cards.map((card) => (
-                <Card key={card.id} className="bg-gray-50 border-gray-100 shadow-sm rounded-sm">
-                  <CardContent className="p-8">
-                    {card.subtitle && (
-                      <h3 className="text-2xl font-serif text-gray-900 mb-1">
-                        {card.subtitle}
+                  <Card key={promotion.id} className="bg-gray-50 border-gray-100 shadow-sm rounded-sm">
+                    <CardContent className="p-8">
+                      <h3 className="text-2xl font-serif text-gray-900 mb-4">
+                        {promotion.name}{' '}
                       </h3>
-                    )}
+                      
+                      {promotion.benefits.length > 0 && (
+                        <ul className="space-y-2 text-gray-600 mb-6 font-sans list-disc list-inside">
+                          {promotion.benefits.map((benefit, index) => (
+                            <li key={index}>{benefit}</li>
+                          ))}
+                        </ul>
+                      )}
+
+                      {promotion.description && (
+                        <p className="text-gray-600 mb-4 font-sans">
+                          {promotion.description}{' '}
+                        </p>
+                      )}
+
+                      <Link to="/shop">
+                        <Button className="bg-black text-white px-6 py-6 text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors rounded-none">
+                          DISCOVER MORE
+                        </Button>
+                      </Link>
+                    </CardContent>
+                  </Card></>
+                ))
+              ) : (
+                // Fallback content when no promotions are available
+                <Card className="bg-gray-50 border-gray-100 shadow-sm rounded-sm">
+                  <CardContent className="p-8">
                     <h3 className="text-2xl font-serif text-gray-900 mb-4">
-                      {card.title}
+                      สำหรับการเริ่มต้นที่ดีที่สุด{' '}
+                      <span className="text-red-500 font-mono text-sm">{'{{ name }}'}</span>
                     </h3>
                     <ul className="space-y-2 text-gray-600 mb-6 font-sans list-disc list-inside">
-                      {card.items.map((item, index) => (
-                        <li key={index} dangerouslySetInnerHTML={{ __html: item }} />
-                      ))}
+                      <li>ลด 15% ทุกคำสั่งซื้อ — ไม่มีขั้นต่ำ</li>
+                      <li>
+                        ลด 20% สำหรับ Duo Set — คู่ดูแลที่ออกแบบมาเพื่อผิวที่ดีที่สุดของคุณ{' '}
+                        <span className="text-red-500 font-mono">{'{{ description }}'}</span>
+                      </li>
                     </ul>
-                    <Button className="bg-black text-white px-6 py-6 text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors rounded-none">
-                      {card.buttonText}
-                    </Button>
+                    <Link to="/shop">
+                      <Button className="bg-black text-white px-6 py-6 text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors rounded-none">
+                        DISCOVER MORE{' '}
+                        <span className="text-red-500 font-mono normal-case">fix Redirect to /shop</span>
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
-              ))}
+              )}
 
               <div className="text-xs text-gray-400 space-y-1 font-sans">
                 <p>*โปรโมชั่นนี้สำหรับ Ekoe Online Store เท่านั้น</p>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import { LayoutDashboard, Package, FileText, Ticket, ShoppingCart, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Package, FileText, Ticket, ShoppingCart, Menu, X, Tag } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
@@ -31,6 +31,11 @@ const navigationItems = [
     name: 'Coupons',
     href: '/admin/coupons',
     icon: Ticket,
+  },
+  {
+    name: 'Promotions',
+    href: '/admin/promotions',
+    icon: Tag,
   },
 ];
 
