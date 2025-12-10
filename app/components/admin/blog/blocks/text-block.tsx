@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import { Bold, Italic, List, ListOrdered } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { cn } from '~/lib/utils';
@@ -10,24 +10,38 @@ interface TextBlockProps {
 
 export function TextBlock({ value, onChange }: TextBlockProps) {
   const editorRef = useRef<HTMLDivElement>(null);
+  const isInitializedRef = useRef(false);
 
+  // Only set initial value once on mount
   useEffect(() => {
-    if (editorRef.current && editorRef.current.innerHTML !== value) {
+    if (editorRef.current && !isInitializedRef.current) {
       editorRef.current.innerHTML = value || '';
+      isInitializedRef.current = true;
+    }
+  }, []);
+
+  // Handle external value changes (e.g., undo/redo or reset)
+  useEffect(() => {
+    if (editorRef.current && isInitializedRef.current) {
+      // Only update if the value differs significantly (not from user typing)
+      const currentContent = editorRef.current.innerHTML;
+      if (value !== currentContent && value === '') {
+        editorRef.current.innerHTML = '';
+      }
     }
   }, [value]);
 
-  const handleInput = () => {
+  const handleInput = useCallback(() => {
     if (editorRef.current) {
       onChange(editorRef.current.innerHTML);
     }
-  };
+  }, [onChange]);
 
-  const execCommand = (command: string, value?: string) => {
-    document.execCommand(command, false, value);
+  const execCommand = useCallback((command: string, commandValue?: string) => {
+    document.execCommand(command, false, commandValue);
     editorRef.current?.focus();
     handleInput();
-  };
+  }, [handleInput]);
 
   return (
     <div className="space-y-2">
@@ -87,7 +101,7 @@ export function TextBlock({ value, onChange }: TextBlockProps) {
           'prose prose-sm max-w-none',
           '[&_p]:my-1 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6'
         )}
-        dangerouslySetInnerHTML={{ __html: value || '' }}
+        suppressContentEditableWarning
       />
     </div>
   );

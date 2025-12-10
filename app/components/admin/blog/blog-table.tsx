@@ -342,6 +342,10 @@ export function BlogTable({
                   <TableCell>
                     {post.publishedAt ? (
                       new Date(post.publishedAt).toLocaleDateString()
+                    ) : post.status === 'published' ? (
+                      <span className="text-muted-foreground text-sm" title="Published date not set, showing last updated">
+                        {new Date(post.updatedAt).toLocaleDateString()}*
+                      </span>
                     ) : (
                       <span className="text-muted-foreground text-sm">Not published</span>
                     )}
