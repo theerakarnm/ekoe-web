@@ -27,6 +27,8 @@ export interface CurrencyFormatterOptions extends FormatterOptions {
   /** The currency symbol to prepend. Defaults to '$'. */
   symbol?: string;
   decimals?: number;
+
+  symbolPosition?: 'prefix' | 'suffix';
 }
 
 /**
@@ -101,12 +103,12 @@ export function formatCurrencyFromCents(
   amountInCents: number,
   options: CurrencyFormatterOptions = {}
 ): string {
-  const { symbol = '฿', decimals = 2, ...formatterOptions } = options;
+  const { symbol = '฿', decimals = 2, symbolPosition = 'prefix', ...formatterOptions } = options;
 
   // Divide by 100 to get the main currency value
   const amountInDollars = amountInCents / 100;
 
   const formattedNumber = formatNumber(amountInDollars, formatterOptions);
 
-  return `${symbol}${formattedNumber}`;
+  return symbolPosition === 'prefix' ? `${symbol}${formattedNumber}` : `${formattedNumber}${symbol}`;
 }

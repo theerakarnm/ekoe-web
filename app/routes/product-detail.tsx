@@ -21,7 +21,7 @@ import { ProductTabs } from "~/components/product/product-tabs";
 import { RelatedProducts } from "~/components/product/related-products";
 import { FrequentlyBoughtTogether } from "~/components/product/frequently-bought-together";
 import { getProduct, type Product } from "~/lib/services/product.service";
-import { formatNumber } from "~/lib/formatter";
+import { formatCurrencyFromCents } from "~/lib/formatter";
 
 export async function loader({ params }: Route.LoaderArgs) {
   try {
@@ -115,8 +115,8 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & { extendedSizes?
     productName: apiProduct.name,
     subtitle: apiProduct.subtitle || "",
     priceTitle: sizes && sizes.length > 0
-      ? `${formatNumber(Math.min(...sizes.map(s => s.price)), { decimalPlaces: 0 })} - ${formatNumber(Math.max(...sizes.map(s => s.price)), { decimalPlaces: 0 })} THB`
-      : `${formatNumber(apiProduct.basePrice, { decimalPlaces: 0 })} THB`,
+      ? `${formatCurrencyFromCents(Math.min(...sizes.map(s => s.price)), { symbolPosition: 'suffix', symbol: ' THB' })} - ${formatCurrencyFromCents(Math.max(...sizes.map(s => s.price)), { symbolPosition: 'suffix', symbol: ' THB' })}`
+      : `${formatCurrencyFromCents(apiProduct.basePrice, { symbolPosition: 'suffix', symbol: ' THB' })}`,
     quickCartPrice: apiProduct.basePrice,
     image: {
       url: primaryImage?.url || "",
@@ -483,7 +483,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                     onClick={handleAddToCart}
                     disabled={isOutOfStock}
                   >
-                    {isOutOfStock ? 'Out of Stock' : `Add to Cart - ${formatNumber(currentPrice * quantity, { decimalPlaces: 0 })} THB`}
+                    {isOutOfStock ? 'Out of Stock' : `Add to Cart - ${formatCurrencyFromCents(currentPrice * quantity, { symbolPosition: 'suffix', symbol: ' THB' })}`}
                   </Button>
                 </div>
 
