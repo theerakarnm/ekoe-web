@@ -95,6 +95,11 @@ export const realUserReviewsSchema = z.object({
   content: z.string().optional(),
 });
 
+export const productSetItemSchema = z.object({
+  productId: z.string(),
+  quantity: z.number().min(1).default(1),
+});
+
 export const productSchema = z.object({
   name: z.string().min(1, 'Product name is required').max(255, 'Name too long'),
   slug: slugValidator,
@@ -128,6 +133,11 @@ export const productSchema = z.object({
 
   // New fields
   ingredients: productIngredientSchema.optional(),
+
+  // Set items and Benefits
+  setItems: z.array(productSetItemSchema).optional(),
+  benefits: z.array(z.string()).optional(),
+
   goodFor: z.string().optional(),
   whyItWorks: z.string().optional(),
   howToUse: productHowToUseSchema.optional(),

@@ -57,6 +57,13 @@ export interface Product {
     image?: string;
     content?: string;
   };
+  setItems?: {
+    setProductId: string;
+    includedProductId: string;
+    quantity: number;
+    sortOrder: number;
+  }[];
+  benefits?: string[];
 }
 
 export interface ProductImage {

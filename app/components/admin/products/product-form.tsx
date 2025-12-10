@@ -32,6 +32,8 @@ import { IngredientsManager } from './ingredients-manager';
 import { HowToUseManager } from './how-to-use-manager';
 import { ComplimentaryGiftForm } from './complimentary-gift-form';
 import { RealUserReviewsForm } from './real-user-reviews-form';
+import { ProductSetManager } from './product-set-manager';
+import { BenefitManager } from './benefit-manager';
 import {
   Form,
   FormControl,
@@ -139,6 +141,11 @@ export function ProductForm({ product }: ProductFormProps) {
         image: product?.realUserReviews?.image || '',
         content: product?.realUserReviews?.content || '',
       },
+      setItems: product?.setItems?.map((item: any) => ({
+        productId: item.includedProductId,
+        quantity: item.quantity,
+      })) || [],
+      benefits: product?.benefits || [],
     },
   });
 
@@ -264,15 +271,28 @@ export function ProductForm({ product }: ProductFormProps) {
     try {
       // Transform form data to match API expectations
       // Exclude fields that don't exist in Product type or are managed separately
-      const { categoryIds, tagIds, variants, images: _images, ingredients, howToUse, realUserReviews, ...productFields } = data;
+      const { categoryIds, tagIds, variants, images: _images, ingredients, howToUse, realUserReviews, setItems, benefits, ...productFields } = data;
 
       const productData: Partial<Product> = {
         ...productFields,
-        ingredients: ingredients ? {
+        // Conditionally include ingredients only if NOT a set
+        ingredients: (data.productType !== 'set' && ingredients) ? {
           keyIngredients: ingredients.keyIngredients || [],
           fullList: ingredients.fullList || '',
           image: ingredients.image || undefined,
         } : undefined,
+
+        // Include setItems only if it IS a set
+        setItems: (data.productType === 'set' && setItems) ? setItems.map((item, index) => ({
+          setProductId: '', // Will be handled by backend
+          includedProductId: item.productId,
+          quantity: item.quantity,
+          sortOrder: index
+        })) : undefined,
+
+        // Include benefits only if it IS a set
+        benefits: (data.productType === 'set' && benefits) ? benefits : undefined,
+
         howToUse: howToUse ? {
           steps: howToUse.steps || [],
           proTips: howToUse.proTips || [],
@@ -715,11 +735,29 @@ export function ProductForm({ product }: ProductFormProps) {
                 </div>
               </Card>
 
-              {/* Ingredients */}
-              <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Ingredients</h2>
-                <IngredientsManager control={form.control} />
-              </Card>
+              {/* Ingredients (Only for single products) */}
+              {form.watch('productType') !== 'set' && (
+                <Card className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Ingredients</h2>
+                  <IngredientsManager control={form.control} />
+                </Card>
+              )}
+
+              {/* Set Items (Only for product sets) */}
+              {form.watch('productType') === 'set' && (
+                <Card className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Product Set Items</h2>
+                  <ProductSetManager control={form.control} />
+                </Card>
+              )}
+
+              {/* Benefits (Only for product sets) */}
+              {form.watch('productType') === 'set' && (
+                <Card className="p-6">
+                  <h2 className="text-xl font-semibold mb-4">Set Benefits</h2>
+                  <BenefitManager control={form.control} />
+                </Card>
+              )}
 
               {/* How To Use */}
               <Card className="p-6">
