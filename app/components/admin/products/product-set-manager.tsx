@@ -161,6 +161,12 @@ export function ProductSetManager({ control }: ProductSetManagerProps) {
                 return (
                   <TableRow key={field.id}>
                     <TableCell>
+                      {/* Hidden input to ensure productId is registered */}
+                      <input
+                        type="hidden"
+                        {...control.register(`setItems.${index}.productId`)}
+                        defaultValue={field.productId}
+                      />
                       <div className="flex items-center gap-3">
                         {/* We might not have product details if it was loaded from DB initial mount yet. 
                             Ideally need a robust way to fetch this info. */}

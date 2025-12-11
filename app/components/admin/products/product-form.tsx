@@ -144,7 +144,7 @@ export function ProductForm({ product }: ProductFormProps) {
         content: product?.realUserReviews?.content || '',
       },
       setItems: product?.setItems?.map((item: any) => ({
-        productId: item.includedProductId,
+        productId: item.productId || item.includedProductId,
         quantity: item.quantity,
       })) || [],
       benefits: product?.benefits || [],
@@ -310,8 +310,9 @@ export function ProductForm({ product }: ProductFormProps) {
         shortDescription: data.shortDescription || undefined,
         metaTitle: data.metaTitle || undefined,
         metaDescription: data.metaDescription || undefined,
-        // Note: categoryIds, tags, variants, and images should be handled through separate API calls
+        // Note: categoryIds, variants, and images should be handled through separate API calls
         // as they don't exist directly in the Product interface or have different structures
+        tags: tags as any,
       };
 
       let productId = product?.id;
@@ -407,7 +408,10 @@ export function ProductForm({ product }: ProductFormProps) {
       <div className="flex gap-6 items-start">
         <div className={`transition-all duration-300 ${showPreview ? 'w-[60%]' : 'w-full'}`}>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit, (e) => {
+              console.log(e);
+
+            })} className="space-y-6">
               {/* Basic Information */}
               <Card className="p-6">
                 <h2 className="text-xl font-semibold mb-4">Basic Information</h2>

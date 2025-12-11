@@ -313,7 +313,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             />
 
             {/* Right Column - Product Info */}
-            <div className="space-y-8">
+            <div className="space-y-4">
               <div className="flex justify-between items-start">
                 <div>
                   <div className="flex gap-2 mb-2">
@@ -342,7 +342,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                       ({productData.reviewCount} Reviews)
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-2 mb-6">
+                  <div className="flex flex-wrap gap-2 mb-2">
                     {productData.tags?.map((tag) => (
                       <span
                         key={tag}
@@ -578,9 +578,11 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                 <div>
                   <h2 className="text-2xl font-serif mb-4">About {productData.productName}</h2>
                   <div className="w-12 h-0.5 bg-black mb-6"></div>
-                  <p className="text-gray-600 leading-relaxed">
-                    {productData.description?.join(' ')}
-                  </p>
+                  <div className="flex flex-wrap w-full text-gray-600 leading-relaxed">
+                    {productData.description?.map((desc, idx) => (
+                      <p key={idx} className="wrap-break-word w-full">{productData.description?.join(' ')}</p>
+                    ))}
+                  </div>
                 </div>
                 {productData.benefits && productData.benefits.length > 0 && (
                   <div>
@@ -658,7 +660,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                 />
               </div>
               <div className="order-1 lg:order-2">
-                <h2 className="text-2xl font-serif mb-8">This Set Includes</h2>
+                <h2 className="text-2xl font-serif mb-2">This Set Includes</h2>
                 <Accordion type="single" collapsible className="w-full" defaultValue="item-0">
                   {productData.setItems.map((item, idx) => (
                     <AccordionItem key={idx} value={`item-${idx}`}>
