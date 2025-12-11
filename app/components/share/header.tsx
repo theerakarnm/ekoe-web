@@ -88,7 +88,7 @@ export default function Header({
                         <Link to="/ingredients" className="w-full cursor-pointer">Ingredients</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to="/blog" className="w-full cursor-pointer">Blog</Link>
+                        <Link to="/blogs" className="w-full cursor-pointer">Blog</Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -136,14 +136,14 @@ export default function Header({
                             My Account
                           </Link>
                         </DropdownMenuItem>
-                        {
+                        {/* {
                           <DropdownMenuItem asChild>
                             <Link to="/admin/dashboard" className="w-full cursor-pointer flex items-center">
                               <Cog className="mr-2 h-4 w-4" />
                               Admin Portal
                             </Link>
                           </DropdownMenuItem>
-                        }
+                        } */}
                         <DropdownMenuItem
                           className="text-red-600 focus:text-red-600 cursor-pointer flex items-center"
                           onClick={() => signOut()}
@@ -239,8 +239,8 @@ export default function Header({
                       {isDiscoverOpen && (
                         <div className="pl-4 py-2 space-y-2 flex flex-col bg-gray-50 rounded-md mt-1">
                           <Link to="/about" className="text-gray-600 text-sm py-1" onClick={() => setIsMobileMenuOpen(false)}>Our Story</Link>
-                          <Link to="/ingredients" className="text-gray-600 text-sm py-1" onClick={() => setIsMobileMenuOpen(false)}>Ingredients</Link>
-                          <Link to="/blog" className="text-gray-600 text-sm py-1" onClick={() => setIsMobileMenuOpen(false)}>Blog</Link>
+                          {/* <Link to="/ingredients" className="text-gray-600 text-sm py-1" onClick={() => setIsMobileMenuOpen(false)}>Ingredients</Link> */}
+                          <Link to="/blogs" className="text-gray-600 text-sm py-1" onClick={() => setIsMobileMenuOpen(false)}>Blog</Link>
                         </div>
                       )}
                     </div>

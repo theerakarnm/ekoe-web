@@ -178,11 +178,11 @@ function HeroSection() {
                     <DropdownMenuItem asChild>
                       <Link to="/about" className="w-full cursor-pointer">Our Story</Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
+                    {/* <DropdownMenuItem asChild>
                       <Link to="/ingredients" className="w-full cursor-pointer">Ingredients</Link>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuItem asChild>
-                      <Link to="/blog" className="w-full cursor-pointer">Blog</Link>
+                      <Link to="/blogs" className="w-full cursor-pointer">Blog</Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -317,8 +317,8 @@ function HeroSection() {
                     {isDiscoverOpen && (
                       <div className="pl-4 py-2 space-y-2 flex flex-col mt-1">
                         <Link to="/about" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Our Story</Link>
-                        <Link to="/ingredients" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Ingredients</Link>
-                        <Link to="/blog" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Blog</Link>
+                        {/* <Link to="/ingredients" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Ingredients</Link> */}
+                        <Link to="/blogs" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Blog</Link>
                       </div>
                     )}
                   </div>
