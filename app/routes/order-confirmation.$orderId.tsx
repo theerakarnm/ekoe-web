@@ -60,7 +60,7 @@ function calculateEstimatedDelivery(createdAt: string, estimatedDays: number = 7
  */
 function getEstimatedDaysFromCost(shippingCost: number | null): number {
   if (!shippingCost) return 7; // Default to standard shipping
-  
+
   // Based on shipping.config.ts
   if (shippingCost >= 15000) return 1; // Next day
   if (shippingCost >= 10000) return 3; // Express
