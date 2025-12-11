@@ -527,7 +527,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                   </Button>
                 </div>
 
-                <div className="text-xs text-center text-gray-500">
+                <div className="text-xs text-center text-gra-y-500">
                   Free shipping for orders over 2,000 THB
                 </div>
 

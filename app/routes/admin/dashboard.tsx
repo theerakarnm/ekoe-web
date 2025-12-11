@@ -1,20 +1,32 @@
 import { type LoaderFunctionArgs } from 'react-router';
-import { useLoaderData } from 'react-router';
+import { useLoaderData, useSearchParams, useNavigate } from 'react-router';
 import { getDashboardMetrics } from '~/lib/services/admin/analytics-admin.service';
 import { MetricCard } from '~/components/admin/dashboard/metric-card';
 import { RevenueChart } from '~/components/admin/dashboard/revenue-chart';
 import { OrderStatusChart } from '~/components/admin/dashboard/order-status-chart';
+import { TopProductsCard } from '~/components/admin/dashboard/top-products-card';
+import { DateRangePicker, getDefaultDateRange, type DateRange } from '~/components/admin/dashboard/date-range-picker';
 import {
   DollarSign,
   ShoppingCart,
   Users,
   Package,
 } from 'lucide-react';
-import { Suspense } from 'react';
+import { Suspense, useCallback } from 'react';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
-    const metrics = await getDashboardMetrics({}, request.headers);
+    const url = new URL(request.url);
+    const startDate = url.searchParams.get('startDate');
+    const endDate = url.searchParams.get('endDate');
+
+    const params: { startDate?: string; endDate?: string } = {};
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+
+    console.log('[Dashboard Loader] Fetching metrics with params:', params);
+    const metrics = await getDashboardMetrics(params, request.headers);
+    console.log('[Dashboard Loader] Received metrics:', JSON.stringify(metrics).substring(0, 500));
     return { metrics };
   } catch (error) {
     if (error instanceof Response) {
@@ -36,8 +48,8 @@ function DashboardSkeleton() {
           />
         ))}
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        {[...Array(2)].map((_, i) => (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {[...Array(3)].map((_, i) => (
           <div
             key={i}
             className="h-96 rounded-xl border bg-card animate-pulse"
@@ -50,6 +62,34 @@ function DashboardSkeleton() {
 
 export default function AdminDashboard() {
   const { metrics } = useLoaderData<typeof loader>();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // Get current date range from URL or use default
+  const getCurrentDateRange = useCallback((): DateRange => {
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+    const label = searchParams.get('label');
+
+    if (startDate && endDate) {
+      return {
+        startDate,
+        endDate,
+        label: label || 'Custom range',
+      };
+    }
+
+    return getDefaultDateRange();
+  }, [searchParams]);
+
+  // Handle date range change
+  const handleDateRangeChange = useCallback((range: DateRange) => {
+    const params = new URLSearchParams();
+    params.set('startDate', range.startDate);
+    params.set('endDate', range.endDate);
+    params.set('label', range.label);
+    navigate(`?${params.toString()}`, { replace: true });
+  }, [navigate]);
 
   // Format currency for display
   const formatCurrency = (value: number) => {
@@ -68,11 +108,17 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
-          Overview of your e-commerce platform
-        </p>
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground mt-2">
+            Overview of your e-commerce platform
+          </p>
+        </div>
+        <DateRangePicker
+          value={getCurrentDateRange()}
+          onChange={handleDateRangeChange}
+        />
       </header>
 
       <Suspense fallback={<DashboardSkeleton />}>
@@ -124,10 +170,11 @@ export default function AdminDashboard() {
           />
         </div>
 
-        {/* Charts */}
-        <div className="grid gap-4 md:grid-cols-2">
+        {/* Charts and Top Products */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <RevenueChart data={metrics.revenue?.byDate || []} />
           <OrderStatusChart data={metrics.orders?.byStatus || []} />
+          <TopProductsCard data={metrics.topProducts} />
         </div>
       </Suspense>
     </div>

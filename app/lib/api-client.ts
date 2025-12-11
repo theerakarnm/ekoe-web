@@ -230,7 +230,10 @@ export function handleApiError(error: unknown): never {
  * @returns Axios config with headers
  */
 export function getAxiosConfig(headers?: HeadersInit): AxiosRequestConfig {
-  if (!headers) return {};
+  if (!headers) {
+    console.log('[getAxiosConfig] No headers provided');
+    return {};
+  }
 
   const axiosHeaders: Record<string, string> = {};
 
@@ -241,22 +244,26 @@ export function getAxiosConfig(headers?: HeadersInit): AxiosRequestConfig {
     headers.forEach((value, key) => {
       if (headersToForward.includes(key.toLowerCase())) {
         axiosHeaders[key] = value;
+        console.log(`[getAxiosConfig] Forwarding header: ${key}`);
       }
     });
   } else if (Array.isArray(headers)) {
     headers.forEach(([key, value]) => {
       if (headersToForward.includes(key.toLowerCase())) {
         axiosHeaders[key] = value;
+        console.log(`[getAxiosConfig] Forwarding header: ${key}`);
       }
     });
   } else {
     for (const [key, value] of Object.entries(headers)) {
       if (headersToForward.includes(key.toLowerCase())) {
         axiosHeaders[key] = value;
+        console.log(`[getAxiosConfig] Forwarding header: ${key}`);
       }
     }
   }
 
+  console.log('[getAxiosConfig] Final headers:', Object.keys(axiosHeaders));
   return { headers: axiosHeaders };
 }
 

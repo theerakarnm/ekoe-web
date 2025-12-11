@@ -40,6 +40,7 @@ export interface DashboardMetrics {
     name: string;
     soldCount: number;
     revenue: number;
+    imageUrl?: string;
   }>;
 }
 
@@ -115,12 +116,16 @@ export async function getDashboardMetrics(
   headers?: HeadersInit
 ): Promise<DashboardMetrics> {
   try {
+    console.log('[Analytics Service] Calling API with params:', params);
     const response = await apiClient.get<SuccessResponseWrapper<DashboardMetrics>>('/api/admin/dashboard/metrics', {
       params,
       ...getAxiosConfig(headers)
     });
+    console.log('[Analytics Service] Response status:', response.status);
+    console.log('[Analytics Service] Response data:', JSON.stringify(response.data).substring(0, 500));
     return response.data.data;
   } catch (error) {
+    console.error('[Analytics Service] Error:', error);
     throw handleApiError(error);
   }
 }
