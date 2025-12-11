@@ -129,7 +129,7 @@ export const productSchema = z.object({
   images: z.array(productImageSchema).optional(),
   variants: z.array(productVariantSchema).optional(),
   categoryIds: z.array(z.string()).optional(),
-  tagIds: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
 
   // New fields
   ingredients: productIngredientSchema.optional(),

@@ -94,6 +94,21 @@ export interface Product {
     image?: string;
     content?: string;
   };
+  // Product set data
+  setItems?: {
+    productId: string;
+    name: string;
+    description: string | null;
+    subtitle: string | null;
+    image: string | null;
+    quantity: number | null;
+  }[];
+  benefits?: string[];
+  tags?: {
+    id: string;
+    name: string;
+    slug: string;
+  }[];
 }
 
 /**

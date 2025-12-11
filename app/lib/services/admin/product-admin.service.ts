@@ -126,6 +126,18 @@ export interface GetProductsParams {
   sortOrder?: 'asc' | 'desc';
 }
 
+/**
+ * Get all available tags
+ */
+export async function getTags(headers?: HeadersInit): Promise<Tag[]> {
+  try {
+    const response = await apiClient.get<SuccessResponseWrapper<Tag[]>>('/api/admin/tags', getAxiosConfig(headers));
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
 // ============================================================================
 // API Functions
 // ============================================================================

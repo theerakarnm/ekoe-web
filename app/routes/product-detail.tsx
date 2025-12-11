@@ -60,7 +60,20 @@ interface GroupedVariant {
   options: ExtendedSize[];
 }
 
-function mapApiProductToDetail(apiProduct: Product): IProduct & { extendedSizes?: ExtendedSize[]; groupedVariants?: GroupedVariant[] } {
+function mapApiProductToDetail(apiProduct: Product): IProduct & {
+  extendedSizes?: ExtendedSize[];
+  groupedVariants?: GroupedVariant[];
+  productType: 'single' | 'set' | 'bundle';
+  setItems?: {
+    productId: string;
+    name: string;
+    description: string | null;
+    subtitle: string | null;
+    image: string | null;
+    quantity: number | null;
+  }[];
+  benefits?: string[];
+} {
   const primaryImage = apiProduct.images?.find(img => img.isPrimary) || apiProduct.images?.[0];
   const galleryImages = apiProduct.images?.map(img => ({
     url: img.url,
@@ -144,6 +157,11 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & { extendedSizes?
       image: apiProduct.realUserReviews.image || "",
       content: apiProduct.realUserReviews.content || "",
     } : undefined,
+    // Product type and set-specific data
+    productType: apiProduct.productType,
+    setItems: apiProduct.setItems,
+    benefits: apiProduct.benefits,
+    tags: apiProduct.tags?.map(t => t.name) || [],
   };
 }
 
@@ -343,14 +361,36 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
 
 
               <div className="space-y-4 text-gray-700 leading-relaxed">
-                {productData.description?.map((desc, idx) => (
-                  <p key={idx}>{desc}</p>
-                ))}
-                <ul className="list-disc list-inside space-y-1 pl-2 text-sm text-gray-600 mt-4">
-                  {productData.benefits?.map((benefit, idx) => (
-                    <li key={idx}>{benefit}</li>
+                <div className="flex flex-wrap w-full">
+                  {productData.description?.map((desc, idx) => (
+                    <p key={idx} className="wrap-break-word w-full">{desc}</p>
                   ))}
-                </ul>
+                </div>
+                {productData.productType === 'set' && productData.setItems && productData.setItems.length > 0 ? (
+                  <div className="mt-8 space-y-6">
+                    {productData.setItems.map((item, idx) => (
+                      <div key={idx} className={`flex gap-4 items-center ${idx < (productData.setItems?.length || 0) - 1 ? 'border-b border-gray-100 pb-6' : ''}`}>
+                        <div className="w-16 h-16 bg-gray-50 rounded shrink-0 overflow-hidden mix-blend-multiply">
+                          <img
+                            src={item.image || productData.image.url}
+                            alt={item.name}
+                            className="w-full h-full object-contain p-1"
+                          />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium uppercase tracking-wide">{item.name}</h4>
+                          <p className="text-sm text-gray-500 mt-1">{item.subtitle || item.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <ul className="list-disc list-inside space-y-1 pl-2 text-sm text-gray-600 mt-4">
+                    {productData.benefits?.map((benefit, idx) => (
+                      <li key={idx}>{benefit}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
               {/* Accordions: Why it works / Good for */}
@@ -530,73 +570,145 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24 items-start">
-            <div>
-              <h2 className="text-2xl font-serif mb-8">Key Ingredients</h2>
-              <Accordion type="single" collapsible className="w-full">
-                {productData.ingredients?.keyIngredients?.map((ing, idx) => (
-                  <AccordionItem key={idx} value={`item-${idx}`}>
-                    <AccordionTrigger className="text-lg font-medium uppercase tracking-wide">
-                      {ing.name}
-                    </AccordionTrigger>
-                    <AccordionContent className="text-gray-600 leading-relaxed">
-                      {ing.description}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-                <AccordionItem value="full-list">
-                  <AccordionTrigger className="text-lg font-medium uppercase tracking-wide">
-                    Full Ingredients List
-                  </AccordionTrigger>
-                  <AccordionContent className="text-gray-600 leading-relaxed text-sm font-mono">
-                    {productData.ingredients?.fullList}
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-              <Button variant="outline" className="mt-8 uppercase tracking-widest text-xs h-12 px-8 border-black text-black hover:bg-black hover:text-white transition-colors">
-                See All Ingredients
-              </Button>
-            </div>
-            <div className="relative aspect-square lg:aspect-4/3 bg-gray-100">
-              <img
-                src="https://images.unsplash.com/photo-1615486511484-92e172cc4fe0?auto=format&fit=crop&q=80&w=1200"
-                alt="Ingredients"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-
-          {/* Loved by Real Users - เสียงจากผู้ใช้จริง */}
-          {(productData.realUserReviews?.image || productData.realUserReviews?.content) && (
-            <div className="mb-24 bg-[#F9F5F0] p-8 md:p-16 rounded-2xl">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div className="relative aspect-4/5 lg:aspect-square overflow-hidden rounded-lg">
-                  <img
-                    src={productData.realUserReviews?.image || "https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&q=80&w=1000"}
-                    alt="Real User Reviews"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent"></div>
-                  <div className="absolute bottom-8 left-8 text-white">
-                    <div className="text-5xl font-serif italic mb-2">Loved</div>
-                    <div className="text-xl uppercase tracking-widest">By Real Users</div>
-                  </div>
-                </div>
-                <div className="space-y-12">
-                  <h3 className="text-sm uppercase tracking-widest text-gray-500 mb-8">
-                    เสียงจากผู้ใช้จริง
-                  </h3>
-                  <div className="space-y-10">
-                    <div className="text-xl md:text-2xl font-medium whitespace-pre-line">
-                      {productData.realUserReviews?.content || productData.userStats}
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-400 mt-8 italic">
-                    ผลลัพธ์ที่พิสูจน์ได้ด้วยตัวเองจากการใช้จริงในทุกวัน
+          {/* Conditional Section: Ingredients (single) OR About/Benefits (set) */}
+          {productData.productType === 'set' ? (
+            /* About & Benefits Section for Product Sets */
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24 items-center">
+              <div className="space-y-12">
+                <div>
+                  <h2 className="text-2xl font-serif mb-4">About {productData.productName}</h2>
+                  <div className="w-12 h-0.5 bg-black mb-6"></div>
+                  <p className="text-gray-600 leading-relaxed">
+                    {productData.description?.join(' ')}
                   </p>
                 </div>
+                {productData.benefits && productData.benefits.length > 0 && (
+                  <div>
+                    <h2 className="text-2xl font-serif mb-4">Benefit</h2>
+                    <div className="w-12 h-0.5 bg-black mb-6"></div>
+                    <div className="space-y-2">
+                      <ul className="space-y-2">
+                        {productData.benefits.map((benefit, idx) => (
+                          <li key={idx} className="text-sm text-gray-600 flex items-center gap-2">
+                            <span className="w-1 h-1 bg-black rounded-full"></span>
+                            {benefit}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="relative aspect-square lg:aspect-4/3 bg-gray-100">
+                <img
+                  src={productData.ingredients?.image || productData.galleryImages?.[1]?.url || "https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&q=80&w=1000"}
+                  alt={`About ${productData.productName}`}
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
+          ) : (
+            /* Key Ingredients Section for Single Products */
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24 items-start">
+              <div>
+                <h2 className="text-2xl font-serif mb-8">Key Ingredients</h2>
+                <Accordion type="single" collapsible className="w-full">
+                  {productData.ingredients?.keyIngredients?.map((ing, idx) => (
+                    <AccordionItem key={idx} value={`item-${idx}`}>
+                      <AccordionTrigger className="text-lg font-medium uppercase tracking-wide">
+                        {ing.name}
+                      </AccordionTrigger>
+                      <AccordionContent className="text-gray-600 leading-relaxed">
+                        {ing.description}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                  <AccordionItem value="full-list">
+                    <AccordionTrigger className="text-lg font-medium uppercase tracking-wide">
+                      Full Ingredients List
+                    </AccordionTrigger>
+                    <AccordionContent className="text-gray-600 leading-relaxed text-sm font-mono">
+                      {productData.ingredients?.fullList}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+                <Button variant="outline" className="mt-8 uppercase tracking-widest text-xs h-12 px-8 border-black text-black hover:bg-black hover:text-white transition-colors">
+                  See All Ingredients
+                </Button>
+              </div>
+              <div className="relative aspect-square lg:aspect-4/3 bg-gray-100">
+                <img
+                  src={productData.ingredients?.image || "https://images.unsplash.com/photo-1615486511484-92e172cc4fe0?auto=format&fit=crop&q=80&w=1200"}
+                  alt="Ingredients"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Conditional Section: Real User Reviews (single) OR This Set Includes (set) */}
+          {productData.productType === 'set' && productData.setItems && productData.setItems.length > 0 ? (
+            /* This Set Includes Section for Product Sets */
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24 items-center">
+              <div className="relative aspect-square lg:aspect-4/3 bg-gray-100 order-2 lg:order-1">
+                <img
+                  src={productData.galleryImages?.[0]?.url || productData.image.url}
+                  alt="Set Includes"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="order-1 lg:order-2">
+                <h2 className="text-2xl font-serif mb-8">This Set Includes</h2>
+                <Accordion type="single" collapsible className="w-full" defaultValue="item-0">
+                  {productData.setItems.map((item, idx) => (
+                    <AccordionItem key={idx} value={`item-${idx}`}>
+                      <AccordionTrigger className="text-lg font-medium uppercase tracking-wide">
+                        {item.name}
+                      </AccordionTrigger>
+                      <AccordionContent className="text-gray-600 leading-relaxed space-y-2">
+                        <p>{item.description || item.subtitle}</p>
+                        {item.quantity && item.quantity > 1 && (
+                          <p className="text-xs text-gray-500">Quantity: {item.quantity}</p>
+                        )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </div>
+            </div>
+          ) : (
+            /* Loved by Real Users - เสียงจากผู้ใช้จริง for Single Products */
+            (productData.realUserReviews?.image || productData.realUserReviews?.content) && (
+              <div className="mb-24 bg-[#F9F5F0] p-8 md:p-16 rounded-2xl">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                  <div className="relative aspect-4/5 lg:aspect-square overflow-hidden rounded-lg">
+                    <img
+                      src={productData.realUserReviews?.image || "https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&q=80&w=1000"}
+                      alt="Real User Reviews"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent"></div>
+                    <div className="absolute bottom-8 left-8 text-white">
+                      <div className="text-5xl font-serif italic mb-2">Loved</div>
+                      <div className="text-xl uppercase tracking-widest">By Real Users</div>
+                    </div>
+                  </div>
+                  <div className="space-y-12">
+                    <h3 className="text-sm uppercase tracking-widest text-gray-500 mb-8">
+                      เสียงจากผู้ใช้จริง
+                    </h3>
+                    <div className="space-y-10">
+                      <div className="text-xl md:text-2xl font-medium whitespace-pre-line">
+                        {productData.realUserReviews?.content || productData.userStats}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-8 italic">
+                      ผลลัพธ์ที่พิสูจน์ได้ด้วยตัวเองจากการใช้จริงในทุกวัน
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )
           )}
 
           <div className="mb-24 text-center">
@@ -644,9 +756,9 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             limit={4}
           />
         </div>
-      </main>
+      </main >
 
       <Footer />
-    </div>
+    </div >
   );
 }

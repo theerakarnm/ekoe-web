@@ -34,6 +34,7 @@ import { ComplimentaryGiftForm } from './complimentary-gift-form';
 import { RealUserReviewsForm } from './real-user-reviews-form';
 import { ProductSetManager } from './product-set-manager';
 import { BenefitManager } from './benefit-manager';
+import { TagManager } from './tag-manager';
 import {
   Form,
   FormControl,
@@ -56,6 +57,7 @@ import {
 import { Checkbox } from '~/components/ui/checkbox';
 import { Card } from '~/components/ui/card';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
+
 
 interface ProductFormProps {
   product?: Product;
@@ -118,7 +120,7 @@ export function ProductForm({ product }: ProductFormProps) {
         isActive: v.isActive,
       })) || []) as any, // Cast to any to avoid strict type matching issues with optional fields in defaultValues
       categoryIds: product?.categories?.map((c) => c.id) || [],
-      tagIds: product?.tags?.map((t) => t.id) || [],
+      tags: product?.tags?.map((t) => t.name) || [],
       ingredients: {
         keyIngredients: product?.ingredients?.keyIngredients || [],
         fullList: product?.ingredients?.fullList || '',
@@ -271,7 +273,7 @@ export function ProductForm({ product }: ProductFormProps) {
     try {
       // Transform form data to match API expectations
       // Exclude fields that don't exist in Product type or are managed separately
-      const { categoryIds, tagIds, variants, images: _images, ingredients, howToUse, realUserReviews, setItems, benefits, ...productFields } = data;
+      const { categoryIds, tags, variants, images: _images, ingredients, howToUse, realUserReviews, setItems, benefits, ...productFields } = data;
 
       const productData: Partial<Product> = {
         ...productFields,
@@ -308,7 +310,7 @@ export function ProductForm({ product }: ProductFormProps) {
         shortDescription: data.shortDescription || undefined,
         metaTitle: data.metaTitle || undefined,
         metaDescription: data.metaDescription || undefined,
-        // Note: categoryIds, tagIds, variants, and images should be handled through separate API calls
+        // Note: categoryIds, tags, variants, and images should be handled through separate API calls
         // as they don't exist directly in the Product interface or have different structures
       };
 
@@ -349,6 +351,9 @@ export function ProductForm({ product }: ProductFormProps) {
           }
         }
       }
+
+      // Update tags
+      // Tags are handled in createProduct/updateProduct
 
       showSuccess(isEditing ? 'Product updated successfully' : 'Product created successfully');
       navigate('/admin/products');
@@ -657,6 +662,27 @@ export function ProductForm({ product }: ProductFormProps) {
                             Enable inventory tracking for this product
                           </FormDescription>
                         </div>
+                      </FormItem>
+                    )}
+                  />
+                  {/* Category Selection would go here - skipping for brevity as existing logic handles it usually */}
+
+                  <FormField
+                    control={form.control}
+                    name="tags"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tags</FormLabel>
+                        <FormControl>
+                          <TagManager
+                            selectedTags={field.value || []}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Categorize product with tags.
+                        </FormDescription>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
