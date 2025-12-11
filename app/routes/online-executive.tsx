@@ -40,7 +40,7 @@ export default function OnlineExecutive() {
   const { promotionData } = useLoaderData<{ promotionData: PromotionDisplayData }>();
 
   console.log();
-  
+
   return (
     <div className="min-h-screen bg-white font-serif">
       <Header />
@@ -71,64 +71,61 @@ export default function OnlineExecutive() {
                 </p>
               </div>
 
-              
+
               {promotionData.promotions.length > 0 ? (
                 promotionData.promotions.map((promotion) => (
-                <>
-                  <div className="flex items-center space-x-2 text-gray-800 font-medium">
-                <Calendar className="h-5 w-5" />
-                <span>
-                  {promotion.dateRange}
-                </span>
-              </div>
+                  <>
+                    <div className="flex items-center space-x-2 text-gray-800 font-medium">
+                      <Calendar className="h-5 w-5" />
+                      <span>
+                        {promotion.dateRange}
+                      </span>
+                    </div>
 
-                  <Card key={promotion.id} className="bg-gray-50 border-gray-100 shadow-sm rounded-sm">
-                    <CardContent className="p-8">
-                      <h3 className="text-2xl font-serif text-gray-900 mb-4">
-                        {promotion.name}{' '}
-                      </h3>
-                      
-                      {promotion.benefits.length > 0 && (
-                        <ul className="space-y-2 text-gray-600 mb-6 font-sans list-disc list-inside">
-                          {promotion.benefits.map((benefit, index) => (
-                            <li key={index}>{benefit}</li>
-                          ))}
-                        </ul>
-                      )}
+                    <Card key={promotion.id} className="bg-gray-50 border-gray-100 shadow-sm rounded-sm">
+                      <CardContent className="p-8">
+                        <h3 className="text-2xl font-serif text-gray-900 mb-4">
+                          {promotion.name}{' '}
+                        </h3>
 
-                      {promotion.description && (
-                        <p className="text-gray-600 mb-4 font-sans">
-                          {promotion.description}{' '}
-                        </p>
-                      )}
+                        {promotion.benefits.length > 0 && (
+                          <ul className="space-y-2 text-gray-600 mb-6 font-sans list-disc list-inside">
+                            {promotion.benefits.map((benefit, index) => (
+                              <li key={index}>{benefit}</li>
+                            ))}
+                          </ul>
+                        )}
 
-                      <Link to="/shop">
-                        <Button className="bg-black text-white px-6 py-6 text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors rounded-none">
-                          DISCOVER MORE
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card></>
+                        {promotion.description && (
+                          <p className="text-gray-600 mb-4 font-sans">
+                            {promotion.description}{' '}
+                          </p>
+                        )}
+
+                        <Link to="/shop">
+                          <Button className="bg-black text-white px-6 py-6 text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors rounded-none">
+                            DISCOVER MORE
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card></>
                 ))
               ) : (
                 // Fallback content when no promotions are available
                 <Card className="bg-gray-50 border-gray-100 shadow-sm rounded-sm">
                   <CardContent className="p-8">
                     <h3 className="text-2xl font-serif text-gray-900 mb-4">
-                      สำหรับการเริ่มต้นที่ดีที่สุด{' '}
-                      <span className="text-red-500 font-mono text-sm">{'{{ name }}'}</span>
+                      สำหรับการเริ่มต้นที่ดีที่สุด
                     </h3>
                     <ul className="space-y-2 text-gray-600 mb-6 font-sans list-disc list-inside">
                       <li>ลด 15% ทุกคำสั่งซื้อ — ไม่มีขั้นต่ำ</li>
                       <li>
-                        ลด 20% สำหรับ Duo Set — คู่ดูแลที่ออกแบบมาเพื่อผิวที่ดีที่สุดของคุณ{' '}
-                        <span className="text-red-500 font-mono">{'{{ description }}'}</span>
+                        ลด 20% สำหรับ Duo Set — คู่ดูแลที่ออกแบบมาเพื่อผิวที่ดีที่สุดของคุณ
                       </li>
                     </ul>
                     <Link to="/shop">
                       <Button className="bg-black text-white px-6 py-6 text-sm uppercase tracking-wider hover:bg-gray-800 transition-colors rounded-none">
-                        DISCOVER MORE{' '}
-                        <span className="text-red-500 font-mono normal-case">fix Redirect to /shop</span>
+                        DISCOVER MORE
                       </Button>
                     </Link>
                   </CardContent>
