@@ -38,6 +38,32 @@ export async function loader() {
   }
 }
 
+
 export default function Home({ loaderData }: Route.ComponentProps) {
-  return <Landing loaderData={loaderData} />;
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Ekoe",
+    "url": "https://ekoe.com", // Replace with actual production URL if known, or handle dynamically
+    "logo": "https://ekoe.com/ekoe-asset/Ekoe_Logo-01.png",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+66-123-456-789", // Placeholder
+      "contactType": "Customer Service"
+    },
+    "sameAs": [
+      "https://www.facebook.com/ekoe",
+      "https://www.instagram.com/ekoe"
+    ]
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <Landing loaderData={loaderData} />
+    </>
+  );
 }

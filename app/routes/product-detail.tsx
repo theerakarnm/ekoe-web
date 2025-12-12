@@ -291,8 +291,66 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
     }
   };
 
+
+  const baseUrl = "https://ekoe.com"; // ideally from env
+
+  const productSchema = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": productData.productName,
+    "image": productData.galleryImages?.map(img => img.url) || [productData.image.url],
+    "description": productData.description?.join(" ") || productData.subtitle,
+    "brand": {
+      "@type": "Brand",
+      "name": "Ekoe"
+    },
+    "sku": productData.productId,
+    "offers": {
+      "@type": "Offer",
+      "url": `${baseUrl}/product-detail/${productData.productId}`,
+      "priceCurrency": "THB",
+      "price": currentPrice / 100, // Assuming price is in cents
+      "availability": isOutOfStock ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+      "itemCondition": "https://schema.org/NewCondition"
+    },
+    "aggregateRating": productData.rating ? {
+      "@type": "AggregateRating",
+      "ratingValue": productData.rating,
+      "reviewCount": productData.reviewCount || 1
+    } : undefined
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": `${baseUrl}/`
+    }, {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Shop",
+      "item": `${baseUrl}/shop`
+    }, {
+      "@type": "ListItem",
+      "position": 3,
+      "name": productData.productName,
+      "item": `${baseUrl}/product-detail/${productData.productId}`
+    }]
+  };
+
   return (
     <div className="min-h-screen bg-white font-sans text-[#1a1a1a]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <Header />
 
       <main className="pt-16 pb-16">

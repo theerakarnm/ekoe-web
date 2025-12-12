@@ -201,8 +201,30 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
     }
   };
 
+  const baseUrl = "https://ekoe.com";
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": `${baseUrl}/`
+    }, {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Shop",
+      "item": `${baseUrl}/shop`
+    }]
+  };
+
   return (
     <div className="min-h-screen bg-white font-sans">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <Header />
 
       <main className="pt-8 sm:pt-8">

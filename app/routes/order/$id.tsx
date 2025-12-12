@@ -11,6 +11,8 @@ import { showError } from '~/lib/toast';
 import { OrderStatusTracker } from '~/components/order/order-status-tracker';
 import { OrderStatusTimeline } from '~/components/order/order-status-timeline';
 import type { OrderDetail } from '~/lib/services/order.service';
+import { useCartStore } from '~/store/cart';
+import { useNavigate } from 'react-router';
 
 interface OrderStatusHistory {
   id: string;
@@ -43,6 +45,9 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [statusHistory, setStatusHistory] = useState<OrderStatusHistory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { addItem } = useCartStore();
+  const navigate = useNavigate();
+  const [isReordering, setIsReordering] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -106,6 +111,41 @@ export default function OrderDetailPage() {
       return estimatedDate;
     }
     return null;
+  };
+
+  const handleReOrder = async () => {
+    if (!order) return;
+    setIsReordering(true);
+    try {
+      let addedCount = 0;
+      for (const item of order.items) {
+        // Use product snapshot for image if available, or fallback
+        const image = item.productSnapshot?.images?.[0] || '';
+
+        await addItem({
+          productId: item.productId || '',
+          variantId: item.variantId || undefined,
+          productName: item.productName,
+          variantName: item.variantName || undefined,
+          image,
+          price: item.unitPrice,
+          quantity: item.quantity,
+        });
+        addedCount++;
+      }
+
+      if (addedCount > 0) {
+        // Redirect to cart
+        navigate('/cart');
+      } else {
+        showError('No available items to re-order');
+      }
+    } catch (error) {
+      console.error('Re-order error:', error);
+      showError('Failed to add items to cart');
+    } finally {
+      setIsReordering(false);
+    }
   };
 
   if (isLoading) {
@@ -346,6 +386,19 @@ export default function OrderDetailPage() {
         <div className="mt-8 flex gap-4 justify-center">
           <Button asChild variant="outline">
             <Link to="/shop">Continue Shopping</Link>
+          </Button>
+          <Button
+            onClick={handleReOrder}
+            disabled={isReordering}
+          >
+            {isReordering ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Adding to Cart...
+              </>
+            ) : (
+              'Re-order'
+            )}
           </Button>
           <Button asChild variant="outline">
             <Link to="/account">View All Orders</Link>

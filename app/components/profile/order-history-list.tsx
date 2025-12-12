@@ -3,8 +3,12 @@ import { Link } from 'react-router';
 import { useAuthStore } from '~/store/auth-store';
 import { Button } from '~/components/ui/button';
 import { Badge } from '~/components/ui/badge';
-import { Loader2, Package, ExternalLink } from 'lucide-react';
-import { showError } from '~/lib/toast';
+import { Loader2, Package, ExternalLink, RefreshCw } from 'lucide-react';
+import { showError, showSuccess } from '~/lib/toast';
+import { useCartStore } from '~/store/cart';
+import { useNavigate } from 'react-router';
+import { apiClient, type SuccessResponseWrapper } from '~/lib/api-client';
+import type { OrderDetail } from '~/lib/services/order.service';
 
 interface Order {
   id: string;
@@ -48,6 +52,10 @@ export function OrderHistoryList() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const limit = 10;
+
+  const { addItem } = useCartStore();
+  const navigate = useNavigate();
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -116,6 +124,47 @@ export function OrderHistoryList() {
     );
   }
 
+
+  const handleReOrder = async (orderId: string) => {
+    setProcessingId(orderId);
+    try {
+      // Fetch full order details to get items
+      const response = await apiClient.get<SuccessResponseWrapper<OrderDetail>>(
+        `/api/orders/${orderId}`
+      );
+      const order = response.data.data;
+
+      let addedCount = 0;
+      for (const item of order.items) {
+        // Use product snapshot for image if available, or fallback
+        const image = item.productSnapshot?.images?.[0] || '';
+
+        await addItem({
+          productId: item.productId || '',
+          variantId: item.variantId || undefined,
+          productName: item.productName,
+          variantName: item.variantName || undefined,
+          image,
+          price: item.unitPrice,
+          quantity: item.quantity,
+        });
+        addedCount++;
+      }
+
+      if (addedCount > 0) {
+        navigate('/cart');
+        showSuccess('Items added to cart');
+      } else {
+        showError('No available items to re-order');
+      }
+    } catch (error) {
+      console.error('Re-order error:', error);
+      showError('Failed to re-order');
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
   const totalPages = Math.ceil(total / limit);
 
   return (
@@ -170,6 +219,20 @@ export function OrderHistoryList() {
 
             {/* Actions */}
             <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleReOrder(order.id)}
+                disabled={processingId === order.id}
+                className="flex items-center gap-1"
+              >
+                {processingId === order.id ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-3 w-3" />
+                )}
+                Re-order
+              </Button>
               <Button asChild variant="outline" size="sm">
                 <Link to={`/order/${order.id}`} className="flex items-center gap-1">
                   Track Order

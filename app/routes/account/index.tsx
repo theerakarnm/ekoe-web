@@ -4,10 +4,11 @@ import { CustomerAuthGuard } from '~/components/auth/customer-auth-guard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { Button } from '~/components/ui/button';
-import { LogOut, User, Package, MapPin, ArrowLeft } from 'lucide-react';
+import { LogOut, User, Package, MapPin, ArrowLeft, Heart } from 'lucide-react';
 import { ProfileInfoForm } from '~/components/profile/profile-info-form';
 import { OrderHistoryList } from '~/components/profile/order-history-list';
 import { AddressManager } from '~/components/profile/address-manager';
+import { Wishlist } from '~/components/profile/wishlist';
 import { Link } from 'react-router';
 
 export default function AccountPage() {
@@ -62,6 +63,10 @@ export default function AccountPage() {
               <MapPin className="h-4 w-4" />
               <span className="hidden sm:inline">Addresses</span>
             </TabsTrigger>
+            <TabsTrigger value="wishlist" className="flex items-center gap-2">
+              <Heart className="h-4 w-4" />
+              <span className="hidden sm:inline">Wishlist</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* Profile Tab */}
@@ -105,6 +110,21 @@ export default function AccountPage() {
               </CardHeader>
               <CardContent>
                 <AddressManager />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Wishlist Tab */}
+          <TabsContent value="wishlist">
+            <Card>
+              <CardHeader>
+                <CardTitle>My Wishlist</CardTitle>
+                <CardDescription>
+                  Save items you love for later
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Wishlist />
               </CardContent>
             </Card>
           </TabsContent>
