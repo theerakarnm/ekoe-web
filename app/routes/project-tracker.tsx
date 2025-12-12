@@ -38,6 +38,7 @@ const EkoeProjectTracker = () => {
   };
 
   // Data structure extracted from the PDF and Codebase Analysis
+  // Last updated: Dec 11, 2025
   const projectPhases = [
     {
       id: 1,
@@ -80,8 +81,8 @@ const EkoeProjectTracker = () => {
       title: "Phase 2: Backend & Admin Portal",
       thTitle: "ระบบหลังบ้านและผู้ดูแล",
       icon: <Server className="w-6 h-6" />,
-      progress: 95,
-      status: "in-progress",
+      progress: 98,
+      status: "completed",
       goal: "Build the internal tools first to populate Reliable Data.",
       categories: [
         {
@@ -97,12 +98,18 @@ const EkoeProjectTracker = () => {
           tasks: [
             { name: "Product List View", progress: 100 },
             { name: "Product Create/Edit Form", progress: 100 },
-            { name: "Blog Post Editor", progress: 100 },
+            { name: "Product Set Manager", progress: 100 },
+            { name: "Product Preview Feature", progress: 100 },
+            { name: "Block-Based Blog Editor", progress: 100 },
+            { name: "Blog Table of Contents", progress: 100 },
             { name: "Image Upload Integration", progress: 100 },
-            { name: "Order Status Management", progress: 90 },
-            { name: "Discount Code UI", progress: 90 }
+            { name: "Order Status Management", progress: 100 },
+            { name: "Discount Code UI", progress: 100 },
+            { name: "Promotions System", progress: 100 },
+            { name: "Dashboard Real Data Integration", progress: 100 },
+            { name: "Labs Management (Create/Delete)", progress: 100 }
           ]
-        }
+        },
       ]
     },
     {
@@ -110,7 +117,7 @@ const EkoeProjectTracker = () => {
       title: "Phase 3: Public Storefront (SSR & UI)",
       thTitle: "หน้าร้านค้า (Frontend)",
       icon: <Layout className="w-6 h-6" />,
-      progress: 90,
+      progress: 95,
       status: "in-progress",
       goal: "Build the high-performance, SEO-friendly client app.",
       categories: [
@@ -132,9 +139,19 @@ const EkoeProjectTracker = () => {
         {
           name: "Shop & Products",
           tasks: [
-            { name: "Shop Grid & Filters", progress: 90 },
-            { name: "Product Details (Gallery, Tabs)", progress: 90 },
-            { name: "Related Products", progress: 80 }
+            { name: "Shop Grid & Filters", progress: 100 },
+            { name: "Product Details (Gallery, Tabs)", progress: 100 },
+            { name: "Product Set Detail Page", progress: 100 },
+            { name: "Related Products", progress: 90 }
+          ]
+        },
+        {
+          name: "Blog",
+          tasks: [
+            { name: "Blog List Page (/blogs)", progress: 100 },
+            { name: "Blog Detail Page", progress: 100 },
+            { name: "Block Content Renderer", progress: 100 },
+            { name: "Table of Contents Navigation", progress: 100 }
           ]
         }
       ]
@@ -144,7 +161,7 @@ const EkoeProjectTracker = () => {
       title: "Phase 4: Cart & Checkout Logic",
       thTitle: "ตะกร้าสินค้าและการชำระเงิน",
       icon: <ShoppingCart className="w-6 h-6" />,
-      progress: 80,
+      progress: 95,
       status: "in-progress",
       goal: "Secure and smooth transaction flow.",
       categories: [
@@ -153,17 +170,21 @@ const EkoeProjectTracker = () => {
           tasks: [
             { name: "Zustand Store Setup", progress: 100 },
             { name: "Cart Drawer UI", progress: 100 },
-            { name: "Free Gift Logic", progress: 80 },
-            { name: "Coupon Code API", progress: 80 }
+            { name: "Free Gift Logic", progress: 100 },
+            { name: "Coupon Code API", progress: 100 },
+            { name: "Promotional Cart Service", progress: 100 },
+            { name: "Promotion Security & Validation", progress: 100 }
           ]
         },
         {
           name: "Checkout Flow",
           tasks: [
-            { name: "Step 1: Contact & Delivery", progress: 90 },
-            { name: "Step 2: Shipping Method", progress: 80 },
-            { name: "Step 3: Payments (Credit Card/PromptPay)", progress: 50 },
-            { name: "Order Creation API", progress: 60 }
+            { name: "Step 1: Contact & Delivery", progress: 100 },
+            { name: "Step 2: Shipping Method", progress: 90 },
+            { name: "Step 3: Payments (Credit Card/PromptPay)", progress: 80 },
+            { name: "Order Creation API", progress: 80 },
+            { name: "Order Confirmation Page", progress: 100 },
+            { name: "Transaction UI & Error Handling", progress: 100 }
           ]
         }
       ]
@@ -173,17 +194,17 @@ const EkoeProjectTracker = () => {
       title: "Phase 5: SEO, Analytics & Optimization",
       thTitle: "SEO และการวัดผล",
       icon: <BarChart className="w-6 h-6" />,
-      progress: 10,
+      progress: 43,
       status: "todo",
       goal: "Maximize visibility and performance.",
       categories: [
         {
           name: "SEO & Analytics",
           tasks: [
-            { name: "Metadata & JSON-LD", progress: 20 },
-            { name: "Sitemap & Robots.txt", progress: 0 },
+            { name: "Metadata & JSON-LD", progress: 70 },
+            { name: "Sitemap & Robots.txt", progress: 50 },
             { name: "Google Analytics / GTM", progress: 0 },
-            { name: "Core Web Vitals & Image Opt.", progress: 20 }
+            { name: "Core Web Vitals & Image Opt.", progress: 50 }
           ]
         }
       ]
@@ -193,17 +214,17 @@ const EkoeProjectTracker = () => {
       title: "Phase 6: Testing & Deployment",
       thTitle: "การทดสอบและนำขึ้นระบบ",
       icon: <Rocket className="w-6 h-6" />,
-      progress: 10,
+      progress: 95,
       status: "todo",
       goal: "Ensuring stability and production readiness.",
       categories: [
         {
           name: "QA & Deploy",
           tasks: [
-            { name: "Cross-browser Testing", progress: 0 },
-            { name: "End-to-End Testing", progress: 0 },
+            { name: "End-to-End Testing", progress: 80 },
             { name: "Database Migrations", progress: 100 },
-            { name: "Vercel Deployment", progress: 0 }
+            { name: "Docker Configuration", progress: 100 },
+            { name: "Vercel Deployment", progress: 100 }
           ]
         }
       ]
@@ -400,11 +421,11 @@ const EkoeProjectTracker = () => {
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-3 gap-4 md:w-auto w-full">
               <div className="text-center p-3 bg-emerald-50 rounded-xl border border-emerald-100">
-                <div className="text-emerald-600 font-bold text-xl">1</div>
+                <div className="text-emerald-600 font-bold text-xl">2</div>
                 <div className="text-xs text-emerald-700 font-medium">Completed</div>
               </div>
               <div className="text-center p-3 bg-amber-50 rounded-xl border border-amber-100">
-                <div className="text-amber-600 font-bold text-xl">3</div>
+                <div className="text-amber-600 font-bold text-xl">2</div>
                 <div className="text-xs text-amber-700 font-medium">In Progress</div>
               </div>
               <div className="text-center p-3 bg-slate-100 rounded-xl border border-slate-200">
@@ -421,7 +442,7 @@ const EkoeProjectTracker = () => {
             <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
               <Clock className="w-5 h-5 text-slate-400" /> Timeline Breakdown
             </h3>
-            <span className="text-xs text-slate-400 font-medium">Last Updated: Dec 02, 2025</span>
+            <span className="text-xs text-slate-400 font-medium">Last Updated: Dec 11, 2025</span>
           </div>
 
           {projectPhases.map((phase) => (

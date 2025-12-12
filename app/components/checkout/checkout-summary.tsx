@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { formatCurrencyFromCents } from "~/lib/formatter";
-import { useCartStore } from "~/store/cart";
+import { useCartStore, type FreeGift } from "~/store/cart";
 import { DiscountCodeInput } from "./discount-code-input";
 import { FreeGiftDisplay } from "./free-gift-display";
 import { ShippingMethodSelector } from "./shipping-method-selector";
@@ -11,6 +11,7 @@ export function CheckoutSummary() {
   const discountAmount = useCartStore((state) => state.discountAmount);
   const eligibleGifts = useCartStore((state) => state.eligibleGifts);
   const fetchEligibleGifts = useCartStore((state) => state.fetchEligibleGifts);
+  const getComplimentaryGifts = useCartStore((state) => state.getComplimentaryGifts);
 
   const [shippingCost, setShippingCost] = useState(0);
   const [selectedShippingMethod, setSelectedShippingMethod] = useState<string>();
@@ -18,6 +19,31 @@ export function CheckoutSummary() {
   const subtotal = getSubtotal();
   const discount = discountAmount;
   const total = subtotal + shippingCost - discount;
+
+  // Combine eligible gifts and complimentary gifts from cart items
+  const allGifts = useMemo(() => {
+    const complimentaryGifts = getComplimentaryGifts();
+
+    // Convert complimentary gifts to FreeGift format
+    const convertedGifts: FreeGift[] = complimentaryGifts.map((gift) => ({
+      id: `complimentary-${gift.productId}`,
+      name: gift.name,
+      description: gift.description || `Gift from ${gift.productName}`,
+      imageUrl: gift.imageUrl,
+      value: gift.value,
+    }));
+
+    // Combine and deduplicate by name
+    const combined = [...convertedGifts, ...eligibleGifts];
+    const uniqueGifts = combined.reduce((acc, gift) => {
+      if (!acc.some(g => g.name === gift.name)) {
+        acc.push(gift);
+      }
+      return acc;
+    }, [] as FreeGift[]);
+
+    return uniqueGifts;
+  }, [getComplimentaryGifts, eligibleGifts]);
 
   // Fetch eligible gifts when cart changes
   useEffect(() => {
@@ -101,8 +127,8 @@ export function CheckoutSummary() {
         </span>
       </div>
 
-      {/* Free Gifts */}
-      <FreeGiftDisplay gifts={eligibleGifts} />
+      {/* Free Gifts - Shows both complimentary and eligible gifts */}
+      <FreeGiftDisplay gifts={allGifts} />
     </div>
   );
 }

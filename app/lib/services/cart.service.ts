@@ -15,6 +15,13 @@ export interface CartItemInput {
   quantity: number;
 }
 
+export interface ComplimentaryGiftInfo {
+  name: string;
+  description: string;
+  image: string;
+  value: number;
+}
+
 export interface ValidatedCartItem {
   productId: string;
   variantId?: string;
@@ -27,6 +34,7 @@ export interface ValidatedCartItem {
   availableQuantity: number;
   sku?: string;
   image?: string;
+  complimentaryGift?: ComplimentaryGiftInfo;
 }
 
 export interface CartValidationError {

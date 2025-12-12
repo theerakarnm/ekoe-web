@@ -537,9 +537,9 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                 )}
 
                 {/* Complimentary Gift */}
-                {productData.complimentaryGift && (
+                {(productData.complimentaryGift && (productData.complimentaryGift?.name?.length || 0) > 0) ? (
                   <ComplimentaryGift gift={productData.complimentaryGift} />
-                )}
+                ) : null}
 
                 {/* Delivery Info */}
                 <div className="grid grid-cols-2 gap-4 pt-6 border-t border-gray-100">
@@ -680,7 +680,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             </div>
           ) : (
             /* Loved by Real Users - เสียงจากผู้ใช้จริง for Single Products */
-            (productData.realUserReviews?.image || productData.realUserReviews?.content) && (
+            (productData.realUserReviews?.image || (productData.realUserReviews?.content?.length || 0) > 0) && (
               <div className="mb-24 bg-[#F9F5F0] p-8 md:p-16 rounded-2xl">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                   <div className="relative aspect-4/5 lg:aspect-square overflow-hidden rounded-lg">
