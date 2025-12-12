@@ -39,6 +39,10 @@ export default [
   // Date Picker Demo
   route("date-picker-demo", "routes/date-picker-demo.tsx"),
 
+  // SEO
+  route("robots.txt", "routes/robots[.]txt.tsx"),
+  route("sitemap.xml", "routes/sitemap[.]xml.tsx"),
+
   layout("routes/admin/_layout.tsx", [
     route("admin/dashboard", "routes/admin/dashboard.tsx"),
 
