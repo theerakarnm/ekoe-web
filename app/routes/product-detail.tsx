@@ -19,7 +19,7 @@ import { DiscountCodes } from "~/components/product/discount-codes";
 import { ComplimentaryGift } from "~/components/product/complimentary-gift";
 import { ProductTabs } from "~/components/product/product-tabs";
 import { RelatedProducts } from "~/components/product/related-products";
-import { FrequentlyBoughtTogether } from "~/components/product/frequently-bought-together";
+
 import { getProduct, type Product } from "~/lib/services/product.service";
 import { formatCurrencyFromCents } from "~/lib/formatter";
 
@@ -801,12 +801,6 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                 ))}
               </div>
             )}
-          </div>
-
-
-          {/* Frequently Bought Together */}
-          <div className="mb-24">
-            <FrequentlyBoughtTogether productId={apiProduct.id} />
           </div>
 
           {/* Related Products */}

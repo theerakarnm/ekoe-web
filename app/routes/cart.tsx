@@ -9,7 +9,9 @@ import { CartSummary } from "~/components/cart/cart-summary";
 import { RecommendedProduct } from "~/components/cart/recommended-product";
 import { CartValidationErrors } from "~/components/cart/cart-validation-errors";
 import { validateCart, type ValidatedCart } from "~/lib/services/cart.service";
+import { getBestSellers, type Product } from "~/lib/services/product.service";
 import { Gift, Loader2 } from "lucide-react";
+import { Skeleton } from "~/components/ui/skeleton";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -18,21 +20,27 @@ export function meta({ }: Route.MetaArgs) {
   ];
 }
 
-const recommendedProducts = [
-  {
-    id: 101,
-    name: "The Serum",
-    image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=200",
-    price: 114700,
-    originalPrice: 140000,
-  },
-  {
-    id: 102,
-    name: "The Oil Bar",
-    image: "https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?auto=format&fit=crop&q=80&w=200",
-    price: 21200,
-  },
-];
+// Transform API product to recommended product format
+interface RecommendedProductType {
+  id: string | number;
+  name: string;
+  image: string;
+  price: number;
+  originalPrice?: number;
+}
+
+function transformToRecommendedProduct(product: Product): RecommendedProductType {
+  const primaryImage = product.images?.find(img => img.isPrimary) || product.images?.[0];
+  const variant = product.variants?.[0];
+
+  return {
+    id: product.id,
+    name: product.name,
+    image: primaryImage?.url || '/placeholder-product.jpg',
+    price: variant?.price || product.basePrice,
+    originalPrice: variant?.compareAtPrice || product.compareAtPrice || undefined,
+  };
+}
 
 export default function Cart() {
   const items = useCartStore((state) => state.items);
@@ -42,6 +50,28 @@ export default function Cart() {
   const [validationResult, setValidationResult] = useState<ValidatedCart | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [showErrors, setShowErrors] = useState(true);
+
+  // State for recommended products from API
+  const [recommendedProducts, setRecommendedProducts] = useState<RecommendedProductType[]>([]);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(true);
+
+  // Fetch recommended products from API
+  useEffect(() => {
+    async function fetchRecommendedProducts() {
+      try {
+        setIsLoadingRecommendations(true);
+        const products = await getBestSellers(4);
+        const transformed = products.map(transformToRecommendedProduct);
+        setRecommendedProducts(transformed);
+      } catch (error) {
+        console.error('Failed to load recommended products:', error);
+      } finally {
+        setIsLoadingRecommendations(false);
+      }
+    }
+
+    fetchRecommendedProducts();
+  }, []);
 
   // Validate cart when items change
   useEffect(() => {
@@ -203,9 +233,23 @@ export default function Cart() {
               <div>
                 <h3 className="font-serif text-xl mb-6">You May Also Like</h3>
                 <div className="space-y-2">
-                  {recommendedProducts.map((product) => (
-                    <RecommendedProduct key={product.id} product={product} />
-                  ))}
+                  {isLoadingRecommendations ? (
+                    // Loading skeleton
+                    [...Array(3)].map((_, i) => (
+                      <div key={i} className="flex items-center gap-4 py-4">
+                        <Skeleton className="w-16 h-16 shrink-0" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-3/4" />
+                          <Skeleton className="h-3 w-1/2" />
+                        </div>
+                        <Skeleton className="h-8 w-16" />
+                      </div>
+                    ))
+                  ) : recommendedProducts.length > 0 ? (
+                    recommendedProducts.map((product) => (
+                      <RecommendedProduct key={product.id} product={product} />
+                    ))
+                  ) : null}
                 </div>
               </div>
             </div>
