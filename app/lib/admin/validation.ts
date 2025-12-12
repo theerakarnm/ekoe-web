@@ -107,8 +107,8 @@ export const productSchema = z.object({
   description: z.string().optional(),
   shortDescription: z.string().optional(),
 
-  // Pricing
-  basePrice: priceValidator,
+  // Pricing - Note: basePrice is optional as pricing is now managed through variants
+  basePrice: priceValidator.optional().default(0),
   compareAtPrice: priceValidator.optional(),
 
   // Product type
@@ -143,19 +143,7 @@ export const productSchema = z.object({
   howToUse: productHowToUseSchema.optional(),
   complimentaryGift: productComplimentaryGiftSchema.optional(),
   realUserReviews: realUserReviewsSchema.optional(),
-}).refine(
-  (data) => {
-    // If compareAtPrice is provided, it should be greater than basePrice
-    if (data.compareAtPrice && data.compareAtPrice <= data.basePrice) {
-      return false;
-    }
-    return true;
-  },
-  {
-    message: 'Compare at price must be greater than base price',
-    path: ['compareAtPrice'],
-  }
-);
+});
 
 export type ProductFormData = z.infer<typeof productSchema>;
 export type ProductVariantFormData = z.infer<typeof productVariantSchema>;

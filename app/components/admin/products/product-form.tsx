@@ -8,7 +8,6 @@ import {
   productSchema,
   type ProductFormData,
   generateSlug,
-  formatPrice,
   parsePrice,
 } from '~/lib/admin/validation';
 import {
@@ -25,7 +24,7 @@ import {
   type ProductVariant,
 } from '~/lib/services/admin/product-admin.service';
 import { ProductPreview } from './product-preview';
-import { PriceInput } from './price-input';
+
 import { ImageUploader } from './image-uploader';
 import { VariantManager } from './variant-manager';
 import { IngredientsManager } from './ingredients-manager';
@@ -507,68 +506,6 @@ export function ProductForm({ product }: ProductFormProps) {
                       </FormItem>
                     )}
                   />
-                </div>
-              </Card>
-
-              {/* Pricing */}
-              <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Pricing</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="basePrice"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel required>Base Price</FormLabel>
-                        <FormControl>
-                          <PriceInput
-                            {...field}
-                            onChange={field.onChange}
-                            placeholder="0.00"
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Price in dollars (e.g., 29.99)
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="compareAtPrice"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Compare At Price</FormLabel>
-                        <FormControl>
-                          <PriceInput
-                            {...field}
-                            value={field.value || undefined}
-                            onChange={field.onChange}
-                            placeholder="0.00"
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Original price for showing discounts
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Price Preview */}
-                <div className="mt-4 p-4 bg-muted/50 rounded-lg flex items-center justify-center gap-3">
-                  <span className="text-sm text-muted-foreground">Preview:</span>
-                  {form.watch('compareAtPrice') && form.watch('compareAtPrice')! > (form.watch('basePrice') || 0) && (
-                    <span className="text-lg text-muted-foreground line-through">
-                      ${formatPrice(form.watch('compareAtPrice')!)}
-                    </span>
-                  )}
-                  <span className="text-xl font-bold">
-                    ${formatPrice(form.watch('basePrice') || 0)}
-                  </span>
                 </div>
               </Card>
 
