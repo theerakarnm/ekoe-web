@@ -10,6 +10,7 @@ import {
 
 import type { Route } from "./+types/root";
 import { Toaster } from "~/components/ui/sonner";
+import { GlobalLoading } from "~/components/global-loading";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
@@ -36,6 +37,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        <GlobalLoading />
         {children}
         <ScrollRestoration />
         <Scripts />
