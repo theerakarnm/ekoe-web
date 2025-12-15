@@ -54,12 +54,12 @@ export default function OnlineExecutive() {
                 <h1 className="text-4xl md:text-5xl font-serif text-gray-900 leading-tight mb-2">
                   EXCLUSIVE PRIVILEGES
                 </h1>
-                <h1 className="text-4xl md:text-5xl font-serif text-gray-900 leading-tight border-b border-gray-200 pb-6 inline-block">
+                <h1 className="text-4xl md:text-5xl font-serif text-gray-900 leading-tight border-b-2 border-black pb-6 inline-block">
                   ONLY HERE
                 </h1>
               </div>
 
-              <div className="space-y-4 text-gray-600 font-sans">
+              <div className="space-y-4 text-gray-600 font-sans font-thai">
                 <p>
                   ประสบการณ์ดูแลผิวที่เหนือกว่ารอคุณอยู่ที่ Ekoe Online Store พบกับของขวัญ
                   แทนความใส่ใจ และข้อเสนอสุดพิเศษที่ ตั้งใจเลือกมาเพื่อคุณโดยเฉพาะ
@@ -77,19 +77,19 @@ export default function OnlineExecutive() {
                   <>
                     <div className="flex items-center space-x-2 text-gray-800 font-medium">
                       <Calendar className="h-5 w-5" />
-                      <span>
+                      <span className='font-thai font-semibold'>
                         {promotion.dateRange}
                       </span>
                     </div>
 
-                    <Card key={promotion.id} className="bg-gray-50 border-gray-100 shadow-sm rounded-sm">
+                    <Card key={promotion.id} className="bg-gray-50 border-gray-100 shadow-2xl rounded-sm">
                       <CardContent className="p-8">
-                        <h3 className="text-2xl font-serif text-gray-900 mb-4">
-                          {promotion.name}{' '}
+                        <h3 className="text-2xl text-gray-900 mb-4 font-thai font-bold">
+                          {promotion.name}
                         </h3>
 
                         {promotion.benefits.length > 0 && (
-                          <ul className="space-y-2 text-gray-600 mb-6 font-sans list-disc list-inside">
+                          <ul className="space-y-2 text-gray-600 mb-6 font-thai list-disc list-inside">
                             {promotion.benefits.map((benefit, index) => (
                               <li key={index}>{benefit}</li>
                             ))}
@@ -97,8 +97,8 @@ export default function OnlineExecutive() {
                         )}
 
                         {promotion.description && (
-                          <p className="text-gray-600 mb-4 font-sans">
-                            {promotion.description}{' '}
+                          <p className="text-gray-600 mb-4 font-thai">
+                            {promotion.description}
                           </p>
                         )}
 
