@@ -101,6 +101,10 @@ export default function ProductsIndexPage() {
     }
   };
 
+  const handleRefresh = () => {
+    revalidator.revalidate();
+  };
+
   return (
     <div className="space-y-6">
       <header className="flex items-center justify-between">
@@ -133,6 +137,7 @@ export default function ProductsIndexPage() {
           onSort={handleSort}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onRefresh={handleRefresh}
           currentSearch={searchParams.get('search') || ''}
           currentStatus={searchParams.get('status') || 'all'}
           currentSortBy={searchParams.get('sortBy') || ''}

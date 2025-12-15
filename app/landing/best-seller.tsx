@@ -16,6 +16,10 @@ import {
  */
 function transformProduct(product: Product): IProduct {
   const primaryImage = product.images?.find(img => img.isPrimary) || product.images?.[0];
+  // Get secondary image (explicitly marked, or first non-primary image)
+  const secondaryImage = product.images?.find(img => img.isSecondary)
+    || product.images?.find(img => !img.isPrimary && img.url !== primaryImage?.url)
+    || (product.images && product.images.length > 1 ? product.images[1] : undefined);
   const variants = product.variants || [];
 
   // Calculate price range from variants or use base price
@@ -40,6 +44,10 @@ function transformProduct(product: Product): IProduct {
       description: primaryImage?.altText || primaryImage?.description || product.name,
       url: primaryImage?.url || '/placeholder-product.jpg'
     },
+    secondaryImage: secondaryImage ? {
+      description: secondaryImage.altText || secondaryImage.description || product.name,
+      url: secondaryImage.url,
+    } : undefined,
     productName: product.name,
     priceTitle,
     quickCartPrice: variants[0]?.price || product.basePrice

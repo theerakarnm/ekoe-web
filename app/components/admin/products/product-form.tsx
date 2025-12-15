@@ -231,6 +231,26 @@ export function ProductForm({ product }: ProductFormProps) {
     }
   };
 
+  // Handle set secondary image (hover image)
+  const handleSetSecondary = async (imageId: string) => {
+    if (!product) return;
+
+    try {
+      await updateProductImage(product.id, imageId, { isSecondary: true });
+
+      setImages((prev) =>
+        prev.map((img) => ({
+          ...img,
+          isSecondary: img.id === imageId,
+        }))
+      );
+      showSuccess('Secondary image updated');
+    } catch (error) {
+      console.error('Failed to set secondary image:', error);
+      showError('Failed to set secondary image');
+    }
+  };
+
   // Handle alt text update
   const handleAltTextUpdate = async (imageId: string, altText: string) => {
     if (!product) return;
@@ -640,6 +660,7 @@ export function ProductForm({ product }: ProductFormProps) {
                     onReorder={handleImageReorder}
                     onDelete={handleImageDelete}
                     onSetPrimary={handleSetPrimary}
+                    onSetSecondary={handleSetSecondary}
                     onUpdateAltText={handleAltTextUpdate}
                     onUpdateDescription={handleDescriptionUpdate}
                   />

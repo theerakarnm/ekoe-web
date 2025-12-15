@@ -27,6 +27,7 @@ export interface Product {
   reviewCount: number;
   viewCount: number;
   soldCount: number;
+  sortOrder: number;
   trackInventory: boolean;
   createdAt: string;
   updatedAt: string;
@@ -75,6 +76,7 @@ export interface ProductImage {
   variantId?: number;
   sortOrder: number;
   isPrimary: boolean;
+  isSecondary: boolean;
   createdAt: string;
 }
 
@@ -262,6 +264,7 @@ export async function updateProductImage(
     description?: string;
     sortOrder?: number;
     isPrimary?: boolean;
+    isSecondary?: boolean;
   },
   headers?: HeadersInit
 ): Promise<ProductImage> {
@@ -385,6 +388,49 @@ export async function deleteProductVariant(
       `/api/admin/products/${productId}/variants/${variantId}`,
       getAxiosConfig(headers)
     );
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
+// ============================================================================
+// Sequence/Sort Order Functions
+// ============================================================================
+
+/**
+ * Update a single product's sort order/sequence
+ */
+export async function updateProductSequence(
+  productId: string,
+  sortOrder: number,
+  headers?: HeadersInit
+): Promise<Product> {
+  try {
+    const response = await apiClient.patch<SuccessResponseWrapper<Product>>(
+      `/api/admin/products/${productId}/sequence`,
+      { sortOrder },
+      getAxiosConfig(headers)
+    );
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
+/**
+ * Bulk update product sequences (for drag-and-drop reordering)
+ */
+export async function updateProductSequences(
+  updates: { productId: string; sortOrder: number }[],
+  headers?: HeadersInit
+): Promise<{ updated: number }> {
+  try {
+    const response = await apiClient.patch<SuccessResponseWrapper<{ updated: number }>>(
+      '/api/admin/products/sequences',
+      { updates },
+      getAxiosConfig(headers)
+    );
+    return response.data.data;
   } catch (error) {
     throw handleApiError(error);
   }

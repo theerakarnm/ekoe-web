@@ -85,9 +85,6 @@ export default function Header({
                         <Link to="/about" className="w-full cursor-pointer">Our Story</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to="/ingredients" className="w-full cursor-pointer">Ingredients</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
                         <Link to="/blogs" className="w-full cursor-pointer">Blog</Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>

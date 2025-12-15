@@ -40,6 +40,7 @@ export interface ProductImage {
   variantId: string | null;
   sortOrder: number;
   isPrimary: boolean;
+  isSecondary: boolean;
   createdAt: string;
 }
 

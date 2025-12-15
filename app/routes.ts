@@ -17,6 +17,7 @@ export default [
     route("set-product-detail", "routes/set-product-detail.tsx"),
     route("cart", "routes/cart.tsx"),
     route("checkout", "routes/checkout.tsx"),
+    route("about", "routes/about.tsx"),
 
     // Payment routes
     route("payment/2c2p/return", "routes/payment/2c2p/return.tsx"),

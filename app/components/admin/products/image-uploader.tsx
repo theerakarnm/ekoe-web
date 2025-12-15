@@ -1,5 +1,5 @@
 import { useState, useRef, type DragEvent } from 'react';
-import { X, Upload, Star, GripVertical } from 'lucide-react';
+import { X, Upload, Star, GripVertical, Image as ImageIcon } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
@@ -12,6 +12,7 @@ interface ImageUploaderProps {
   onReorder: (images: ProductImage[]) => void;
   onDelete: (imageId: string) => void;
   onSetPrimary: (imageId: string) => void;
+  onSetSecondary: (imageId: string) => void;
   onUpdateAltText: (imageId: string, altText: string) => void;
   onUpdateDescription: (imageId: string, description: string) => void;
 }
@@ -22,6 +23,7 @@ export function ImageUploader({
   onReorder,
   onDelete,
   onSetPrimary,
+  onSetSecondary,
   onUpdateAltText,
   onUpdateDescription,
 }: ImageUploaderProps) {
@@ -175,8 +177,13 @@ export function ImageUploader({
                       className="w-24 h-24 object-cover rounded"
                     />
                     {image.isPrimary && (
-                      <div className="absolute -top-2 -right-2 bg-yellow-500 rounded-full p-1">
+                      <div className="absolute -top-2 -right-2 bg-yellow-500 rounded-full p-1" title="Primary Image">
                         <Star className="h-4 w-4 text-white fill-white" />
+                      </div>
+                    )}
+                    {image.isSecondary && (
+                      <div className="absolute -top-2 -left-2 bg-blue-500 rounded-full p-1" title="Secondary Image (Hover)">
+                        <ImageIcon className="h-4 w-4 text-white" />
                       </div>
                     )}
                   </div>
@@ -211,7 +218,7 @@ export function ImageUploader({
                         className="text-sm"
                       />
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {!image.isPrimary && (
                         <Button
                           type="button"
@@ -221,6 +228,18 @@ export function ImageUploader({
                         >
                           <Star className="h-3 w-3" />
                           Set Primary
+                        </Button>
+                      )}
+                      {!image.isSecondary && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onSetSecondary(image.id)}
+                          className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                        >
+                          <ImageIcon className="h-3 w-3" />
+                          Set Secondary
                         </Button>
                       )}
                       <Button

@@ -4,6 +4,10 @@ export interface IProduct {
     description: string;
     url: string;
   };
+  secondaryImage?: {
+    description: string;
+    url: string;
+  };
   productName: string;
   priceTitle: string;
   quickCartPrice: number;

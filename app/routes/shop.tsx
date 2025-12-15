@@ -26,6 +26,10 @@ import { formatCurrencyFromCents } from "~/lib/formatter";
 function mapProductToIProduct(product: Product): IProduct {
   // Get the primary image or first image
   const primaryImage = product.images?.find(img => img.isPrimary) || product.images?.[0];
+  // Get secondary image (explicitly marked, or first non-primary image)
+  const secondaryImage = product.images?.find(img => img.isSecondary)
+    || product.images?.find(img => !img.isPrimary && img.url !== primaryImage?.url)
+    || (product.images && product.images.length > 1 ? product.images[1] : undefined);
 
   // Map variants to sizes
   const sizes = product.variants?.map(variant => ({
@@ -40,6 +44,10 @@ function mapProductToIProduct(product: Product): IProduct {
       description: primaryImage?.altText || product.name,
       url: primaryImage?.url || 'https://images.unsplash.com/photo-1615397349754-cfa2066a298e?q=80&w=800&auto=format&fit=crop',
     },
+    secondaryImage: secondaryImage ? {
+      description: secondaryImage.altText || product.name,
+      url: secondaryImage.url,
+    } : undefined,
     productName: product.name,
     priceTitle: sizes && sizes.length > 0
       ? `${formatCurrencyFromCents(Math.min(...sizes.map(s => s.price)), { symbol: '$' })} - ${formatCurrencyFromCents(Math.max(...sizes.map(s => s.price)), { symbol: '$' })}`

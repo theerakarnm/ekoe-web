@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Search, ArrowUpDown, ArrowUp, ArrowDown, Edit, Trash2 } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Search, ArrowUpDown, ArrowUp, ArrowDown, Edit, Trash2, GripVertical } from 'lucide-react';
 import type { Product } from '~/lib/services/admin/product-admin.service';
+import { updateProductSequence, updateProductSequences } from '~/lib/services/admin/product-admin.service';
 import { formatPrice } from '~/lib/admin/validation';
 import {
   Table,
@@ -51,6 +52,7 @@ interface ProductTableProps {
   onSort: (sortBy: string, sortOrder: 'asc' | 'desc') => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => Promise<void>;
+  onRefresh?: () => void;
   currentSearch: string;
   currentStatus: string;
   currentSortBy: string;
@@ -68,6 +70,7 @@ export function ProductTable({
   onSort,
   onEdit,
   onDelete,
+  onRefresh,
   currentSearch,
   currentStatus,
   currentSortBy,
@@ -77,6 +80,14 @@ export function ProductTable({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Sequence editing state
+  const [editingSequence, setEditingSequence] = useState<{ id: string; value: number } | null>(null);
+  const [isSavingSequence, setIsSavingSequence] = useState(false);
+
+  // Drag and drop state
+  const [draggedProductId, setDraggedProductId] = useState<string | null>(null);
+  const [dragOverProductId, setDragOverProductId] = useState<string | null>(null);
 
   // Debounce search
   useEffect(() => {
@@ -169,6 +180,98 @@ export function ProductTable({
         setIsDeleting(false);
       }
     }
+  };
+
+  // Handle sequence input change
+  const handleSequenceChange = (productId: string, value: string) => {
+    const numValue = parseInt(value, 10);
+    if (!isNaN(numValue) && numValue >= 0) {
+      setEditingSequence({ id: productId, value: numValue });
+    }
+  };
+
+  // Save sequence on blur
+  const handleSequenceSave = async (product: Product) => {
+    if (!editingSequence || editingSequence.id !== product.id) return;
+    if (editingSequence.value === product.sortOrder) {
+      setEditingSequence(null);
+      return;
+    }
+
+    setIsSavingSequence(true);
+    try {
+      await updateProductSequence(product.id, editingSequence.value);
+      onRefresh?.();
+    } catch (error) {
+      console.error('Failed to update sequence:', error);
+    } finally {
+      setIsSavingSequence(false);
+      setEditingSequence(null);
+    }
+  };
+
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, productId: string) => {
+    setDraggedProductId(productId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', productId);
+  };
+
+  const handleDragOver = (e: React.DragEvent, productId: string) => {
+    e.preventDefault();
+    if (draggedProductId && draggedProductId !== productId) {
+      setDragOverProductId(productId);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverProductId(null);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetProductId: string) => {
+    e.preventDefault();
+    setDragOverProductId(null);
+
+    if (!draggedProductId || draggedProductId === targetProductId) {
+      setDraggedProductId(null);
+      return;
+    }
+
+    // Find the indices
+    const draggedIndex = products.findIndex(p => p.id === draggedProductId);
+    const targetIndex = products.findIndex(p => p.id === targetProductId);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedProductId(null);
+      return;
+    }
+
+    // Calculate new sort orders for affected products
+    const updates: { productId: string; sortOrder: number }[] = [];
+    const reorderedProducts = [...products];
+    const [draggedProduct] = reorderedProducts.splice(draggedIndex, 1);
+    reorderedProducts.splice(targetIndex, 0, draggedProduct);
+
+    // Assign new sort orders based on position
+    reorderedProducts.forEach((product, index) => {
+      updates.push({ productId: product.id, sortOrder: index });
+    });
+
+    setIsSavingSequence(true);
+    try {
+      await updateProductSequences(updates);
+      onRefresh?.();
+    } catch (error) {
+      console.error('Failed to update sequences:', error);
+    } finally {
+      setIsSavingSequence(false);
+      setDraggedProductId(null);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggedProductId(null);
+    setDragOverProductId(null);
   };
 
   const renderPaginationItems = () => {
@@ -290,6 +393,17 @@ export function ProductTable({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[40px]"></TableHead>
+              <TableHead className="w-[70px]">
+                <button
+                  onClick={() => handleSortClick('sortOrder')}
+                  className="flex items-center hover:text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+                  aria-label="Sort by sequence"
+                >
+                  Seq
+                  {getSortIcon('sortOrder')}
+                </button>
+              </TableHead>
               <TableHead className="w-[80px]">Image</TableHead>
               <TableHead>
                 <button
@@ -329,7 +443,7 @@ export function ProductTable({
           <TableBody>
             {products?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={9} className="h-24 text-center">
                   <div className="flex flex-col items-center justify-center text-muted-foreground">
                     <p className="text-sm">No products found</p>
                     <p className="text-xs mt-1">
@@ -340,7 +454,41 @@ export function ProductTable({
               </TableRow>
             ) : (
               products?.map((product) => (
-                <TableRow key={product.id}>
+                <TableRow
+                  key={product.id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, product.id)}
+                  onDragOver={(e) => handleDragOver(e, product.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, product.id)}
+                  onDragEnd={handleDragEnd}
+                  className={`
+                    ${draggedProductId === product.id ? 'opacity-50' : ''}
+                    ${dragOverProductId === product.id ? 'bg-accent' : ''}
+                    cursor-move
+                  `}
+                >
+                  <TableCell className="w-[40px]">
+                    <GripVertical className="size-4 text-muted-foreground" />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={editingSequence?.id === product.id ? editingSequence.value : (product.sortOrder ?? 0)}
+                      onChange={(e) => handleSequenceChange(product.id, e.target.value)}
+                      onFocus={() => setEditingSequence({ id: product.id, value: product.sortOrder ?? 0 })}
+                      onBlur={() => handleSequenceSave(product)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          (e.target as HTMLInputElement).blur();
+                        }
+                      }}
+                      className="w-16 h-8 text-center"
+                      disabled={isSavingSequence}
+                      aria-label={`Sequence for ${product.name}`}
+                    />
+                  </TableCell>
                   <TableCell>
                     {product.images && product.images?.length > 0 ? (
                       <img
