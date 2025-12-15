@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
+import { getProducts, type Product } from '~/lib/services/product.service';
 
 export default function Header({
   isLandingMagic
@@ -22,9 +23,19 @@ export default function Header({
   const totalItems = useCartStore((state) => state.getTotalItems());
   const { user, isAuthenticated, signOut } = useAuthStore();
   const [mounted, setMounted] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     setMounted(true);
+    const fetchProducts = async () => {
+      try {
+        const result = await getProducts({ limit: 10 }); // Limit to keep menu manageable
+        setProducts(result.data);
+      } catch (error) {
+        console.error("Failed to fetch products for header menu", error);
+      }
+    };
+    fetchProducts();
   }, []);
 
   const displayCount = mounted ? totalItems : 0;
@@ -57,22 +68,17 @@ export default function Header({
                     <DropdownMenuTrigger className="flex items-center text-gray-700 hover:text-gray-900 text-sm font-medium outline-none">
                       SHOP <ChevronDown className="ml-1 h-4 w-4" />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-48 bg-white">
+                    <DropdownMenuContent align="start" className="w-48 bg-white max-h-[80vh] overflow-y-auto">
                       <DropdownMenuItem asChild>
-                        <Link to="/shop?category=new-arrivals" className="w-full cursor-pointer">New Arrivals</Link>
+                        <Link to="/shop" className="w-full cursor-pointer font-bold">Shop All</Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/shop?category=best-sellers" className="w-full cursor-pointer">Best Sellers</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/shop?category=skincare" className="w-full cursor-pointer">Skincare</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/shop?category=sets" className="w-full cursor-pointer">Sets & Bundles</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/shop" className="w-full cursor-pointer">View All</Link>
-                      </DropdownMenuItem>
+                      {products.map((product) => (
+                        <DropdownMenuItem key={product.id} asChild>
+                          <Link to={`/product-detail/${product.id}`} className="w-full cursor-pointer truncate">
+                            {product.name}
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
 
@@ -217,11 +223,17 @@ export default function Header({
                       </button>
                       {isShopOpen && (
                         <div className="pl-4 py-2 space-y-2 flex flex-col bg-gray-50 rounded-md mt-1">
-                          <Link to="/shop?category=new-arrivals" className="text-gray-600 text-sm py-1" onClick={() => setIsMobileMenuOpen(false)}>New Arrivals</Link>
-                          <Link to="/shop?category=best-sellers" className="text-gray-600 text-sm py-1" onClick={() => setIsMobileMenuOpen(false)}>Best Sellers</Link>
-                          <Link to="/shop?category=skincare" className="text-gray-600 text-sm py-1" onClick={() => setIsMobileMenuOpen(false)}>Skincare</Link>
-                          <Link to="/shop?category=sets" className="text-gray-600 text-sm py-1" onClick={() => setIsMobileMenuOpen(false)}>Sets & Bundles</Link>
-                          <Link to="/shop" className="text-gray-600 text-sm py-1" onClick={() => setIsMobileMenuOpen(false)}>View All</Link>
+                          <Link to="/shop" className="text-gray-600 text-sm py-1 font-semibold" onClick={() => setIsMobileMenuOpen(false)}>Shop All</Link>
+                          {products.map((product) => (
+                            <Link
+                              key={product.id}
+                              to={`/products/${product.slug}`}
+                              className="text-gray-600 text-sm py-1 truncate"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                            >
+                              {product.name}
+                            </Link>
+                          ))}
                         </div>
                       )}
                     </div>

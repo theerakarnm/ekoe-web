@@ -18,6 +18,7 @@ import {
 import { useCartStore } from '~/store/cart';
 import { useAuthStore } from '~/store/auth-store';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
+import { getProducts, type Product } from '~/lib/services/product.service';
 
 const slides = [
   {
@@ -50,11 +51,23 @@ function HeroSection() {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+
 
   useEffect(() => {
     setMounted(true);
     // Ensure auth state is fresh
     useAuthStore.getState().checkAuth();
+
+    const fetchProducts = async () => {
+      try {
+        const result = await getProducts({ limit: 10 });
+        setProducts(result.data);
+      } catch (error) {
+        console.error("Failed to fetch products for hero menu", error);
+      }
+    };
+    fetchProducts();
   }, []);
 
   const totalItems = useCartStore((state) => state.getTotalItems());
@@ -151,8 +164,11 @@ function HeroSection() {
                   <DropdownMenuTrigger className="flex items-center text-white hover:text-gray-200 text-sm font-medium outline-none">
                     SHOP <ChevronDown className="ml-1 h-4 w-4" />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-48 bg-white">
+                  <DropdownMenuContent align="start" className="w-48 bg-white max-h-[80vh] overflow-y-auto">
                     <DropdownMenuItem asChild>
+                      <Link to="/shop" className="w-full cursor-pointer font-bold">Shop All</Link>
+                    </DropdownMenuItem>
+                    {/* <DropdownMenuItem asChild>
                       <Link to="/shop?category=new-arrivals" className="w-full cursor-pointer">New Arrivals</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -163,10 +179,14 @@ function HeroSection() {
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/shop?category=sets" className="w-full cursor-pointer">Sets & Bundles</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/shop" className="w-full cursor-pointer">View All</Link>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
+                    {products.map((product) => (
+                      <DropdownMenuItem key={product.id} asChild>
+                        <Link to={`/product-detail/${product.id}`} className="w-full cursor-pointer truncate">
+                          {product.name}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
 
@@ -299,11 +319,17 @@ function HeroSection() {
                     </button>
                     {isShopOpen && (
                       <div className="pl-4 py-2 space-y-2 flex flex-col mt-1">
-                        <Link to="/shop?category=new-arrivals" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>New Arrivals</Link>
-                        <Link to="/shop?category=best-sellers" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Best Sellers</Link>
-                        <Link to="/shop?category=skincare" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Skincare</Link>
-                        <Link to="/shop?category=sets" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Sets & Bundles</Link>
-                        <Link to="/shop" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>View All</Link>
+                        <Link to="/shop" className="text-gray-300 text-base py-1 font-bold" onClick={() => setIsMobileMenuOpen(false)}>Shop All</Link>
+                        {products.map((product) => (
+                          <Link
+                            key={product.id}
+                            to={`/products/${product.slug}`}
+                            className="text-gray-300 text-base py-1 truncate"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {product.name}
+                          </Link>
+                        ))}
                       </div>
                     )}
                   </div>
