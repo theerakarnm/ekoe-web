@@ -212,6 +212,11 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(productData.image.url);
 
+  // Sync image when product changes
+  useEffect(() => {
+    setSelectedImage(productData.image.url);
+  }, [productData.image.url]);
+
   // Derived state
   const isOutOfStock = Object.values(selectedOptions).some(opt => opt.stockQuantity === 0);
 
