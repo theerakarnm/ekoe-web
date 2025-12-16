@@ -698,28 +698,31 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             /* Key Ingredients Section for Single Products */
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24 items-start">
               <div>
-                <h2 className="text-2xl font-serif mb-8">THE ACTIVES WITHIN</h2>
-                <Accordion type="single" collapsible className="w-full">
+                <h2 className="text-2xl font-serif mb-10">THE ACTIVES WITHIN</h2>
+                <div className="space-y-8">
                   {productData.ingredients?.keyIngredients?.map((ing, idx) => (
-                    <AccordionItem key={idx} value={`item-${idx}`}>
-                      <AccordionTrigger className="text-lg font-medium uppercase tracking-wide">
+                    <div key={idx} className="space-y-2">
+                      <h3 className="text-xl font-bold uppercase tracking-wide">
                         {ing.name}
-                      </AccordionTrigger>
-                      <AccordionContent className="text-gray-600 leading-relaxed">
+                      </h3>
+                      <p className="text-base uppercase tracking-wider text-gray-800">
                         {ing.description}
-                      </AccordionContent>
-                    </AccordionItem>
+                      </p>
+                    </div>
                   ))}
-                  <AccordionItem value="full-list">
-                    <AccordionTrigger className="text-lg font-medium uppercase tracking-wide">
-                      Full Ingredients List
-                    </AccordionTrigger>
-                    <AccordionContent className="text-gray-600 leading-relaxed text-sm font-mono">
-                      {productData.ingredients?.fullList}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-
+                  {productData.ingredients?.fullList && (
+                    <Accordion type="single" collapsible className="w-full mt-8">
+                      <AccordionItem value="full-list">
+                        <AccordionTrigger className="text-lg font-bold uppercase tracking-wide">
+                          Full Ingredients List
+                        </AccordionTrigger>
+                        <AccordionContent className="text-gray-600 leading-relaxed text-sm font-mono">
+                          {productData.ingredients?.fullList}
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  )}
+                </div>
               </div>
               <div className="relative aspect-square lg:aspect-4/3 bg-gray-100">
                 <img
