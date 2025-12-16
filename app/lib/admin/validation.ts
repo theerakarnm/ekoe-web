@@ -145,6 +145,10 @@ export const productSchema = z.object({
   howToUse: productHowToUseSchema.optional(),
   complimentaryGift: productComplimentaryGiftSchema.optional(),
   realUserReviews: realUserReviewsSchema.optional(),
+
+  // CTA Hero Section (background should be <50MB in image or video format)
+  ctaBackgroundUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  ctaBackgroundType: z.enum(['image', 'video']).optional(),
 });
 
 export type ProductFormData = z.infer<typeof productSchema>;

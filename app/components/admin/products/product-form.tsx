@@ -67,6 +67,7 @@ export function ProductForm({ product }: ProductFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<ProductImage[]>(product?.images || []);
   const [showPreview, setShowPreview] = useState(false);
+  const [isUploadingCTA, setIsUploadingCTA] = useState(false);
   const isEditing = !!product;
 
   // Keyboard shortcuts
@@ -149,6 +150,9 @@ export function ProductForm({ product }: ProductFormProps) {
         quantity: item.quantity,
       })) || [],
       benefits: product?.benefits || [],
+      // CTA Hero Section
+      ctaBackgroundUrl: product?.ctaBackgroundUrl || '',
+      ctaBackgroundType: product?.ctaBackgroundType as 'image' | 'video' | undefined,
     },
   });
 
@@ -334,6 +338,9 @@ export function ProductForm({ product }: ProductFormProps) {
         // Note: categoryIds, variants, and images should be handled through separate API calls
         // as they don't exist directly in the Product interface or have different structures
         tags: tags as any,
+        // CTA Hero Section
+        ctaBackgroundUrl: data.ctaBackgroundUrl || undefined,
+        ctaBackgroundType: data.ctaBackgroundType || undefined,
       };
 
       let productId = product?.id;
@@ -808,6 +815,169 @@ export function ProductForm({ product }: ProductFormProps) {
               <Card className="p-6">
                 <h2 className="text-xl font-semibold mb-4">Product Variants</h2>
                 <VariantManager control={form.control} />
+              </Card>
+
+              {/* CTA Hero Section */}
+              <Card className="p-6">
+                <h2 className="text-xl font-semibold mb-4">CTA Hero Section</h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Configure a full-screen hero banner for the product detail page. Background must be under 50MB.
+                </p>
+                <div className="space-y-4">
+                  {/* File Upload */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Upload Background</label>
+                    <div className="flex items-center gap-4">
+                      <input
+                        type="file"
+                        accept="image/*,video/*"
+                        className="hidden"
+                        id="cta-background-upload"
+                        disabled={isUploadingCTA}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+
+                          // Check file size (50MB limit)
+                          const maxSize = 50 * 1024 * 1024; // 50MB in bytes
+                          if (file.size > maxSize) {
+                            showError('File size must be under 50MB');
+                            return;
+                          }
+
+                          // Determine type from file
+                          const isVideo = file.type.startsWith('video/');
+                          form.setValue('ctaBackgroundType', isVideo ? 'video' : 'image');
+
+                          setIsUploadingCTA(true);
+                          try {
+                            const { uploadGenericImage } = await import('~/lib/services/admin/product-admin.service');
+                            const url = await uploadGenericImage(file);
+                            form.setValue('ctaBackgroundUrl', url);
+                            showSuccess('Background uploaded successfully');
+                          } catch (error: any) {
+                            showError(error.message || 'Failed to upload background');
+                          } finally {
+                            setIsUploadingCTA(false);
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={isUploadingCTA}
+                        onClick={() => document.getElementById('cta-background-upload')?.click()}
+                      >
+                        {isUploadingCTA ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Uploading...
+                          </>
+                        ) : (
+                          'Choose File'
+                        )}
+                      </Button>
+                      {isUploadingCTA ? (
+                        <span className="text-sm text-blue-600">Uploading your file...</span>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">
+                          Max 50MB (JPG, PNG, WebP, MP4)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Or enter URL manually */}
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white px-2 text-muted-foreground">Or enter URL</span>
+                    </div>
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="ctaBackgroundUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Background URL</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value || ''}
+                            placeholder="https://example.com/background.jpg or .mp4"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="ctaBackgroundType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Background Type</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || ''}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select background type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="image">Image</SelectItem>
+                            <SelectItem value="video">Video</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Clear Button */}
+                  {form.watch('ctaBackgroundUrl') && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700"
+                      onClick={() => {
+                        form.setValue('ctaBackgroundUrl', '');
+                        form.setValue('ctaBackgroundType', undefined);
+                      }}
+                    >
+                      Remove Background
+                    </Button>
+                  )}
+
+                  {/* Preview */}
+                  {form.watch('ctaBackgroundUrl') && (
+                    <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+                      <p className="text-sm font-medium mb-2">Preview:</p>
+                      {form.watch('ctaBackgroundType') === 'video' ? (
+                        <video
+                          src={form.watch('ctaBackgroundUrl')}
+                          className="w-full h-32 object-cover rounded"
+                          muted
+                          controls
+                        />
+                      ) : (
+                        <img
+                          src={form.watch('ctaBackgroundUrl')}
+                          alt="CTA Background Preview"
+                          className="w-full h-32 object-cover rounded"
+                          onError={(e) => (e.currentTarget.style.display = 'none')}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
               </Card>
 
               {/* SEO */}

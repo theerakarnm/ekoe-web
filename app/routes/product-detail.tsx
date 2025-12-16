@@ -19,6 +19,7 @@ import { DiscountCodes } from "~/components/product/discount-codes";
 import { ComplimentaryGift } from "~/components/product/complimentary-gift";
 import { ProductTabs } from "~/components/product/product-tabs";
 import { RelatedProducts } from "~/components/product/related-products";
+import { ProductHeroCTA } from "~/components/product/product-hero-cta";
 
 import { getProduct, type Product } from "~/lib/services/product.service";
 import { formatCurrencyFromCents } from "~/lib/formatter";
@@ -164,6 +165,9 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & {
     setItems: apiProduct.setItems,
     benefits: apiProduct.benefits,
     tags: apiProduct.tags?.map(t => t.name) || [],
+    // CTA Hero Section
+    ctaBackgroundUrl: apiProduct.ctaBackgroundUrl || undefined,
+    ctaBackgroundType: apiProduct.ctaBackgroundType as 'image' | 'video' | undefined,
   };
 }
 
@@ -348,6 +352,8 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
     }]
   };
 
+  const hasCTABackground = productData.ctaBackgroundUrl && productData.ctaBackgroundType;
+
   return (
     <div className="min-h-screen bg-white font-sans text-[#1a1a1a]">
       <script
@@ -358,12 +364,27 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      <Header />
+      <Header isTransparent={hasCTABackground ? true : undefined} />
 
-      <main className="pt-16 pb-16">
+      {/* CTA Hero Section - shown when background is configured */}
+      {hasCTABackground && (
+        <ProductHeroCTA
+          productName={productData.productName}
+          rating={productData.rating || 0}
+          reviewCount={productData.reviewCount}
+          price={currentPrice}
+          primaryImage={productData.image.url}
+          backgroundUrl={productData.ctaBackgroundUrl!}
+          backgroundType={productData.ctaBackgroundType!}
+          isOutOfStock={isOutOfStock}
+          onAddToCart={handleAddToCart}
+        />
+      )}
+
+      <main className={hasCTABackground ? "pb-16" : "pt-16 pb-16"}>
         <div className="container mx-auto px-4 md:px-6 max-w-7xl">
           {/* Breadcrumb - simplified for now */}
-          <div className="text-sm text-gray-500 mb-8">
+          <div className={`text-sm text-gray-500 mb-8 ${hasCTABackground ? 'mt-8' : ''}`}>
             Home / Body / The Body Oil
           </div>
 

@@ -112,6 +112,9 @@ export interface Product {
     name: string;
     slug: string;
   }[];
+  // CTA Hero Section
+  ctaBackgroundUrl?: string;
+  ctaBackgroundType?: 'image' | 'video';
 }
 
 /**

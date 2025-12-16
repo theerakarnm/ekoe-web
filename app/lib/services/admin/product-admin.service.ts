@@ -67,6 +67,9 @@ export interface Product {
     sortOrder: number;
   }[];
   benefits?: string[];
+  // CTA Hero Section
+  ctaBackgroundUrl?: string;
+  ctaBackgroundType?: 'image' | 'video';
 }
 
 export interface ProductImage {

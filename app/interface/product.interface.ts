@@ -56,4 +56,7 @@ export interface IProduct {
     image?: string;
     content?: string;
   };
+  // CTA Hero Section
+  ctaBackgroundUrl?: string;
+  ctaBackgroundType?: 'image' | 'video';
 }

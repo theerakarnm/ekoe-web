@@ -11,11 +11,14 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import { getProducts, type Product } from '~/lib/services/product.service';
+import { cn } from '~/lib/utils';
 
 export default function Header({
-  isLandingMagic
+  isLandingMagic,
+  isTransparent
 }: {
-  isLandingMagic?: boolean
+  isLandingMagic?: boolean;
+  isTransparent?: boolean;
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isShopOpen, setIsShopOpen] = useState(false);
@@ -39,33 +42,50 @@ export default function Header({
   }, []);
 
   const displayCount = mounted ? totalItems : 0;
+
+  // Dynamic classes for transparent mode
+  const headerBgClass = isTransparent
+    ? "bg-transparent"
+    : "bg-white shadow-sm";
+  const textColorClass = isTransparent
+    ? "text-white"
+    : "text-gray-700";
+  const hoverTextClass = isTransparent
+    ? "hover:text-gray-200"
+    : "hover:text-gray-900";
+  const logoInvertClass = isTransparent
+    ? 'invert'
+    : '';
+
   return (
     <>
-      <div className="bg-[#6E604D] text-white text-center py-1 sm:py-2 text-xs sm:text-sm">
-        <span className="hidden sm:inline">FREE SHIPPING ON ALL ORDERS WITHIN THAILAND</span>
-        <span className="sm:hidden">FREE SHIPPING</span>
-      </div>
+      {!isTransparent && (
+        <div className="bg-[#6E604D] text-white text-center py-1 sm:py-2 text-xs sm:text-sm">
+          <span className="hidden sm:inline">FREE SHIPPING ON ALL ORDERS WITHIN THAILAND</span>
+          <span className="sm:hidden">FREE SHIPPING</span>
+        </div>
+      )}
       {
         !isLandingMagic ? <>
-          <header className={`bg-white font-mono shadow-sm fixed top-0 left-0 right-0 z-50 transform transition-all duration-300 ease-in-out ${isLandingMagic ? '-translate-y-full' : 'translate-y-0'}`}>
+          <header className={`${headerBgClass} font-mono ${isTransparent ? 'absolute' : 'fixed'} top-0 left-0 right-0 z-50 transform transition-all duration-300 ease-in-out ${isLandingMagic ? '-translate-y-full' : 'translate-y-0'}`}>
             <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
               <div className="flex items-center justify-between h-14 sm:h-16">
                 {/* Mobile menu button */}
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="lg:hidden text-gray-700 hover:text-gray-900"
+                  className={`lg:hidden ${textColorClass} ${hoverTextClass}`}
                 >
                   {isMobileMenuOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
                 </button>
 
                 {/* Desktop navigation */}
                 <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
-                  <Link to="/online-executive" className="text-gray-700 hover:text-gray-900 text-sm font-medium">
+                  <Link to="/online-executive" className={`${textColorClass} ${hoverTextClass} text-sm font-medium`}>
                     ONLINE EXECUTIVE
                   </Link>
 
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center text-gray-700 hover:text-gray-900 text-sm font-medium outline-none">
+                    <DropdownMenuTrigger className={`flex items-center ${textColorClass} ${hoverTextClass} text-sm font-medium outline-none`}>
                       SHOP <ChevronDown className="ml-1 h-4 w-4" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-48 bg-white max-h-[80vh] overflow-y-auto">
@@ -83,7 +103,7 @@ export default function Header({
                   </DropdownMenu>
 
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center text-gray-700 hover:text-gray-900 text-sm font-medium outline-none">
+                    <DropdownMenuTrigger className={`flex items-center ${textColorClass} ${hoverTextClass} text-sm font-medium outline-none`}>
                       DISCOVER <ChevronDown className="ml-1 h-4 w-4" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-48 bg-white">
@@ -100,16 +120,16 @@ export default function Header({
                 {/* Centered logo - adjust size for mobile */}
                 <div className="absolute left-1/2 transform -translate-x-1/2">
                   <Link to="/" className="text-lg sm:text-xl lg:text-2xl font-serif text-gray-800">
-                    <img src="/ekoe-asset/Ekoe_Logo-01.png" alt="Ekoe Logo" className='w-28 ' />
+                    <img src="/ekoe-asset/Ekoe_Logo-01.png" alt="Ekoe Logo" className={cn('w-28', logoInvertClass)} />
                   </Link>
                 </div>
 
                 {/* Desktop right-side navigation */}
                 <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
-                  <button className="text-gray-700 hover:text-gray-900">
+                  <button className={`${textColorClass} ${hoverTextClass}`}>
                     <Search className="h-4 w-4 sm:h-5 sm:w-5" />
                   </button>
-                  <button className="text-gray-700 hover:text-gray-900 text-sm hidden xl:block">
+                  <button className={`${textColorClass} ${hoverTextClass} text-sm hidden xl:block`}>
                     SEARCH
                   </button>
                   {mounted && isAuthenticated && user ? (
@@ -157,16 +177,16 @@ export default function Header({
                       </DropdownMenuContent>
                     </DropdownMenu>
                   ) : (
-                    <Link to="/auth/login" className="text-gray-700 hover:text-gray-900 text-sm hidden xl:block">
+                    <Link to="/auth/login" className={`${textColorClass} ${hoverTextClass} text-sm hidden xl:block`}>
                       LOGIN
                     </Link>
                   )}
                   {!mounted || !isAuthenticated ? (
-                    <Link to="/auth/login" className="text-gray-700 hover:text-gray-900 xl:hidden">
+                    <Link to="/auth/login" className={`${textColorClass} ${hoverTextClass} xl:hidden`}>
                       <User className="h-4 w-4 sm:h-5 sm:w-5" />
                     </Link>
                   ) : null}
-                  <Link to="/cart" className="text-gray-700 hover:text-gray-900 relative">
+                  <Link to="/cart" className={`${textColorClass} ${hoverTextClass} relative`}>
                     <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
                     <span className="absolute -top-2 -right-2 bg-gray-800 text-white text-xs rounded-full h-3 w-3 sm:h-4 sm:w-4 flex items-center justify-center">
                       {displayCount}
@@ -176,11 +196,11 @@ export default function Header({
 
                 {/* Mobile right-side icons */}
                 <div className="lg:hidden flex items-center space-x-3">
-                  <button className="text-gray-700 hover:text-gray-900">
+                  <button className={`${textColorClass} ${hoverTextClass}`}>
                     <Search className="h-5 w-5" />
                   </button>
                   {mounted && isAuthenticated && user ? (
-                    <Link to="/account" className="text-gray-700 hover:text-gray-900">
+                    <Link to="/account" className={`${textColorClass} ${hoverTextClass}`}>
                       <Avatar className="h-6 w-6 border border-gray-200">
                         <AvatarImage src={user.image || ''} alt={user.name} />
                         <AvatarFallback className="bg-primary/10 text-primary text-xs">
@@ -189,11 +209,11 @@ export default function Header({
                       </Avatar>
                     </Link>
                   ) : (
-                    <Link to="/auth/login" className="text-gray-700 hover:text-gray-900">
+                    <Link to="/auth/login" className={`${textColorClass} ${hoverTextClass}`}>
                       <User className="h-5 w-5" />
                     </Link>
                   )}
-                  <Link to="/cart" className="text-gray-700 hover:text-gray-900 relative">
+                  <Link to="/cart" className={`${textColorClass} ${hoverTextClass} relative`}>
                     <ShoppingCart className="h-5 w-5" />
                     <span className="absolute -top-2 -right-2 bg-gray-800 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                       {displayCount}
