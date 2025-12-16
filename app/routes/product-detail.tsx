@@ -147,6 +147,8 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & {
     howToUse: apiProduct.howToUse,
     goodFor: apiProduct.goodFor || undefined,
     whyItWorks: apiProduct.whyItWorks || undefined,
+    feelsLike: apiProduct.feelsLike || undefined,
+    smellsLike: apiProduct.smellsLike || undefined,
     complimentaryGift: apiProduct.complimentaryGift ? {
       name: apiProduct.complimentaryGift.name || "",
       description: apiProduct.complimentaryGift.description || "",
@@ -469,6 +471,26 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                   )
                 }
                 {
+                  productData.feelsLike && (
+                    <AccordionItem value="feels-like">
+                      <AccordionTrigger className="text-sm font-medium">Feels Like</AccordionTrigger>
+                      <AccordionContent className="text-gray-600 text-sm">
+                        {productData.feelsLike}
+                      </AccordionContent>
+                    </AccordionItem>
+                  )
+                }
+                {
+                  productData.smellsLike && (
+                    <AccordionItem value="smells-like">
+                      <AccordionTrigger className="text-sm font-medium">Smells Like</AccordionTrigger>
+                      <AccordionContent className="text-gray-600 text-sm">
+                        {productData.smellsLike}
+                      </AccordionContent>
+                    </AccordionItem>
+                  )
+                }
+                {
                   productData.goodFor && (
                     <AccordionItem value="good-for">
                       <AccordionTrigger className="text-sm font-medium">Good for</AccordionTrigger>
@@ -676,7 +698,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             /* Key Ingredients Section for Single Products */
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24 items-start">
               <div>
-                <h2 className="text-2xl font-serif mb-8">Key Ingredients</h2>
+                <h2 className="text-2xl font-serif mb-8">THE ACTIVES WITHIN</h2>
                 <Accordion type="single" collapsible className="w-full">
                   {productData.ingredients?.keyIngredients?.map((ing, idx) => (
                     <AccordionItem key={idx} value={`item-${idx}`}>
@@ -697,9 +719,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
-                <Button variant="outline" className="mt-8 uppercase tracking-widest text-xs h-12 px-8 border-black text-black hover:bg-black hover:text-white transition-colors">
-                  See All Ingredients
-                </Button>
+
               </div>
               <div className="relative aspect-square lg:aspect-4/3 bg-gray-100">
                 <img

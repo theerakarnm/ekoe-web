@@ -140,6 +140,8 @@ export const productSchema = z.object({
 
   goodFor: z.string().optional(),
   whyItWorks: z.string().optional(),
+  feelsLike: z.string().optional(),
+  smellsLike: z.string().optional(),
   howToUse: productHowToUseSchema.optional(),
   complimentaryGift: productComplimentaryGiftSchema.optional(),
   realUserReviews: realUserReviewsSchema.optional(),

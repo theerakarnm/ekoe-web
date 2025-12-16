@@ -104,6 +104,8 @@ export function ProductPreview({ data, images }: ProductPreviewProps) {
       },
       goodFor: data.goodFor || '',
       whyItWorks: data.whyItWorks || '',
+      feelsLike: data.feelsLike || '',
+      smellsLike: data.smellsLike || '',
       complimentaryGift: data.complimentaryGift?.name ? {
         name: data.complimentaryGift.name,
         description: data.complimentaryGift.description,
@@ -258,6 +260,22 @@ export function ProductPreview({ data, images }: ProductPreviewProps) {
                   </AccordionContent>
                 </AccordionItem>
               )}
+              {productData.feelsLike && (
+                <AccordionItem value="feels-like">
+                  <AccordionTrigger className="text-sm font-medium py-3">Feels Like</AccordionTrigger>
+                  <AccordionContent className="text-gray-600 text-sm pb-3">
+                    {productData.feelsLike}
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+              {productData.smellsLike && (
+                <AccordionItem value="smells-like">
+                  <AccordionTrigger className="text-sm font-medium py-3">Smells Like</AccordionTrigger>
+                  <AccordionContent className="text-gray-600 text-sm pb-3">
+                    {productData.smellsLike}
+                  </AccordionContent>
+                </AccordionItem>
+              )}
               {productData.goodFor && (
                 <AccordionItem value="good-for">
                   <AccordionTrigger className="text-sm font-medium py-3">Good for</AccordionTrigger>
@@ -334,7 +352,7 @@ export function ProductPreview({ data, images }: ProductPreviewProps) {
         {/* Ingredients Block Preview */}
         {productData.ingredients.keyIngredients && productData.ingredients.keyIngredients.length > 0 && (
           <div className="bg-[#F9F5F0] py-8 px-4 mb-8">
-            <h2 className="text-lg font-serif mb-4">Key Ingredients</h2>
+            <h2 className="text-lg font-serif mb-4">THE ACTIVES WITHIN</h2>
             <div className="space-y-3">
               {productData.ingredients.keyIngredients.map((ing, i) => (
                 <div key={i} className="border-b border-gray-200/50 pb-2 last:border-0">

@@ -127,6 +127,8 @@ export function ProductForm({ product }: ProductFormProps) {
       },
       goodFor: product?.goodFor || '',
       whyItWorks: product?.whyItWorks || '',
+      feelsLike: product?.feelsLike || '',
+      smellsLike: product?.smellsLike || '',
       howToUse: {
         steps: product?.howToUse?.steps || [],
         proTips: product?.howToUse?.proTips || [],
@@ -713,6 +715,44 @@ export function ProductForm({ product }: ProductFormProps) {
                             value={field.value || ''}
                             placeholder="Explain the science or benefits..."
                             rows={3}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="feelsLike"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Feels Like (Texture)</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            value={field.value || ''}
+                            placeholder="Describe the texture (e.g., Silky oil that absorbs quickly)"
+                            rows={2}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="smellsLike"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Smells Like (Scent)</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            value={field.value || ''}
+                            placeholder="Describe the scent (e.g., Fresh citrus with earthy undertones)"
+                            rows={2}
                           />
                         </FormControl>
                         <FormMessage />

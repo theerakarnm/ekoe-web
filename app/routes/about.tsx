@@ -26,9 +26,9 @@ export default function About() {
         {/* Hero Section */}
         <section className="relative h-[60vh] sm:h-[70vh] w-full overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1596755389378-c31d21fd1273?q=80&w=2000&auto=format&fit=crop"
+            src="/ekoe-asset/ABOUT/ABOUT-2.JPG"
             alt="Ekoe - Natural Beauty"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-[50%_70%]"
           />
           <div className="absolute inset-0 bg-black/30" />
           <div className="absolute inset-0 flex items-center justify-center px-4">

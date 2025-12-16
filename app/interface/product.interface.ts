@@ -50,6 +50,8 @@ export interface IProduct {
   };
   whyItWorks?: string;
   goodFor?: string;
+  feelsLike?: string;
+  smellsLike?: string;
   realUserReviews?: {
     image?: string;
     content?: string;

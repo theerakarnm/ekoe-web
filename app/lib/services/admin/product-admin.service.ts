@@ -53,6 +53,8 @@ export interface Product {
     value?: string;
   };
   whyItWorks?: string;
+  feelsLike?: string;
+  smellsLike?: string;
   goodFor?: string;
   realUserReviews?: {
     image?: string;

@@ -5,6 +5,8 @@ import { useCartStore } from "~/store/cart"
 import { toast } from "sonner"
 
 function ProductCard({ product }: { product: IProduct }) {
+  console.log(product);
+
   const addItem = useCartStore((state) => state.addItem);
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -32,8 +34,8 @@ function ProductCard({ product }: { product: IProduct }) {
           <img
             alt={product.image.description}
             className={`w-full h-full object-cover transition-all duration-500 ${product.secondaryImage
-                ? 'group-hover:opacity-0'
-                : 'group-hover:scale-105'
+              ? 'group-hover:opacity-0'
+              : 'group-hover:scale-105'
               }`}
             src={product.image.url}
           />
@@ -48,7 +50,9 @@ function ProductCard({ product }: { product: IProduct }) {
         </div>
         <div className="border-t border-gray-200 text-left">
           <h3 className="font-serif text-lg text-gray-900 mb-1 truncate px-4 pt-4">{product.productName}</h3>
-          <p className="text-sm text-gray-400 mb-4 px-4">50 ml. / 120 ml.</p>
+          <p className="text-sm text-gray-400 mb-4 px-4">
+            {product.sizes?.map((s) => s.value).join(" / ") || "\u00A0"}
+          </p>
           <div className="relative h-8 overflow-hidden px-4">
             <p className="text-sm text-gray-900 font-serif transition-all duration-300 group-hover:-translate-y-full">
               {product.priceTitle}

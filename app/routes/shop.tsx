@@ -275,8 +275,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Desktop Filter Sidebar - Hidden on mobile */}
-            <aside className="hidden lg:block w-64 shrink-0">
-              {/* Show warning if filters failed to load */}
+            {/* <aside className="hidden lg:block w-64 shrink-0">
               {(categories.length === 0 || (priceRange.min === 0 && priceRange.max === 100000)) && (
                 <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <p className="text-xs text-yellow-800 font-serif">
@@ -292,7 +291,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
                 onFilterChange={updateFilters}
                 disabled={isLoading}
               />
-            </aside>
+            </aside> */}
 
             {/* Products Section */}
             <main className="flex-1">
@@ -344,9 +343,9 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
                     </Sheet>
                   </div>
 
-                  <button className="hidden sm:flex items-center text-sm font-serif text-gray-900 hover:text-gray-600">
+                  {/* <button className="hidden sm:flex items-center text-sm font-serif text-gray-900 hover:text-gray-600">
                     Sort By <ChevronDown className="ml-1 h-4 w-4" />
-                  </button>
+                  </button> */}
                 </div>
 
                 {/* Active Filters */}

@@ -48,7 +48,7 @@ export function IngredientsTab({ ingredients }: IngredientsTabProps) {
       {/* Key Ingredients with Expandable Accordion */}
       {hasKeyIngredients && (
         <div>
-          <h3 className="text-xl font-semibold mb-4">Key Ingredients</h3>
+          <h3 className="text-xl font-semibold mb-4">THE ACTIVES WITHIN</h3>
           <Accordion type="single" collapsible className="w-full">
             {ingredients.keyIngredients!.map((ingredient, index) => (
               <AccordionItem key={index} value={`ingredient-${index}`}>
@@ -58,7 +58,7 @@ export function IngredientsTab({ ingredients }: IngredientsTabProps) {
                 <AccordionContent>
                   <div className="space-y-3 text-muted-foreground">
                     <p>{ingredient.description}</p>
-                    
+
                     {ingredient.benefits && ingredient.benefits.length > 0 && (
                       <div>
                         <p className="font-medium text-foreground mb-2">Benefits:</p>
@@ -69,7 +69,7 @@ export function IngredientsTab({ ingredients }: IngredientsTabProps) {
                         </ul>
                       </div>
                     )}
-                    
+
                     {ingredient.source && (
                       <p className="text-sm">
                         <span className="font-medium text-foreground">Source:</span> {ingredient.source}

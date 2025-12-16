@@ -38,6 +38,13 @@ function transformProduct(product: Product): IProduct {
     priceTitle = formatCurrencyFromCents(product.basePrice);
   }
 
+  // Map variants to sizes
+  const sizes = variants.map(v => ({
+    label: v.name,
+    value: v.value,
+    price: v.price
+  }));
+
   return {
     productId: product.id,
     image: {
@@ -50,7 +57,8 @@ function transformProduct(product: Product): IProduct {
     } : undefined,
     productName: product.name,
     priceTitle,
-    quickCartPrice: variants[0]?.price || product.basePrice
+    quickCartPrice: variants[0]?.price || product.basePrice,
+    sizes
   };
 }
 

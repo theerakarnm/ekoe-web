@@ -91,6 +91,8 @@ export interface Product {
   };
   goodFor?: string;
   whyItWorks?: string;
+  feelsLike?: string;
+  smellsLike?: string;
   realUserReviews?: {
     image?: string;
     content?: string;

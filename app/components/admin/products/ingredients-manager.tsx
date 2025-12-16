@@ -59,7 +59,7 @@ export function IngredientsManager({ control }: IngredientsManagerProps) {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-medium">Key Ingredients</h3>
+            <h3 className="text-sm font-medium">Ingredients</h3>
             <p className="text-sm text-muted-foreground">
               Highlight the most important ingredients
             </p>
