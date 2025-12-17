@@ -82,6 +82,8 @@ export interface Product {
     steps?: { title: string; description: string; icon?: string }[];
     proTips?: string[];
     note?: string;
+    mediaUrl?: string;
+    mediaType?: 'image' | 'video';
   };
   complimentaryGift?: {
     name?: string;

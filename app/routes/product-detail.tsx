@@ -20,6 +20,7 @@ import { ComplimentaryGift } from "~/components/product/complimentary-gift";
 import { ProductTabs } from "~/components/product/product-tabs";
 import { RelatedProducts } from "~/components/product/related-products";
 import { ProductHeroCTA } from "~/components/product/product-hero-cta";
+import { HowToUseMedia } from "~/components/product/how-to-use-media";
 
 import { getProduct, type Product } from "~/lib/services/product.service";
 import { formatCurrencyFromCents } from "~/lib/formatter";
@@ -820,34 +821,49 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             )
           )}
 
-          <div className="mb-24 text-center">
-            <h2 className="text-3xl font-serif mb-16">How to Use Block</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-              {productData.howToUse?.steps?.map((step, idx) => (
-                <div key={idx} className="flex flex-col items-center text-center group">
-                  <div className="w-24 h-24 rounded-full border border-gray-200 flex items-center justify-center mb-6 group-hover:border-black transition-colors duration-300">
-                    {/* Placeholder icons */}
-                    <div className="text-2xl font-serif">{idx + 1}</div>
-                  </div>
-                  <h3 className="text-lg font-medium text-[#4A90E2] mb-3">
-                    {step.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed max-w-[200px]">
-                    {step.description}
-                  </p>
-                </div>
-              ))}
-            </div>
+          <div className="mb-24">
+            <h2 className="text-3xl font-serif mb-8 text-center">How to Use</h2>
 
-            {/* Pro Tips */}
-            {productData.howToUse?.proTips && productData.howToUse.proTips.length > 0 && (
-              <div className="max-w-2xl mx-auto mb-12 space-y-4">
-                <h3 className="text-lg font-medium text-center mb-4">💡 Pro Tips</h3>
-                {productData.howToUse.proTips.map((tip, index) => (
-                  <div key={index} className="p-4 bg-amber-50 border border-amber-100 rounded-lg">
-                    <p className="text-sm text-gray-700">{tip}</p>
+            {/* New Media-based display */}
+            {productData.howToUse?.mediaUrl && productData.howToUse?.mediaType ? (
+              <HowToUseMedia
+                productName={productData.productName}
+                productImage={productData.image.url}
+                price={currentPrice}
+                mediaUrl={productData.howToUse.mediaUrl}
+                mediaType={productData.howToUse.mediaType}
+                onAddToCart={handleAddToCart}
+              />
+            ) : (
+              /* Legacy step-based display */
+              <div className="text-center">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+                  {productData.howToUse?.steps?.map((step, idx) => (
+                    <div key={idx} className="flex flex-col items-center text-center group">
+                      <div className="w-24 h-24 rounded-full border border-gray-200 flex items-center justify-center mb-6 group-hover:border-black transition-colors duration-300">
+                        <div className="text-2xl font-serif">{idx + 1}</div>
+                      </div>
+                      <h3 className="text-lg font-medium text-[#4A90E2] mb-3">
+                        {step.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 leading-relaxed max-w-[200px]">
+                        {step.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pro Tips */}
+                {productData.howToUse?.proTips && productData.howToUse.proTips.length > 0 && (
+                  <div className="max-w-2xl mx-auto mb-12 space-y-4">
+                    <h3 className="text-lg font-medium text-center mb-4">💡 Pro Tips</h3>
+                    {productData.howToUse.proTips.map((tip, index) => (
+                      <div key={index} className="p-4 bg-amber-50 border border-amber-100 rounded-lg">
+                        <p className="text-sm text-gray-700">{tip}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>

@@ -81,6 +81,8 @@ export const productHowToUseSchema = z.object({
   })).optional(),
   proTips: z.array(z.string().min(1, 'Pro tip cannot be empty')).optional(),
   note: z.string().optional(),
+  mediaUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  mediaType: z.enum(['image', 'video']).optional(),
 });
 
 export const productComplimentaryGiftSchema = z.object({

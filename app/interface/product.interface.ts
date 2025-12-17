@@ -39,6 +39,8 @@ export interface IProduct {
     steps?: { title: string; description: string; icon?: string }[];
     proTips?: string[];
     note?: string;
+    mediaUrl?: string;
+    mediaType?: 'image' | 'video';
   };
   userStats?: string;
   discountCodes?: { title: string; condition: string; code: string }[];

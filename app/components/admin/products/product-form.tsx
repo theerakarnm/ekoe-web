@@ -134,6 +134,8 @@ export function ProductForm({ product }: ProductFormProps) {
         steps: product?.howToUse?.steps || [],
         proTips: product?.howToUse?.proTips || [],
         note: product?.howToUse?.note || '',
+        mediaUrl: product?.howToUse?.mediaUrl || '',
+        mediaType: product?.howToUse?.mediaType,
       },
       complimentaryGift: {
         name: product?.complimentaryGift?.name || '',
@@ -323,6 +325,8 @@ export function ProductForm({ product }: ProductFormProps) {
           steps: howToUse.steps || [],
           proTips: howToUse.proTips || [],
           note: howToUse.note,
+          mediaUrl: howToUse.mediaUrl || undefined,
+          mediaType: howToUse.mediaType || undefined,
         } : undefined,
         realUserReviews: realUserReviews ? {
           image: realUserReviews.image || undefined,
