@@ -404,11 +404,11 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
               <div className="flex justify-between items-start">
                 <div>
                   <div className="flex gap-2 mb-2">
-                    <span className="bg-black text-white text-xs px-2 py-1">
+                    {/* <span className="bg-black text-white text-xs px-2 py-1">
                       15% OFF
-                    </span>
+                    </span> */}
                   </div>
-                  <h1 className="text-3xl md:text-4xl font-serif mb-2">
+                  <h1 className="text-3xl md:text-4xl font-heading mb-2">
                     {productData.productName}
                   </h1>
                   <p className="text-lg text-gray-600 italic mb-4">
@@ -433,7 +433,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                     {productData.tags?.map((tag) => (
                       <span
                         key={tag}
-                        className="text-xs bg-[#F9F5F0] px-3 py-1 rounded-full text-gray-700"
+                        className="text-xs bg-[#ffefce] px-3 py-1 rounded-full text-gray-700"
                       >
                         {tag}
                       </span>
@@ -450,7 +450,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
               <div className="space-y-4 text-gray-700 leading-relaxed">
                 <div className="flex flex-wrap w-full">
                   {productData.description?.map((desc, idx) => (
-                    <p key={idx} className="wrap-break-word w-full">{desc}</p>
+                    <p key={idx} className="wrap-break-word font-thai w-full">{desc}</p>
                   ))}
                 </div>
                 {productData.productType === 'set' && productData.setItems && productData.setItems.length > 0 ? (
@@ -486,7 +486,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                   productData.whyItWorks && (
                     <AccordionItem value="why-it-works">
                       <AccordionTrigger className="text-sm font-medium">Why it works</AccordionTrigger>
-                      <AccordionContent className="text-gray-600 text-sm">
+                      <AccordionContent className="text-gray-600 text-sm font-thai">
                         {productData.whyItWorks}
                       </AccordionContent>
                     </AccordionItem>
@@ -496,7 +496,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                   productData.feelsLike && (
                     <AccordionItem value="feels-like">
                       <AccordionTrigger className="text-sm font-medium">Feels Like</AccordionTrigger>
-                      <AccordionContent className="text-gray-600 text-sm">
+                      <AccordionContent className="text-gray-600 text-sm font-thai">
                         {productData.feelsLike}
                       </AccordionContent>
                     </AccordionItem>
@@ -506,7 +506,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                   productData.smellsLike && (
                     <AccordionItem value="smells-like">
                       <AccordionTrigger className="text-sm font-medium">Smells Like</AccordionTrigger>
-                      <AccordionContent className="text-gray-600 text-sm">
+                      <AccordionContent className="text-gray-600 text-sm font-thai">
                         {productData.smellsLike}
                       </AccordionContent>
                     </AccordionItem>
@@ -516,7 +516,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                   productData.goodFor && (
                     <AccordionItem value="good-for">
                       <AccordionTrigger className="text-sm font-medium">Good for</AccordionTrigger>
-                      <AccordionContent className="text-gray-600 text-sm">
+                      <AccordionContent className="text-gray-600 text-sm font-thai">
                         {productData.goodFor}
                       </AccordionContent>
                     </AccordionItem>
@@ -694,11 +694,11 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             /* Key Ingredients Section for Single Products */
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24 items-start">
               <div>
-                <h2 className="text-2xl font-serif mb-10 font-bold">THE ACTIVES WITHIN</h2>
+                <h2 className="text-3xl font-heading mb-10 font-bold">THE ACTIVES WITHIN</h2>
                 <div className="space-y-8">
                   {productData.ingredients?.keyIngredients?.map((ing, idx) => (
                     <div key={idx} className="space-y-2">
-                      <h3 className="text-xl font-bold uppercase tracking-wide">
+                      <h3 className="text-2xl font-heading font-bold uppercase tracking-wide">
                         {ing.name}
                       </h3>
                       <p className="text-base uppercase tracking-wider text-gray-800">
@@ -764,7 +764,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             /* Loved by Real Users - เสียงจากผู้ใช้จริง for Single Products */
             (productData.realUserReviews?.image || (productData.realUserReviews?.content?.length || 0) > 0) && (
               <div className="mb-24 bg-[#F9F5F0] p-8 md:p-16 rounded-2xl">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center font-heading">
                   <div className="relative aspect-4/5 lg:aspect-square overflow-hidden rounded-lg">
                     <img
                       src={productData.realUserReviews?.image || "https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&q=80&w=1000"}

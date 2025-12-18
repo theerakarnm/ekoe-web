@@ -18,7 +18,9 @@ export function CheckoutSummary() {
 
   const subtotal = getSubtotal();
   const discount = discountAmount;
-  const total = subtotal + shippingCost - discount;
+  // Calculate tax (7% VAT) - matches backend calculation in orders.domain.ts
+  const taxAmount = Math.round((subtotal + shippingCost) * 0.07);
+  const total = subtotal + shippingCost + taxAmount - discount;
 
   // Combine eligible gifts and complimentary gifts from cart items
   const allGifts = useMemo(() => {
@@ -111,6 +113,10 @@ export function CheckoutSummary() {
               formatCurrencyFromCents(shippingCost, { symbol: '฿' })
             )}
           </span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-gray-600">Tax (7% VAT)</span>
+          <span className="font-medium">{formatCurrencyFromCents(taxAmount, { symbol: '฿' })}</span>
         </div>
         {discount > 0 && (
           <div className="flex justify-between text-sm">

@@ -93,7 +93,7 @@ export function ProductHeroCTA({
           </div>
 
           {/* Product Name */}
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif text-white uppercase tracking-wide leading-tight mb-6">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-heading text-white uppercase tracking-wide leading-tight mb-6">
             {productName}
           </h1>
 
@@ -102,7 +102,7 @@ export function ProductHeroCTA({
             <Button
               onClick={onAddToCart}
               disabled={isOutOfStock}
-              className="h-12 px-8 text-sm uppercase tracking-wider bg-white text-black hover:bg-white/90 disabled:bg-gray-400 disabled:text-gray-600 font-medium flex items-center gap-2"
+              className="h-12 px-8 text-sm uppercase tracking-wider bg-white text-black hover:bg-white/90 disabled:bg-gray-400 disabled:text-gray-600 font-medium font-heading flex items-center gap-2"
             >
               <ShoppingBag size={18} />
               {isOutOfStock

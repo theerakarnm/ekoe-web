@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, ArrowUpDown, ArrowUp, ArrowDown, Eye } from 'lucide-react';
+import { formatCurrencyFromCents } from '~/lib/formatter';
 import type { Order } from '~/lib/services/admin/order-admin.service';
 import {
   Table,
@@ -155,12 +156,7 @@ export function OrderTable({
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -345,7 +341,7 @@ export function OrderTable({
               </TableRow>
             ) : (
               orders?.map((order) => (
-                <TableRow 
+                <TableRow
                   key={order.id}
                   className="cursor-pointer hover:bg-muted/50"
                   onClick={() => onViewOrder(order.id)}
@@ -361,7 +357,7 @@ export function OrderTable({
                   <TableCell>{getStatusBadge(order.status)}</TableCell>
                   <TableCell>{getPaymentStatusBadge(order.paymentStatus)}</TableCell>
                   <TableCell>
-                    <span className="font-medium">{formatCurrency(order.totalAmount)}</span>
+                    <span className="font-medium">{formatCurrencyFromCents(order.totalAmount, { symbolPosition: 'suffix', symbol: ' THB' })}</span>
                   </TableCell>
                   <TableCell>{formatDate(order.createdAt)}</TableCell>
                   <TableCell className="text-right">

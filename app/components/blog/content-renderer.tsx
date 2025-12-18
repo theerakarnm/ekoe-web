@@ -28,7 +28,7 @@ function BlockRenderer({ block }: { block: ContentBlock }) {
       return (
         <div
           id={id}
-          className="prose prose-stone max-w-none dark:prose-invert"
+          className="prose prose-stone max-w-none dark:prose-invert font-thai!"
           dangerouslySetInnerHTML={{ __html: block.content }}
         />
       );
@@ -61,7 +61,7 @@ function BlockRenderer({ block }: { block: ContentBlock }) {
         <HeadingTag
           id={block.anchorId || id}
           className={cn(
-            "font-bold tracking-tight mt-8 mb-4 scroll-m-20",
+            "font-bold tracking-tight mt-8 mb-4 scroll-m-20 font-heading",
             block.level === 1 && "text-3xl",
             block.level === 2 && "text-2xl",
             block.level === 3 && "text-xl"

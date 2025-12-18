@@ -41,7 +41,7 @@ export default function BlogPostDetail({ loaderData }: Route.ComponentProps) {
     <div className="flex flex-col min-h-screen bg-white">
       <Header />
 
-      <main className="flex-grow">
+      <main className="grow">
         {/* Featured Image - Full Width Top */}
         {post.featuredImageUrl && (
           <div className="w-full h-[50vh] md:h-[60vh] relative overflow-hidden">

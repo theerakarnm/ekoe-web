@@ -4,8 +4,9 @@
 
 @theme {
   --font-sans: 'Inria Serif', 'Noto Sans Thai', 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --font-serif: 'Inria Serif', serif;
+  --font-serif: 'Inria Serif', 'Noto Sans Thai', serif;
   --font-thai: 'Noto Sans Thai', sans-serif;
+  --font-heading: 'EuropaGroSHOP-MedCon', 'Noto Sans Thai', sans-serif;
 }
 
 html,
@@ -15,6 +16,15 @@ body {
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }
+}
+
+
+@font-face {
+  font-family: 'EuropaGroSHOP-MedCon';
+  src: url('/fonts/EuropaGroSHOP-MedCon.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
 }
 
 /* Thin */
