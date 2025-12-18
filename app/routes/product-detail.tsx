@@ -635,7 +635,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                 </div>
 
                 <div className="text-xs text-center text-gra-y-500">
-                  Free shipping for orders over 2,000 THB
+                  Free shipping for every orders
                 </div>
 
                 {/* Discount Codes - New Position & Design */}
@@ -647,32 +647,6 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                 {(productData.complimentaryGift && (productData.complimentaryGift?.name?.length || 0) > 0) ? (
                   <ComplimentaryGift gift={productData.complimentaryGift} />
                 ) : null}
-
-                {/* Delivery Info */}
-                <div className="grid grid-cols-2 gap-4 pt-6 border-t border-gray-100">
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
-                      <ShoppingBag size={16} />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium mb-1">Standard Delivery</h4>
-                      <p className="text-xs text-gray-500">
-                        Receive within 2-3 business days
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
-                      <ShoppingBag size={16} />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium mb-1">Next Day Delivery</h4>
-                      <p className="text-xs text-gray-500">
-                        Order before 2 PM for next day delivery
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -720,7 +694,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             /* Key Ingredients Section for Single Products */
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24 items-start">
               <div>
-                <h2 className="text-2xl font-serif mb-10">THE ACTIVES WITHIN</h2>
+                <h2 className="text-2xl font-serif mb-10 font-bold">THE ACTIVES WITHIN</h2>
                 <div className="space-y-8">
                   {productData.ingredients?.keyIngredients?.map((ing, idx) => (
                     <div key={idx} className="space-y-2">
@@ -822,7 +796,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
           )}
 
           <div className="mb-24">
-            <h2 className="text-3xl font-serif mb-8 text-center">How to Use</h2>
+            <h2 className="text-3xl font-serif mb-8 text-start font-bold">How to Use</h2>
 
             {/* New Media-based display */}
             {productData.howToUse?.mediaUrl && productData.howToUse?.mediaType ? (

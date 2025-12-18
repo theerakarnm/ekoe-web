@@ -338,7 +338,7 @@ export function ProductPreview({ data, images }: ProductPreviewProps) {
             {isOutOfStock ? 'Out of Stock' : `Add to Cart - ${formatCurrencyFromCents(currentPrice, { symbolPosition: 'suffix', symbol: ' THB' })}`}
           </Button>
           <p className="text-[10px] text-center text-gray-400 mb-8">
-            Free shipping for orders over 2,000 THB
+            Free shipping for every orders
           </p>
 
           {/* Complimentary Gift */}

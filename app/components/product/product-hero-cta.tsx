@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Star, ShoppingBag } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { LazyVideo } from "~/components/ui/lazy-video";
 import { formatCurrencyFromCents } from "~/lib/formatter";
 
 interface ProductHeroCTAProps {
@@ -11,6 +12,7 @@ interface ProductHeroCTAProps {
   primaryImage: string;
   backgroundUrl: string;
   backgroundType: "image" | "video";
+  backgroundPoster?: string;
   isOutOfStock: boolean;
   onAddToCart: () => void;
 }
@@ -23,6 +25,7 @@ export function ProductHeroCTA({
   primaryImage,
   backgroundUrl,
   backgroundType,
+  backgroundPoster,
   isOutOfStock,
   onAddToCart,
 }: ProductHeroCTAProps) {
@@ -33,28 +36,32 @@ export function ProductHeroCTA({
       {/* Background */}
       {backgroundType === "video" ? (
         <>
-          {/* Video Background */}
-          <video
+          {/* Video Background with LazyVideo - priority since above fold */}
+          <LazyVideo
+            src={backgroundUrl}
+            poster={backgroundPoster}
             autoPlay
             muted
             loop
             playsInline
-            onLoadedData={() => setIsVideoLoaded(true)}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isVideoLoaded ? "opacity-100" : "opacity-0"
-              }`}
-          >
-            <source src={backgroundUrl} type="video/mp4" />
-          </video>
-          {/* Fallback while loading */}
-          {!isVideoLoaded && (
+            priority={true}
+            preloadStrategy="metadata"
+            className="absolute inset-0 w-full h-full"
+            onLoad={() => setIsVideoLoaded(true)}
+          />
+          {/* Fallback gradient while video loads (if no poster) */}
+          {!isVideoLoaded && !backgroundPoster && (
             <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900" />
           )}
         </>
       ) : (
-        /* Image Background */
-        <div
-          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${backgroundUrl})` }}
+        /* Image Background with lazy loading */
+        <img
+          src={backgroundUrl}
+          alt={`${productName} background`}
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+          fetchPriority="high"
         />
       )}
 

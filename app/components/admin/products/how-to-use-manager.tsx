@@ -100,7 +100,7 @@ export function HowToUseManager({ control }: HowToUseManagerProps) {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            <strong>Recommended:</strong> Upload videos or images in <strong>16:9 aspect ratio</strong> for best display.
+            <strong>Recommended:</strong> Upload videos or images in <strong>9:16 aspect ratio</strong> for best display.
             Maximum file size: 50MB.
           </AlertDescription>
         </Alert>
@@ -194,7 +194,7 @@ export function HowToUseManager({ control }: HowToUseManagerProps) {
         {mediaUrl && (
           <div className="mt-4">
             <p className="text-sm font-medium mb-2">Preview:</p>
-            <div className="relative aspect-video max-w-md bg-gray-100 rounded-lg overflow-hidden">
+            <div className="relative aspect-9/16 max-w-md bg-gray-100 rounded-lg overflow-hidden">
               {mediaType === 'video' ? (
                 <video
                   src={mediaUrl}

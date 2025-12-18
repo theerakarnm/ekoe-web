@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ShoppingBag, X, Volume2, VolumeX } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { LazyVideo } from "~/components/ui/lazy-video";
 import { formatCurrencyFromCents } from "~/lib/formatter";
 
 interface HowToUseMediaProps {
@@ -9,6 +10,7 @@ interface HowToUseMediaProps {
   price: number;
   mediaUrl: string;
   mediaType: "image" | "video";
+  mediaPoster?: string;
   onAddToCart: () => void;
 }
 
@@ -18,31 +20,30 @@ export function HowToUseMedia({
   price,
   mediaUrl,
   mediaType,
+  mediaPoster,
   onAddToCart,
 }: HowToUseMediaProps) {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
 
   return (
-    <div className="relative w-full aspect-video overflow-hidden bg-gray-100 rounded-2xl shadow-lg">
+    <div className="relative w-full sm:w-[80%] md:w-1/2 lg:w-[30%] aspect-9/16 overflow-hidden bg-gray-100 rounded-2xl shadow-lg">
       {/* Media Content */}
       {mediaType === "video" ? (
         <>
-          <video
-            autoPlay
+          <LazyVideo
+            src={mediaUrl}
+            poster={mediaPoster}
             muted={isMuted}
             loop
+            autoPlay
             playsInline
-            onLoadedData={() => setIsVideoLoaded(true)}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isVideoLoaded ? "opacity-100" : "opacity-0"
-              }`}
-          >
-            <source src={mediaUrl} type="video/mp4" />
-          </video>
-          {/* Fallback while loading */}
-          {!isVideoLoaded && (
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse" />
-          )}
+            rootMargin="100px"
+            threshold={0.1}
+            preloadStrategy="metadata"
+            className="absolute inset-0 w-full h-full"
+            onLoad={() => setIsVideoLoaded(true)}
+          />
 
           {/* Mute/Unmute Button */}
           <button
@@ -57,6 +58,7 @@ export function HowToUseMedia({
           src={mediaUrl}
           alt={`How to use ${productName}`}
           className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
         />
       )}
 
