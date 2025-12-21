@@ -47,7 +47,7 @@ export const productVariantSchema = z.object({
   name: z.string().min(1, 'Variant name is required'),
   value: z.string().min(1, 'Variant value is required'),
   price: priceValidator,
-  compareAtPrice: priceValidator.optional(),
+  compareAtPrice: priceValidator.nullable().optional(),
   stockQuantity: z.number().int().min(0, 'Stock must be non-negative'),
   lowStockThreshold: z.number().int().min(0),
   isActive: z.boolean(),
@@ -111,7 +111,7 @@ export const productSchema = z.object({
 
   // Pricing - Note: basePrice is optional as pricing is now managed through variants
   basePrice: priceValidator.optional().default(0),
-  compareAtPrice: priceValidator.optional(),
+  compareAtPrice: priceValidator.nullable().optional(),
 
   // Product type
   productType: z.enum(['single', 'set', 'bundle']),
@@ -150,7 +150,7 @@ export const productSchema = z.object({
 
   // CTA Hero Section (background should be <50MB in image or video format)
   ctaBackgroundUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-  ctaBackgroundType: z.enum(['image', 'video']).optional(),
+  ctaBackgroundType: z.enum(['image', 'video']).optional().or(z.literal('')),
 });
 
 export type ProductFormData = z.infer<typeof productSchema>;
