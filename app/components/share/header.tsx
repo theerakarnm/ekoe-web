@@ -168,7 +168,7 @@ export default function Header({
                         <Link to="/shop" className="w-full cursor-pointer font-bold">Shop All</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to="/shop?product_type=sets" className="w-full cursor-pointer font-bold">Set All</Link>
+                        <Link to="/shop?product_type=set" className="w-full cursor-pointer font-bold">Set All</Link>
                       </DropdownMenuItem>
                       {products.map((product) => (
                         <DropdownMenuItem key={product.id} asChild>

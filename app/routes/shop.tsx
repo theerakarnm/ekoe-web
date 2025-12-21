@@ -87,6 +87,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const categoriesParam = url.searchParams.get('categories');
   const minPriceParam = url.searchParams.get('minPrice');
   const maxPriceParam = url.searchParams.get('maxPrice');
+  const productTypeParam = url.searchParams.get('product_type') as 'single' | 'set' | 'bundle' | null;
   const pageParam = url.searchParams.get('page');
   const sortByParam = url.searchParams.get('sortBy');
   const sortOrderParam = url.searchParams.get('sortOrder');
@@ -96,6 +97,7 @@ export async function loader({ request }: Route.LoaderArgs) {
     categories: categoriesParam ? categoriesParam.split(',').filter(Boolean) : undefined,
     minPrice: minPriceParam ? parseFloat(minPriceParam) : undefined,
     maxPrice: maxPriceParam ? parseFloat(maxPriceParam) : undefined,
+    productType: productTypeParam && ['single', 'set', 'bundle'].includes(productTypeParam) ? productTypeParam : undefined,
     page: pageParam ? parseInt(pageParam) : 1,
     limit: 24,
     sortBy: (sortByParam as 'price' | 'createdAt' | 'name') || 'createdAt',

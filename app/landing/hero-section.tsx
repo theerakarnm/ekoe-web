@@ -225,7 +225,7 @@ function HeroSection() {
                       <Link to="/shop" className="w-full cursor-pointer">Shop All</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/shop?product_type=sets" className="w-full cursor-pointer">Set All</Link>
+                      <Link to="/shop?product_type=set" className="w-full cursor-pointer">Set All</Link>
                     </DropdownMenuItem>
                     {/* <DropdownMenuItem asChild>
                       <Link to="/shop?category=new-arrivals" className="w-full cursor-pointer">New Arrivals</Link>
