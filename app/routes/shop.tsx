@@ -30,6 +30,23 @@ function mapProductToIProduct(product: Product): IProduct {
   const secondaryImage = product.images?.find(img => img.isSecondary)
     || product.images?.find(img => !img.isPrimary && img.url !== primaryImage?.url)
     || (product.images && product.images.length > 1 ? product.images[1] : undefined);
+  const variants = product.variants || [];
+
+  // Calculate price range from variants or use base price
+  let priceTitle: string;
+  if (variants.length > 0) {
+    const prices = variants.map(v => (v.compareAtPrice || 0));
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+
+    if (minPrice === maxPrice) {
+      priceTitle = formatCurrencyFromCents(minPrice);
+    } else {
+      priceTitle = `${formatCurrencyFromCents(minPrice)} - ${formatCurrencyFromCents(maxPrice)}`;
+    }
+  } else {
+    priceTitle = formatCurrencyFromCents(product.basePrice);
+  }
 
   // Map variants to sizes
   const sizes = product.variants?.map(variant => ({
@@ -49,9 +66,7 @@ function mapProductToIProduct(product: Product): IProduct {
       url: secondaryImage.url,
     } : undefined,
     productName: product.name,
-    priceTitle: sizes && sizes.length > 0
-      ? `${formatCurrencyFromCents(Math.min(...sizes.map(s => s.price)), { symbol: '$' })} - ${formatCurrencyFromCents(Math.max(...sizes.map(s => s.price)), { symbol: '$' })}`
-      : `${formatCurrencyFromCents(product.basePrice, { symbol: '$' })}`,
+    priceTitle: priceTitle,
     quickCartPrice: product.basePrice,
     sizes,
     subtitle: product.subtitle ?? undefined,

@@ -97,7 +97,7 @@ export default function OnlineExecutive() {
                         )}
 
                         {promotion.description && (
-                          <p className="text-gray-600 mb-4 font-thai">
+                          <p className="text-gray-600 mb-4 font-thai whitespace-pre-line">
                             {promotion.description}
                           </p>
                         )}

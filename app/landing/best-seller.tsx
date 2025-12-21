@@ -25,7 +25,7 @@ function transformProduct(product: Product): IProduct {
   // Calculate price range from variants or use base price
   let priceTitle: string;
   if (variants.length > 0) {
-    const prices = variants.map(v => v.price);
+    const prices = variants.map(v => (v.compareAtPrice || v.price));
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
 
