@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { ChevronDown, Menu, Search, ShoppingCart, X, User, LogOut } from "lucide-react";
 import {
   Carousel,
@@ -19,6 +19,11 @@ import { useCartStore } from '~/store/cart';
 import { useAuthStore } from '~/store/auth-store';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { getProducts, type Product } from '~/lib/services/product.service';
+
+// Format price from cents to display format
+function formatPrice(priceInCents: number): string {
+  return `฿${(priceInCents / 100).toLocaleString('th-TH', { minimumFractionDigits: 0 })}`;
+}
 
 const slides = [
   {
@@ -53,6 +58,57 @@ function HeroSection() {
   const [mounted, setMounted] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
 
+  // Search state
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Filter products based on search query
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return products;
+    }
+    return products.filter((product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [products, searchQuery]);
+
+  // Handle click outside to close search
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setIsSearchOpen(false);
+        setSearchQuery('');
+      }
+    };
+
+    if (isSearchOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSearchOpen]);
+
+  // Focus input when search opens
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
+
+  // Handle search button click
+  const handleSearchClick = () => {
+    setIsSearchOpen(true);
+  };
+
+  // Handle close search
+  const handleCloseSearch = () => {
+    setIsSearchOpen(false);
+    setSearchQuery('');
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -220,12 +276,12 @@ function HeroSection() {
 
               {/* Desktop right-side navigation */}
               <div className="hidden lg:flex items-center space-x-6">
-                <button className="text-white hover:text-gray-200 transition-colors">
+                <button onClick={handleSearchClick} className="text-white hover:text-gray-200 transition-colors">
                   <Search className="h-5 w-5" />
                 </button>
-                <Link to="/shop" className="text-white hover:text-gray-200 text-sm tracking-wide transition-colors">
+                <button onClick={handleSearchClick} className="text-white hover:text-gray-200 text-sm tracking-wide transition-colors">
                   SEARCH
-                </Link>
+                </button>
                 {mounted && isAuthenticated && user ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger className="outline-none">
@@ -352,9 +408,9 @@ function HeroSection() {
                     )}
                   </div>
                   <div className="pt-4 space-y-4">
-                    <Link to="/shop" className="flex items-center text-lg font-medium py-2">
+                    <button onClick={() => { handleSearchClick(); setIsMobileMenuOpen(false); }} className="flex items-center text-lg font-medium py-2 w-full">
                       <Search className="h-5 w-5 mr-3" /> SEARCH
-                    </Link>
+                    </button>
                     {mounted && isAuthenticated && user ? (
                       <>
                         <Link
@@ -403,6 +459,101 @@ function HeroSection() {
           ))}
         </div>
       </div>
+
+      {/* Search Popup Overlay */}
+      {isSearchOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div
+            ref={searchContainerRef}
+            className="absolute top-0 left-0 right-0 bg-white shadow-xl animate-in slide-in-from-top duration-300"
+          >
+            <div className="max-w-4xl mx-auto px-4 py-6">
+              {/* Search Header */}
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 text-lg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6E604D] focus:border-transparent transition-all"
+                  />
+                </div>
+                <button
+                  onClick={handleCloseSearch}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="h-6 w-6 text-gray-600" />
+                </button>
+              </div>
+
+              {/* Products List */}
+              <div className="max-h-[60vh] overflow-y-auto">
+                {filteredProducts.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredProducts.map((product) => (
+                      <Link
+                        key={product.id}
+                        to={`/product-detail/${product.id}`}
+                        onClick={handleCloseSearch}
+                        className="group flex items-center gap-4 p-3 rounded-lg border border-gray-100 hover:border-[#6E604D] hover:shadow-md transition-all duration-200"
+                      >
+                        {/* Product Image */}
+                        <div className="w-20 h-20 shrink-0 bg-gray-100 rounded-lg overflow-hidden">
+                          {product.images && product.images[0] ? (
+                            <img
+                              src={product.images[0].url}
+                              alt={product.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                              <Search className="h-8 w-8" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Product Info */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-gray-900 group-hover:text-[#6E604D] transition-colors line-clamp-2">
+                            {product.name}
+                          </h3>
+                          <p className="text-sm text-[#6E604D] font-semibold mt-1">
+                            {formatPrice(product.basePrice)}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500">
+                      {searchQuery ? `No products found for "${searchQuery}"` : 'Start typing to search products...'}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* View All Products Link */}
+              {filteredProducts.length > 0 && (
+                <div className="mt-6 pt-4 border-t border-gray-100 text-center">
+                  <Link
+                    to="/shop"
+                    onClick={handleCloseSearch}
+                    className="inline-flex items-center text-[#6E604D] hover:text-[#5a5040] font-medium transition-colors"
+                  >
+                    View all products
+                    <ChevronDown className="ml-1 h-4 w-4 -rotate-90" />
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

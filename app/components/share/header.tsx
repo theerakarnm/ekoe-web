@@ -116,15 +116,33 @@ export default function Header({
 
   return (
     <>
-      {!isTransparent && (
-        <div className="bg-[#6E604D] text-white text-center py-1 sm:py-2 text-xs sm:text-sm">
-          <span className="hidden sm:inline">FREE SHIPPING ON ALL ORDERS WITHIN THAILAND</span>
-          <span className="sm:hidden">FREE SHIPPING</span>
+      <div className="bg-black text-white py-1 sm:py-2 text-xs sm:text-sm overflow-hidden whitespace-nowrap">
+        <div
+          className="inline-block animate-marquee font-heading"
+          style={{
+            animation: 'marquee 15s linear infinite',
+          }}
+        >
+          <span className="mx-8">FREE SHIPPING ON ALL ORDERS WITHIN THAILAND</span>
+          <span className="mx-8">FREE SHIPPING ON ALL ORDERS WITHIN THAILAND</span>
+          <span className="mx-8">FREE SHIPPING ON ALL ORDERS WITHIN THAILAND</span>
+          <span className="mx-8">FREE SHIPPING ON ALL ORDERS WITHIN THAILAND</span>
+          <span className="mx-8">FREE SHIPPING ON ALL ORDERS WITHIN THAILAND</span>
+          <span className="mx-8">FREE SHIPPING ON ALL ORDERS WITHIN THAILAND</span>
+          <span className="mx-8">FREE SHIPPING ON ALL ORDERS WITHIN THAILAND</span>
+          <span className="mx-8">FREE SHIPPING ON ALL ORDERS WITHIN THAILAND</span>
+          <span className="mx-8">FREE SHIPPING ON ALL ORDERS WITHIN THAILAND</span>
         </div>
-      )}
+        <style>{`
+            @keyframes marquee {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-33.33%); }
+            }
+          `}</style>
+      </div>
       {
         !isLandingMagic ? <>
-          <header className={`${headerBgClass} font-mono ${isTransparent ? 'absolute' : 'fixed'} top-0 left-0 right-0 z-50 transform transition-all duration-300 ease-in-out ${isLandingMagic ? '-translate-y-full' : 'translate-y-0'}`}>
+          <header className={`${headerBgClass} font-mono ${isTransparent ? 'absolute translate-y-10' : 'fixed'} top-0 left-0 right-0 z-50 transform transition-all duration-300 ease-in-out ${isLandingMagic ? '-translate-y-full' : 'translate-y-0'}`}>
             <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
               <div className="flex items-center justify-between h-14 sm:h-16">
                 {/* Mobile menu button */}
