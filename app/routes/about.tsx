@@ -34,7 +34,7 @@ export default function About() {
           <div className="absolute inset-0 flex items-center justify-center px-4">
             <div className="text-center max-w-3xl">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif text-white mb-6 drop-shadow-lg">
-                Our Story
+                About Us
               </h1>
               <p className="text-lg sm:text-xl text-white/90 font-light font-thai drop-shadow-md">
                 ใครๆ ก็มีโมเมนต์ดีๆ เป็นของตัวเอง

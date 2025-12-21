@@ -166,7 +166,10 @@ function HeroSection() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-48 bg-white max-h-[80vh] overflow-y-auto">
                     <DropdownMenuItem asChild>
-                      <Link to="/shop" className="w-full cursor-pointer font-bold">Shop All</Link>
+                      <Link to="/shop" className="w-full cursor-pointer">Shop All</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/set" className="w-full cursor-pointer">Set All</Link>
                     </DropdownMenuItem>
                     {/* <DropdownMenuItem asChild>
                       <Link to="/shop?category=new-arrivals" className="w-full cursor-pointer">New Arrivals</Link>
@@ -196,7 +199,7 @@ function HeroSection() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-48 bg-white">
                     <DropdownMenuItem asChild>
-                      <Link to="/about" className="w-full cursor-pointer">Our Story</Link>
+                      <Link to="/about" className="w-full cursor-pointer">About Us</Link>
                     </DropdownMenuItem>
                     {/* <DropdownMenuItem asChild>
                       <Link to="/ingredients" className="w-full cursor-pointer">Ingredients</Link>
@@ -342,7 +345,7 @@ function HeroSection() {
                     </button>
                     {isDiscoverOpen && (
                       <div className="pl-4 py-2 space-y-2 flex flex-col mt-1">
-                        <Link to="/about" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Our Story</Link>
+                        <Link to="/about" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>About Us</Link>
                         {/* <Link to="/ingredients" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Ingredients</Link> */}
                         <Link to="/blogs" className="text-gray-300 text-base py-1" onClick={() => setIsMobileMenuOpen(false)}>Blog</Link>
                       </div>

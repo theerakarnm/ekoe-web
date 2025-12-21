@@ -76,6 +76,7 @@ function Footer() {
               <h4 className="font-medium mb-4 font-serif">Shop</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><a href="/shop" className="hover:text-white transition-colors font-serif">Shop All</a></li>
+                <li><a href="/set" className="hover:text-white transition-colors font-serif">Set All</a></li>
                 {products.map((product) => (
                   <li key={product.id}>
                     <a href={`/product-detail/${product.id}`} className="hover:text-white transition-colors font-serif">
@@ -89,7 +90,7 @@ function Footer() {
             <div>
               <h4 className="font-medium mb-4 font-serif">Discover</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="/about" className="hover:text-white transition-colors font-serif">Our Story</a></li>
+                <li><a href="/about" className="hover:text-white transition-colors font-serif">About Us</a></li>
                 <li><a href="/online-executive" className="hover:text-white transition-colors font-serif">Online Exclusive</a></li>
               </ul>
             </div>

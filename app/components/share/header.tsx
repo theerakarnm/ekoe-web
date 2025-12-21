@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Search, User, ShoppingCart, ChevronDown, Menu, X, LogOut, Settings, Cog } from 'lucide-react';
 import { useCartStore } from '~/store/cart';
 import { useAuthStore } from '~/store/auth-store';
@@ -12,6 +12,11 @@ import {
 } from '~/components/ui/dropdown-menu';
 import { getProducts, type Product } from '~/lib/services/product.service';
 import { cn } from '~/lib/utils';
+
+// Format price from cents to display format
+function formatPrice(priceInCents: number): string {
+  return `฿${(priceInCents / 100).toLocaleString('th-TH', { minimumFractionDigits: 0 })}`;
+}
 
 export default function Header({
   isLandingMagic,
@@ -27,6 +32,58 @@ export default function Header({
   const { user, isAuthenticated, signOut } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
+
+  // Search state
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Filter products based on search query
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return products;
+    }
+    return products.filter((product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [products, searchQuery]);
+
+  // Handle click outside to close search
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setIsSearchOpen(false);
+        setSearchQuery('');
+      }
+    };
+
+    if (isSearchOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSearchOpen]);
+
+  // Focus input when search opens
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
+
+  // Handle search button click
+  const handleSearchClick = () => {
+    setIsSearchOpen(true);
+  };
+
+  // Handle close search
+  const handleCloseSearch = () => {
+    setIsSearchOpen(false);
+    setSearchQuery('');
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -92,6 +149,9 @@ export default function Header({
                       <DropdownMenuItem asChild>
                         <Link to="/shop" className="w-full cursor-pointer font-bold">Shop All</Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/set" className="w-full cursor-pointer font-bold">Set All</Link>
+                      </DropdownMenuItem>
                       {products.map((product) => (
                         <DropdownMenuItem key={product.id} asChild>
                           <Link to={`/product-detail/${product.id}`} className="w-full cursor-pointer truncate">
@@ -108,7 +168,7 @@ export default function Header({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-48 bg-white">
                       <DropdownMenuItem asChild>
-                        <Link to="/about" className="w-full cursor-pointer">Our Story</Link>
+                        <Link to="/about" className="w-full cursor-pointer">About Us</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link to="/blogs" className="w-full cursor-pointer">Blog</Link>
@@ -126,10 +186,10 @@ export default function Header({
 
                 {/* Desktop right-side navigation */}
                 <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
-                  <button className={`${textColorClass} ${hoverTextClass}`}>
+                  <button onClick={handleSearchClick} className={`${textColorClass} ${hoverTextClass}`}>
                     <Search className="h-4 w-4 sm:h-5 sm:w-5" />
                   </button>
-                  <button className={`${textColorClass} ${hoverTextClass} text-sm hidden xl:block`}>
+                  <button onClick={handleSearchClick} className={`${textColorClass} ${hoverTextClass} text-sm hidden xl:block`}>
                     SEARCH
                   </button>
                   {mounted && isAuthenticated && user ? (
@@ -196,7 +256,7 @@ export default function Header({
 
                 {/* Mobile right-side icons */}
                 <div className="lg:hidden flex items-center space-x-3">
-                  <button className={`${textColorClass} ${hoverTextClass}`}>
+                  <button onClick={handleSearchClick} className={`${textColorClass} ${hoverTextClass}`}>
                     <Search className="h-5 w-5" />
                   </button>
                   {mounted && isAuthenticated && user ? (
@@ -267,7 +327,7 @@ export default function Header({
                       </button>
                       {isDiscoverOpen && (
                         <div className="pl-4 py-2 space-y-2 flex flex-col bg-gray-50 rounded-md mt-1">
-                          <Link to="/about" className="text-gray-600 text-sm py-1" onClick={() => setIsMobileMenuOpen(false)}>Our Story</Link>
+                          <Link to="/about" className="text-gray-600 text-sm py-1" onClick={() => setIsMobileMenuOpen(false)}>About Us</Link>
                           {/* <Link to="/ingredients" className="text-gray-600 text-sm py-1" onClick={() => setIsMobileMenuOpen(false)}>Ingredients</Link> */}
                           <Link to="/blogs" className="text-gray-600 text-sm py-1" onClick={() => setIsMobileMenuOpen(false)}>Blog</Link>
                         </div>
@@ -313,6 +373,101 @@ export default function Header({
             </div>
           </header></> : null
       }
+
+      {/* Search Popup Overlay */}
+      {isSearchOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div
+            ref={searchContainerRef}
+            className="absolute top-0 left-0 right-0 bg-white shadow-xl animate-in slide-in-from-top duration-300"
+          >
+            <div className="max-w-4xl mx-auto px-4 py-6">
+              {/* Search Header */}
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 text-lg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6E604D] focus:border-transparent transition-all"
+                  />
+                </div>
+                <button
+                  onClick={handleCloseSearch}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="h-6 w-6 text-gray-600" />
+                </button>
+              </div>
+
+              {/* Products List */}
+              <div className="max-h-[60vh] overflow-y-auto">
+                {filteredProducts.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredProducts.map((product) => (
+                      <Link
+                        key={product.id}
+                        to={`/product-detail/${product.id}`}
+                        onClick={handleCloseSearch}
+                        className="group flex items-center gap-4 p-3 rounded-lg border border-gray-100 hover:border-[#6E604D] hover:shadow-md transition-all duration-200"
+                      >
+                        {/* Product Image */}
+                        <div className="w-20 h-20 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
+                          {product.images && product.images[0] ? (
+                            <img
+                              src={product.images[0].url}
+                              alt={product.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                              <Search className="h-8 w-8" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Product Info */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-gray-900 group-hover:text-[#6E604D] transition-colors line-clamp-2">
+                            {product.name}
+                          </h3>
+                          <p className="text-sm text-[#6E604D] font-semibold mt-1">
+                            {formatPrice(product.basePrice)}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500">
+                      {searchQuery ? `No products found for "${searchQuery}"` : 'Start typing to search products...'}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* View All Products Link */}
+              {filteredProducts.length > 0 && (
+                <div className="mt-6 pt-4 border-t border-gray-100 text-center">
+                  <Link
+                    to="/shop"
+                    onClick={handleCloseSearch}
+                    className="inline-flex items-center text-[#6E604D] hover:text-[#5a5040] font-medium transition-colors"
+                  >
+                    View all products
+                    <ChevronDown className="ml-1 h-4 w-4 rotate-[-90deg]" />
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
