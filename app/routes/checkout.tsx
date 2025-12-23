@@ -13,6 +13,7 @@ import { CartValidationErrors } from "~/components/cart/cart-validation-errors";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { ApiClientError } from "~/lib/api-client";
+import { promotionalCartService, type PromotionalCartResult } from "~/lib/services/promotional-cart.service";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -98,12 +99,19 @@ export default function Checkout() {
   const removeItem = useCartStore((state) => state.removeItem);
 
   const [validationResult, setValidationResult] = useState<ValidatedCart | null>(null);
+  const [promotionalResult, setPromotionalResult] = useState<PromotionalCartResult | null>(null);
   const [isValidating, setIsValidating] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Validate cart on mount
+  // Shipping state lifted from CheckoutSummary
+  const [selectedShippingMethod, setSelectedShippingMethod] = useState<string>();
+  const [shippingCost, setShippingCost] = useState(0);
+
+  const discountCode = useCartStore((state) => state.discountCode);
+
+  // Validate and Evaluate Cart
   useEffect(() => {
-    async function performValidation() {
+    async function performValidationAndEvaluation() {
       if (items.length === 0) {
         setIsValidating(false);
         return;
@@ -113,44 +121,67 @@ export default function Checkout() {
         setIsValidating(true);
         setValidationError(null);
 
+        // 1. Basic Validation (Stock check)
         // Convert cart items to validation format
-        const cartItems = items.map((item) => ({
+        const cartItemsValidationParams = items.map((item) => ({
           productId: item.productId,
           variantId: item.variantId,
           quantity: item.quantity,
         }));
 
-        const result = await validateCart(cartItems);
+        const result = await validateCart(cartItemsValidationParams);
         setValidationResult(result);
 
         // Auto-handle validation errors
         if (!result.isValid) {
           result.errors.forEach((error) => {
             if (error.type === 'out_of_stock' || error.type === 'product_not_found' || error.type === 'product_inactive') {
-              // Remove items that are out of stock or not found
               removeItem(error.productId, error.variantId);
             } else if (error.type === 'insufficient_stock') {
-              // Find the validated item to get available quantity
               const validatedItem = result.items.find(
                 (item) => item.productId === error.productId && item.variantId === error.variantId
               );
               if (validatedItem && validatedItem.availableQuantity > 0) {
-                // Update to available quantity
                 updateQuantity(error.productId, validatedItem.availableQuantity, error.variantId);
               }
             }
           });
+          // If initialized with errors, we might want to stop or re-eval? 
+          // For now, proceed to evaluation if there are still valid items/after correction
         }
+
+        // 2. Promotional Evaluation
+        // Convert to PromotionalCartItem format
+        const promoItems = items.map(item => ({
+          productId: item.productId,
+          variantId: item.variantId,
+          quantity: item.quantity
+        }));
+
+        const evaluation = await promotionalCartService.evaluateCartWithPromotions(
+          promoItems,
+          undefined, // customerId (could get from auth if needed, but usually handled by session/cookie?)
+          discountCode,
+          selectedShippingMethod
+        );
+
+        setPromotionalResult(evaluation);
+
       } catch (error) {
-        console.error('Cart validation error:', error);
-        setValidationError('Unable to validate cart items. Please try again.');
+        console.error('Cart processing error:', error);
+        setValidationError('Unable to process cart. Please try again.');
       } finally {
         setIsValidating(false);
       }
     }
 
-    performValidation();
-  }, []); // Only run on mount
+    performValidationAndEvaluation();
+  }, [items, discountCode, selectedShippingMethod]); // Re-run when items, discount, or shipping changes
+
+  const handleShippingMethodChange = (methodId: string, cost: number) => {
+    setSelectedShippingMethod(methodId);
+    setShippingCost(cost);
+  };
 
   return (
     <CustomerAuthGuard>
@@ -217,7 +248,11 @@ export default function Checkout() {
 
               {/* Right Column - Summary */}
               <div className="lg:sticky lg:top-0 lg:h-screen">
-                <CheckoutSummary />
+                <CheckoutSummary
+                  promotionalResult={promotionalResult}
+                  selectedShippingMethod={selectedShippingMethod}
+                  onShippingMethodChange={handleShippingMethodChange}
+                />
               </div>
             </div>
           )}

@@ -64,48 +64,10 @@ export function CartSummary() {
           <span className="text-gray-600">Shipping</span>
           <span className="font-medium uppercase">Free</span>
         </div>
-        {discount > 0 && (
-          <div className="flex justify-between text-sm text-green-600">
-            <span className="">Discount ({discountCode})</span>
-            <div className="flex items-center gap-2">
-              <span className="font-medium">-{formatCurrencyFromCents(discount, { symbol: '$', decimals: 0 })}</span>
-              <button
-                onClick={() => { removeDiscountCode(); setMessage(null); }}
-                className="text-xs underline text-red-500 hover:text-red-700"
-              >
-                Remove
-              </button>
-            </div>
-          </div>
-        )}
+
       </div>
 
-      <div className="flex flex-col gap-2 mb-8">
-        <div className="flex gap-2">
-          <Input
-            placeholder="Coupon code"
-            className="h-10 bg-transparent border-gray-200 rounded-none placeholder:text-gray-300"
-            value={couponCode}
-            onChange={(e) => setCouponCode(e.target.value)}
-            disabled={isLoading}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleApplyCoupon();
-            }}
-          />
-          <Button
-            onClick={handleApplyCoupon}
-            disabled={isLoading || !couponCode}
-            className="h-10 px-6 bg-black text-white hover:bg-gray-800 rounded-none uppercase text-xs tracking-widest min-w-[80px]"
-          >
-            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Apply"}
-          </Button>
-        </div>
-        {message && (
-          <p className={`text-xs ${message.type === 'error' ? 'text-red-500' : 'text-green-600'}`}>
-            {message.text}
-          </p>
-        )}
-      </div>
+
 
       <div className="flex justify-between items-center mb-8 pt-4 border-t border-gray-100">
         <span className="font-serif text-lg">Total</span>

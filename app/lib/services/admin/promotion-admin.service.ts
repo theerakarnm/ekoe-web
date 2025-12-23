@@ -50,6 +50,9 @@ export interface PromotionRule {
   applicableCategoryIds?: string[];
   giftProductIds?: string[];
   giftQuantities?: number[];
+  giftName?: string;
+  giftPrice?: number;
+  giftImageUrl?: string;
   createdAt: string;
 }
 
@@ -135,6 +138,9 @@ export interface CreatePromotionRuleDto {
   applicableCategoryIds?: string[];
   giftProductIds?: string[];
   giftQuantities?: number[];
+  giftName?: string;
+  giftPrice?: number;
+  giftImageUrl?: string;
 }
 
 export interface GetPromotionsParams {

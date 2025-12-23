@@ -5,25 +5,54 @@ import { DiscountCodeInput } from "./discount-code-input";
 import { FreeGiftDisplay } from "./free-gift-display";
 import { ShippingMethodSelector } from "./shipping-method-selector";
 
-export function CheckoutSummary() {
+import type { PromotionalCartResult } from "~/lib/services/promotional-cart.service";
+
+interface CheckoutSummaryProps {
+  promotionalResult?: PromotionalCartResult | null;
+  selectedShippingMethod?: string;
+  onShippingMethodChange?: (methodId: string, cost: number) => void;
+}
+
+export function CheckoutSummary({
+  promotionalResult,
+  selectedShippingMethod,
+  onShippingMethodChange
+}: CheckoutSummaryProps) {
   const items = useCartStore((state) => state.items);
+  // Fallback to store values if promotionalResult is not provided
   const getSubtotal = useCartStore((state) => state.getSubtotal);
-  const discountAmount = useCartStore((state) => state.discountAmount);
-  const eligibleGifts = useCartStore((state) => state.eligibleGifts);
+  const storeDiscountAmount = useCartStore((state) => state.discountAmount);
+  const storeEligibleGifts = useCartStore((state) => state.eligibleGifts);
   const fetchEligibleGifts = useCartStore((state) => state.fetchEligibleGifts);
   const getComplimentaryGifts = useCartStore((state) => state.getComplimentaryGifts);
 
-  const [shippingCost, setShippingCost] = useState(0);
-  const [selectedShippingMethod, setSelectedShippingMethod] = useState<string>();
+  // Internal state for standalone usage (backward compatibility/fallback)
+  const [internalShippingCost, setInternalShippingCost] = useState(0);
+  const [internalSelectedMethod, setInternalSelectedMethod] = useState<string>();
 
-  const subtotal = getSubtotal();
-  const discount = discountAmount;
-  // Calculate tax (7% VAT) - matches backend calculation in orders.domain.ts
-  const taxAmount = Math.round((subtotal + shippingCost) * 0.07);
-  const total = subtotal + shippingCost + taxAmount - discount;
+  const currentShippingMethod = selectedShippingMethod ?? internalSelectedMethod;
 
-  // Combine eligible gifts and complimentary gifts from cart items
+  // Derive values from promotional result or store
+  const subtotal = promotionalResult?.pricing.subtotal ?? getSubtotal();
+  const shippingCost = promotionalResult?.pricing.shippingCost ?? internalShippingCost;
+  const discount = promotionalResult?.pricing.discountAmount ?? storeDiscountAmount;
+  const taxAmount = promotionalResult?.pricing.taxAmount ?? Math.round((subtotal + shippingCost) * 0.07);
+  const total = promotionalResult?.pricing.totalAmount ?? (subtotal + shippingCost + taxAmount - discount);
+
+  // Combine eligible gifts and complimentary gifts
   const allGifts = useMemo(() => {
+    if (promotionalResult) {
+      // Map promotional gifts to store FreeGift format
+      return promotionalResult.freeGifts.map(gift => ({
+        id: `promo-${gift.productId}`,
+        name: gift.name,
+        description: 'Promotional Gift',
+        imageUrl: gift.imageUrl || '',
+        value: gift.value,
+      }));
+    }
+
+    // Fallback to store logic
     const complimentaryGifts = getComplimentaryGifts();
 
     // Convert complimentary gifts to FreeGift format
@@ -36,16 +65,14 @@ export function CheckoutSummary() {
     }));
 
     // Combine and deduplicate by name
-    const combined = [...convertedGifts, ...eligibleGifts];
-    const uniqueGifts = combined.reduce((acc, gift) => {
+    const combined = [...convertedGifts, ...storeEligibleGifts];
+    return combined.reduce((acc, gift) => {
       if (!acc.some(g => g.name === gift.name)) {
         acc.push(gift);
       }
       return acc;
     }, [] as FreeGift[]);
-
-    return uniqueGifts;
-  }, [getComplimentaryGifts, eligibleGifts]);
+  }, [promotionalResult, getComplimentaryGifts, storeEligibleGifts]);
 
   // Fetch eligible gifts when cart changes
   useEffect(() => {
@@ -53,8 +80,12 @@ export function CheckoutSummary() {
   }, [items, fetchEligibleGifts]);
 
   const handleShippingMethodChange = (methodId: string, cost: number) => {
-    setSelectedShippingMethod(methodId);
-    setShippingCost(cost);
+    if (onShippingMethodChange) {
+      onShippingMethodChange(methodId, cost);
+    } else {
+      setInternalSelectedMethod(methodId);
+      setInternalShippingCost(cost);
+    }
   };
 
   return (
@@ -93,7 +124,7 @@ export function CheckoutSummary() {
       <div className="mb-8 pb-8 border-b border-gray-200">
         <h3 className="font-medium text-sm mb-3">Shipping Method</h3>
         <ShippingMethodSelector
-          selectedMethod={selectedShippingMethod}
+          selectedMethod={currentShippingMethod}
           onMethodChange={handleShippingMethodChange}
         />
       </div>

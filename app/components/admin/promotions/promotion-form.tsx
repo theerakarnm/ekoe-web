@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { CalendarIcon, Plus, Trash2, Info } from 'lucide-react';
+import { CalendarIcon, Plus, Trash2, Gift, Layers } from 'lucide-react';
+import { SingleImageUploader } from '~/components/admin/products/single-image-uploader';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
@@ -36,15 +37,13 @@ import {
   PopoverTrigger,
 } from '~/components/ui/popover';
 import { Calendar } from '~/components/ui/calendar';
-import { Separator } from '~/components/ui/separator';
-import { Badge } from '~/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { toast } from '~/lib/admin/toast';
 import { cn } from '~/lib/utils';
-import type { 
-  CreatePromotionDto, 
-  CreatePromotionRuleDto,
+import type {
+  CreatePromotionDto,
   PromotionDetail,
-  PromotionType 
+  PromotionType
 } from '~/lib/services/admin/promotion-admin.service';
 import {
   createPromotion,
@@ -78,7 +77,28 @@ const ruleSchema = z.object({
   maxDiscountAmount: z.number().int().positive().optional(),
   giftProductIds: z.array(z.string()).optional(),
   giftQuantities: z.array(z.number().int().positive()).optional(),
+  giftName: z.string().optional(),
+  giftPrice: z.number().optional(),
+  giftImageUrl: z.string().optional(),
 });
+
+// Tier interface: groups a condition with its benefit
+interface PromotionTier {
+  condition: {
+    conditionType: 'cart_value' | 'product_quantity' | 'specific_products' | 'category_products';
+    operator: 'gte' | 'lte' | 'eq' | 'in' | 'not_in';
+    numericValue?: number;
+    textValue?: string;
+  };
+  benefit: {
+    benefitType: 'percentage_discount' | 'fixed_discount' | 'free_gift';
+    benefitValue?: number;
+    maxDiscountAmount?: number;
+    giftName?: string;
+    giftPrice?: number;
+    giftImageUrl?: string;
+  };
+}
 
 type PromotionFormData = z.infer<typeof promotionSchema>;
 type RuleFormData = z.infer<typeof ruleSchema>;
@@ -89,10 +109,71 @@ interface PromotionFormProps {
   onCancel: () => void;
 }
 
+// Helper function to convert existing rules to tiers
+const rulesToTiers = (rules: RuleFormData[]): PromotionTier[] => {
+  const conditions = rules.filter(r => r.ruleType === 'condition');
+  const benefits = rules.filter(r => r.ruleType === 'benefit');
+
+  const tiers: PromotionTier[] = [];
+  const maxLength = Math.max(conditions.length, benefits.length);
+
+  for (let i = 0; i < maxLength; i++) {
+    const condition = conditions[i];
+    const benefit = benefits[i];
+
+    tiers.push({
+      condition: {
+        conditionType: condition?.conditionType || 'product_quantity',
+        operator: condition?.operator || 'gte',
+        numericValue: condition?.numericValue,
+        textValue: condition?.textValue,
+      },
+      benefit: {
+        benefitType: benefit?.benefitType || 'fixed_discount',
+        benefitValue: benefit?.benefitValue,
+        maxDiscountAmount: benefit?.maxDiscountAmount,
+        giftName: benefit?.giftName,
+        giftPrice: benefit?.giftPrice,
+        giftImageUrl: benefit?.giftImageUrl,
+      },
+    });
+  }
+
+  return tiers;
+};
+
+// Helper function to convert tiers back to rules for API
+const tiersToRules = (tiers: PromotionTier[]): RuleFormData[] => {
+  const rules: RuleFormData[] = [];
+
+  for (const tier of tiers) {
+    // Add condition rule
+    rules.push({
+      ruleType: 'condition',
+      conditionType: tier.condition.conditionType,
+      operator: tier.condition.operator,
+      numericValue: tier.condition.numericValue,
+      textValue: tier.condition.textValue,
+    });
+
+    // Add benefit rule
+    rules.push({
+      ruleType: 'benefit',
+      benefitType: tier.benefit.benefitType,
+      benefitValue: tier.benefit.benefitValue,
+      maxDiscountAmount: tier.benefit.maxDiscountAmount,
+      giftName: tier.benefit.giftName,
+      giftPrice: tier.benefit.giftPrice,
+      giftImageUrl: tier.benefit.giftImageUrl,
+    });
+  }
+
+  return rules;
+};
+
 export function PromotionForm({ promotion, onSuccess, onCancel }: PromotionFormProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [createdPromotion, setCreatedPromotion] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState('information');
 
   const form = useForm<PromotionFormData>({
     resolver: zodResolver(promotionSchema),
@@ -109,24 +190,30 @@ export function PromotionForm({ promotion, onSuccess, onCancel }: PromotionFormP
     },
   });
 
-  const [rules, setRules] = useState<RuleFormData[]>(
-    promotion?.rules?.map(rule => ({
-      ruleType: rule.ruleType,
-      conditionType: rule.conditionType,
-      operator: rule.operator,
-      numericValue: rule.numericValue,
-      textValue: rule.textValue,
-      benefitType: rule.benefitType,
-      benefitValue: rule.benefitValue,
-      maxDiscountAmount: rule.maxDiscountAmount,
-      giftProductIds: rule.giftProductIds || [],
-      giftQuantities: rule.giftQuantities || [],
-    })) || []
+  // Convert existing rules to tiers format
+  const initialRules: RuleFormData[] = promotion?.rules?.map(rule => ({
+    ruleType: rule.ruleType,
+    conditionType: rule.conditionType,
+    operator: rule.operator,
+    numericValue: rule.numericValue,
+    textValue: rule.textValue,
+    benefitType: rule.benefitType,
+    benefitValue: rule.benefitValue,
+    maxDiscountAmount: rule.maxDiscountAmount,
+    giftProductIds: rule.giftProductIds || [],
+    giftQuantities: rule.giftQuantities || [],
+    giftName: rule.giftName,
+    giftPrice: rule.giftPrice,
+    giftImageUrl: rule.giftImageUrl,
+  })) || [];
+
+  const [tiers, setTiers] = useState<PromotionTier[]>(
+    initialRules.length > 0 ? rulesToTiers(initialRules) : []
   );
 
   const promotionType = form.watch('type');
 
-  const handlePromotionSubmit = async (data: PromotionFormData) => {
+  const handleSubmit = async (data: PromotionFormData) => {
     setIsLoading(true);
     try {
       const promotionData: CreatePromotionDto = {
@@ -138,19 +225,18 @@ export function PromotionForm({ promotion, onSuccess, onCancel }: PromotionFormP
       let result;
       if (promotion) {
         result = await updatePromotion(promotion.id, promotionData);
-        toast.success('Promotion updated successfully');
       } else {
         result = await createPromotion(promotionData);
-        toast.success('Promotion created successfully');
       }
 
-      setCreatedPromotion(result);
-      
+      // Convert tiers to rules and add them
+      const rules = tiersToRules(tiers);
       if (rules.length > 0) {
-        setCurrentStep(2);
-      } else {
-        onSuccess(result);
+        await addPromotionRules(result.id, rules);
       }
+
+      toast.success(`Promotion ${promotion ? 'updated' : 'created'} successfully`);
+      onSuccess(result);
     } catch (error) {
       toast.error(`Failed to ${promotion ? 'update' : 'create'} promotion: ${(error as Error).message}`);
     } finally {
@@ -158,47 +244,51 @@ export function PromotionForm({ promotion, onSuccess, onCancel }: PromotionFormP
     }
   };
 
-  const handleRulesSubmit = async () => {
-    if (!createdPromotion || rules.length === 0) {
-      onSuccess(createdPromotion);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await addPromotionRules(createdPromotion.id, rules);
-      toast.success('Promotion rules added successfully');
-      onSuccess(createdPromotion);
-    } catch (error) {
-      toast.error(`Failed to add promotion rules: ${(error as Error).message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const addRule = (type: 'condition' | 'benefit') => {
-    const newRule: RuleFormData = {
-      ruleType: type,
+  const addTier = () => {
+    const newTier: PromotionTier = {
+      condition: {
+        conditionType: 'product_quantity',
+        operator: 'gte',
+        numericValue: 1,
+      },
+      benefit: {
+        benefitType: promotionType,
+        benefitValue: undefined,
+      },
     };
-
-    if (type === 'condition') {
-      newRule.conditionType = 'cart_value';
-      newRule.operator = 'gte';
-    } else {
-      newRule.benefitType = promotionType;
-    }
-
-    setRules([...rules, newRule]);
+    setTiers([...tiers, newTier]);
   };
 
-  const updateRule = (index: number, updates: Partial<RuleFormData>) => {
-    const updatedRules = [...rules];
-    updatedRules[index] = { ...updatedRules[index], ...updates };
-    setRules(updatedRules);
+  const updateTier = (index: number, updates: Partial<PromotionTier>) => {
+    const updatedTiers = [...tiers];
+    updatedTiers[index] = {
+      ...updatedTiers[index],
+      condition: { ...updatedTiers[index].condition, ...updates.condition },
+      benefit: { ...updatedTiers[index].benefit, ...updates.benefit },
+    };
+    setTiers(updatedTiers);
   };
 
-  const removeRule = (index: number) => {
-    setRules(rules.filter((_, i) => i !== index));
+  const updateTierCondition = (index: number, updates: Partial<PromotionTier['condition']>) => {
+    const updatedTiers = [...tiers];
+    updatedTiers[index] = {
+      ...updatedTiers[index],
+      condition: { ...updatedTiers[index].condition, ...updates },
+    };
+    setTiers(updatedTiers);
+  };
+
+  const updateTierBenefit = (index: number, updates: Partial<PromotionTier['benefit']>) => {
+    const updatedTiers = [...tiers];
+    updatedTiers[index] = {
+      ...updatedTiers[index],
+      benefit: { ...updatedTiers[index].benefit, ...updates },
+    };
+    setTiers(updatedTiers);
+  };
+
+  const removeTier = (index: number) => {
+    setTiers(tiers.filter((_, i) => i !== index));
   };
 
   const formatDate = (date: Date) => {
@@ -209,455 +299,472 @@ export function PromotionForm({ promotion, onSuccess, onCancel }: PromotionFormP
     });
   };
 
-  if (currentStep === 2) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h3 className="text-lg font-medium">Promotion Rules</h3>
-          <p className="text-sm text-muted-foreground">
-            Define conditions and benefits for your promotion
-          </p>
-        </div>
-
-        <div className="grid gap-6">
-          {/* Conditions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                Conditions
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addRule('condition')}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Condition
-                </Button>
-              </CardTitle>
-              <CardDescription>
-                Define when this promotion should be applied
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {rules.filter(rule => rule.ruleType === 'condition').map((rule, index) => (
-                <div key={index} className="flex items-end gap-4 p-4 border rounded-lg">
-                  <div className="flex-1 grid grid-cols-3 gap-4">
-                    <div>
-                      <Label>Condition Type</Label>
-                      <Select
-                        value={rule.conditionType}
-                        onValueChange={(value) => updateRule(index, { conditionType: value as any })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="cart_value">Cart Value</SelectItem>
-                          <SelectItem value="product_quantity">Product Quantity</SelectItem>
-                          <SelectItem value="specific_products">Specific Products</SelectItem>
-                          <SelectItem value="category_products">Category Products</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Operator</Label>
-                      <Select
-                        value={rule.operator}
-                        onValueChange={(value) => updateRule(index, { operator: value as any })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="gte">Greater than or equal</SelectItem>
-                          <SelectItem value="lte">Less than or equal</SelectItem>
-                          <SelectItem value="eq">Equal to</SelectItem>
-                          <SelectItem value="in">In list</SelectItem>
-                          <SelectItem value="not_in">Not in list</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Value</Label>
-                      <Input
-                        type="number"
-                        value={rule.numericValue || ''}
-                        onChange={(e) => updateRule(index, { numericValue: parseFloat(e.target.value) || undefined })}
-                        placeholder="Enter value"
-                      />
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeRule(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-              {rules.filter(rule => rule.ruleType === 'condition').length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  No conditions defined. Add at least one condition.
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Benefits */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                Benefits
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addRule('benefit')}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Benefit
-                </Button>
-              </CardTitle>
-              <CardDescription>
-                Define what benefits customers receive
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {rules.filter(rule => rule.ruleType === 'benefit').map((rule, index) => (
-                <div key={index} className="flex items-end gap-4 p-4 border rounded-lg">
-                  <div className="flex-1 grid grid-cols-3 gap-4">
-                    <div>
-                      <Label>Benefit Type</Label>
-                      <Select
-                        value={rule.benefitType}
-                        onValueChange={(value) => updateRule(index, { benefitType: value as any })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="percentage_discount">Percentage Discount</SelectItem>
-                          <SelectItem value="fixed_discount">Fixed Discount</SelectItem>
-                          <SelectItem value="free_gift">Free Gift</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {rule.benefitType !== 'free_gift' && (
-                      <div>
-                        <Label>Value</Label>
-                        <Input
-                          type="number"
-                          value={rule.benefitValue || ''}
-                          onChange={(e) => updateRule(index, { benefitValue: parseFloat(e.target.value) || undefined })}
-                          placeholder={rule.benefitType === 'percentage_discount' ? 'Percentage' : 'Amount'}
-                        />
-                      </div>
-                    )}
-                    {rule.benefitType === 'percentage_discount' && (
-                      <div>
-                        <Label>Max Discount</Label>
-                        <Input
-                          type="number"
-                          value={rule.maxDiscountAmount || ''}
-                          onChange={(e) => updateRule(index, { maxDiscountAmount: parseInt(e.target.value) || undefined })}
-                          placeholder="Maximum amount"
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeRule(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-              {rules.filter(rule => rule.ruleType === 'benefit').length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  No benefits defined. Add at least one benefit.
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="flex justify-between">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setCurrentStep(1)}
-          >
-            Back
-          </Button>
-          <div className="space-x-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleRulesSubmit}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Saving...' : 'Save Promotion'}
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handlePromotionSubmit)} className="space-y-6">
-        <div>
-          <h3 className="text-lg font-medium">
-            {promotion ? 'Edit Promotion' : 'Create New Promotion'}
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            Set up the basic details for your promotion
-          </p>
-        </div>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="information">ข้อมูลทั่วไป</TabsTrigger>
+            <TabsTrigger value="rules">กฎเงื่อนไข</TabsTrigger>
+          </TabsList>
 
-        <div className="grid gap-6">
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Promotion Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter promotion name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          {/* Information Tab */}
+          <TabsContent value="information" className="space-y-6 mt-6">
+            <div className="grid gap-6">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>ชื่อโปรโมชั่น</FormLabel>
+                      <FormControl>
+                        <Input placeholder="กรอกชื่อโปรโมชั่น" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Promotion Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>ประเภทโปรโมชั่น</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="เลือกประเภท" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="percentage_discount">ลดเป็นเปอร์เซ็นต์ (%)</SelectItem>
+                          <SelectItem value="fixed_discount">ลดเป็นจำนวนเงิน (บาท)</SelectItem>
+                          <SelectItem value="free_gift">ของแถม</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>รายละเอียด</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select promotion type" />
-                      </SelectTrigger>
+                      <Textarea
+                        placeholder="กรอกรายละเอียดโปรโมชั่น"
+                        className="resize-none"
+                        {...field}
+                      />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="percentage_discount">Percentage Discount</SelectItem>
-                      <SelectItem value="fixed_discount">Fixed Amount Discount</SelectItem>
-                      <SelectItem value="free_gift">Free Gift</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+                    <FormDescription>
+                      รายละเอียดสำหรับใช้อ้างอิงภายใน
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Enter promotion description"
-                    className="resize-none"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Optional description for internal reference
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="startsAt"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>วันที่เริ่มต้น</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                formatDate(field.value)
+                              ) : (
+                                <span>เลือกวันที่</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date < new Date(new Date().setHours(0, 0, 0, 0))
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="startsAt"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Start Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
+                <FormField
+                  control={form.control}
+                  name="endsAt"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>วันที่สิ้นสุด</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                formatDate(field.value)
+                              ) : (
+                                <span>เลือกวันที่</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date < form.getValues('startsAt')
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="priority"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>ลำดับความสำคัญ</FormLabel>
                       <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            formatDate(field.value)
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
+                        <Input
+                          type="number"
+                          min="0"
+                          {...field}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        />
                       </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date < new Date(new Date().setHours(0, 0, 0, 0))
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                      <FormDescription>
+                        ตัวเลขยิ่งสูง = สำคัญยิ่งมาก
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="endsAt"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>End Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
+                <FormField
+                  control={form.control}
+                  name="usageLimit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>จำกัดการใช้งานทั้งหมด</FormLabel>
                       <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            formatDate(field.value)
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
+                        <Input
+                          type="number"
+                          min="1"
+                          placeholder="ไม่จำกัด"
+                          {...field}
+                          value={field.value || ''}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
+                        />
                       </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date < form.getValues('startsAt')
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+                      <FormDescription>
+                        เว้นว่างไว้สำหรับไม่จำกัด
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          <div className="grid grid-cols-3 gap-4">
-            <FormField
-              control={form.control}
-              name="priority"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Priority</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min="0"
-                      {...field}
-                      onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Higher numbers = higher priority
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="usageLimitPerCustomer"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>จำกัดต่อลูกค้า</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="1"
+                          {...field}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        ใช้ได้ต่อลูกค้า
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          </TabsContent>
 
-            <FormField
-              control={form.control}
-              name="usageLimit"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Total Usage Limit</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min="1"
-                      placeholder="Unlimited"
-                      {...field}
-                      value={field.value || ''}
-                      onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Leave empty for unlimited
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          {/* Rules Tab - Tiered Structure */}
+          <TabsContent value="rules" className="space-y-6 mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Layers className="h-5 w-5" />
+                    ระดับโปรโมชั่น (Tiers)
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addTier}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    เพิ่มระดับ
+                  </Button>
+                </CardTitle>
+                <CardDescription>
+                  กำหนดเงื่อนไขและสิทธิประโยชน์แบบเป็นระดับ เช่น ซื้อ 1 ชิ้น ลด 100 บาท, ซื้อ 2 ชิ้น ลด 500 บาท
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {tiers.map((tier, index) => (
+                  <div key={index} className="p-4 border rounded-lg bg-muted/30">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">
+                          {index + 1}
+                        </span>
+                        <span className="font-medium">ระดับที่ {index + 1}</span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeTier(index)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
 
-            <FormField
-              control={form.control}
-              name="usageLimitPerCustomer"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Per Customer Limit</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min="1"
-                      {...field}
-                      onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Uses per customer
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
+                    {/* Condition Section */}
+                    <div className="mb-4">
+                      <Label className="text-sm font-medium text-muted-foreground mb-2 block">
+                        เงื่อนไข (Condition)
+                      </Label>
+                      <div className="grid grid-cols-3 gap-4 p-3 border rounded-lg bg-background">
+                        <div>
+                          <Label className="text-xs">ประเภท</Label>
+                          <Select
+                            value={tier.condition.conditionType}
+                            onValueChange={(value) => updateTierCondition(index, { conditionType: value as any })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="cart_value">ยอดรวมตะกร้า (บาท)</SelectItem>
+                              <SelectItem value="product_quantity">จำนวนสินค้า (ชิ้น)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs">ตัวดำเนินการ</Label>
+                          <Select
+                            value={tier.condition.operator}
+                            onValueChange={(value) => updateTierCondition(index, { operator: value as any })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="gte">มากกว่าหรือเท่ากับ (≥)</SelectItem>
+                              <SelectItem value="lte">น้อยกว่าหรือเท่ากับ (≤)</SelectItem>
+                              <SelectItem value="eq">เท่ากับ (=)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs">
+                            {tier.condition.conditionType === 'cart_value' ? 'ยอด (บาท)' : 'จำนวน (ชิ้น)'}
+                          </Label>
+                          <Input
+                            type="number"
+                            min="0"
+                            value={tier.condition.numericValue || ''}
+                            onChange={(e) => updateTierCondition(index, { numericValue: parseFloat(e.target.value) || undefined })}
+                            placeholder={tier.condition.conditionType === 'cart_value' ? 'เช่น 1000' : 'เช่น 2'}
+                          />
+                        </div>
+                      </div>
+                    </div>
 
-        <div className="flex justify-between">
+                    {/* Benefit Section */}
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground mb-2 block">
+                        สิทธิประโยชน์ (Benefit)
+                      </Label>
+                      <div className="p-3 border rounded-lg bg-background">
+                        <div className="grid grid-cols-3 gap-4">
+                          <div>
+                            <Label className="text-xs">ประเภท</Label>
+                            <Select
+                              value={tier.benefit.benefitType}
+                              onValueChange={(value) => updateTierBenefit(index, { benefitType: value as any })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="percentage_discount">ลดเป็นเปอร์เซ็นต์ (%)</SelectItem>
+                                <SelectItem value="fixed_discount">ลดเป็นจำนวนเงิน (บาท)</SelectItem>
+                                <SelectItem value="free_gift">ของแถม (Free Gift)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          {tier.benefit.benefitType !== 'free_gift' && (
+                            <div>
+                              <Label className="text-xs">
+                                {tier.benefit.benefitType === 'percentage_discount' ? 'เปอร์เซ็นต์ (%)' : 'จำนวนเงิน (บาท)'}
+                              </Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                value={tier.benefit.benefitValue || ''}
+                                onChange={(e) => updateTierBenefit(index, { benefitValue: parseFloat(e.target.value) || undefined })}
+                                placeholder={tier.benefit.benefitType === 'percentage_discount' ? 'เช่น 10' : 'เช่น 100'}
+                              />
+                            </div>
+                          )}
+                          {tier.benefit.benefitType === 'percentage_discount' && (
+                            <div>
+                              <Label className="text-xs">ลดสูงสุด (บาท)</Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                value={tier.benefit.maxDiscountAmount || ''}
+                                onChange={(e) => updateTierBenefit(index, { maxDiscountAmount: parseInt(e.target.value) || undefined })}
+                                placeholder="เช่น 500"
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Free Gift Fields */}
+                        {tier.benefit.benefitType === 'free_gift' && (
+                          <div className="mt-4 pt-4 border-t">
+                            <div className="flex items-center gap-2 text-sm font-medium mb-3">
+                              <Gift className="h-4 w-4" />
+                              <span>รายละเอียดของแถม</span>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div className="md:col-span-2 space-y-4">
+                                <div>
+                                  <Label className="flex items-center gap-1 text-xs">
+                                    ชื่อของแถม <span className="text-red-500">*</span>
+                                  </Label>
+                                  <Input
+                                    type="text"
+                                    value={tier.benefit.giftName || ''}
+                                    onChange={(e) => updateTierBenefit(index, { giftName: e.target.value })}
+                                    placeholder="กรอกชื่อของแถม (จำเป็น)"
+                                    required
+                                  />
+                                  {!tier.benefit.giftName && (
+                                    <p className="text-xs text-red-500 mt-1">กรุณากรอกชื่อของแถม</p>
+                                  )}
+                                </div>
+                                <div>
+                                  <Label className="text-xs">ราคาของแถม (บาท)</Label>
+                                  <Input
+                                    type="number"
+                                    value={tier.benefit.giftPrice || ''}
+                                    onChange={(e) => updateTierBenefit(index, { giftPrice: parseFloat(e.target.value) || undefined })}
+                                    placeholder="ระบุราคา (ไม่จำเป็น)"
+                                  />
+                                  <p className="text-xs text-muted-foreground mt-1">ราคาสำหรับแสดงมูลค่าของแถม (ไม่บังคับ)</p>
+                                </div>
+                              </div>
+                              <div>
+                                <Label className="text-xs">รูปภาพของแถม</Label>
+                                <div className="mt-1">
+                                  <SingleImageUploader
+                                    value={tier.benefit.giftImageUrl}
+                                    onChange={(url) => updateTierBenefit(index, { giftImageUrl: url })}
+                                    placeholder="อัปโหลดรูปของแถม"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {tiers.length === 0 && (
+                  <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
+                    <Layers className="h-10 w-10 mx-auto mb-3 opacity-50" />
+                    <p className="font-medium">ยังไม่มีระดับโปรโมชั่น</p>
+                    <p className="text-sm mt-1">คลิก "เพิ่มระดับ" เพื่อกำหนดเงื่อนไขและสิทธิประโยชน์</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addTier}
+                      className="mt-4"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      เพิ่มระดับแรก
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Action Buttons - Always visible */}
+        <div className="flex justify-between pt-6 border-t">
           <Button
             type="button"
             variant="outline"
             onClick={onCancel}
           >
-            Cancel
+            ยกเลิก
           </Button>
           <Button
             type="submit"
             disabled={isLoading}
           >
-            {isLoading ? 'Saving...' : promotion ? 'Update Promotion' : 'Create Promotion'}
+            {isLoading ? 'กำลังบันทึก...' : promotion ? 'อัปเดตโปรโมชั่น' : 'สร้างโปรโมชั่น'}
           </Button>
         </div>
       </form>

@@ -179,45 +179,8 @@ export default function Cart() {
                 )}
               </div>
 
-              {/* Free Gift Section - Shows complimentary gifts from products in cart */}
-              {validationResult && validationResult.items.some(item => item.complimentaryGift) && (
-                <div className="mt-8 border border-gray-200 p-6 bg-[#F9F9F9]">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Gift size={18} />
-                    <h3 className="font-serif text-lg">Free Gift With Purchase</h3>
-                  </div>
-                  <div className="flex flex-wrap gap-4">
-                    {validationResult.items
-                      .filter(item => item.complimentaryGift)
-                      .map((item, index) => (
-                        <div
-                          key={`gift-${item.productId}-${index}`}
-                          className="flex items-center gap-3 bg-white p-3 border border-gray-100 flex-1 min-w-[200px]"
-                        >
-                          {item.complimentaryGift!.image ? (
-                            <img
-                              src={item.complimentaryGift!.image}
-                              alt={item.complimentaryGift!.name}
-                              className="w-12 h-12 object-cover rounded"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 bg-gray-100 flex items-center justify-center rounded">
-                              <Gift size={20} className="text-gray-400" />
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <div className="font-serif text-sm truncate">{item.complimentaryGift!.name}</div>
-                            {item.complimentaryGift!.description && (
-                              <div className="text-xs text-gray-500 truncate">{item.complimentaryGift!.description}</div>
-                            )}
-                            <div className="text-xs text-gray-400 truncate">with {item.productName}</div>
-                          </div>
-                          <div className="ml-auto text-sm font-medium shrink-0">x1</div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              )}
+              {/* Free Gift Section - REMOVED*/}
+
 
               {/* Continue Shopping */}
               <div className="mt-8">
