@@ -42,6 +42,10 @@ export interface DashboardMetrics {
     revenue: number;
     imageUrl?: string;
   }>;
+  contacts?: {
+    unread: number;
+    growth?: number;
+  };
 }
 
 export interface DateRangeParams {

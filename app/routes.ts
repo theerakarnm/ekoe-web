@@ -18,6 +18,7 @@ export default [
     route("cart", "routes/cart.tsx"),
     route("checkout", "routes/checkout.tsx"),
     route("about", "routes/about.tsx"),
+    route("contact", "routes/contact.tsx"),
 
     // Payment routes
     route("payment/2c2p/return", "routes/payment/2c2p/return.tsx"),
@@ -76,5 +77,9 @@ export default [
     route("admin/promotions/:id", "routes/admin/promotions/$id.tsx"),
     route("admin/promotions/:id/analytics", "routes/admin/promotions/$id.analytics.tsx"),
     route("admin/promotions/:id/edit", "routes/admin/promotions/$id.edit.tsx"),
+
+    // Contacts routes
+    route("admin/contacts", "routes/admin/contacts/index.tsx"),
+    route("admin/contacts/:id", "routes/admin/contacts/$id.tsx"),
   ]),
 ] satisfies RouteConfig;

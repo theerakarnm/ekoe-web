@@ -11,6 +11,7 @@ import {
   ShoppingCart,
   Users,
   Package,
+  Mail,
 } from 'lucide-react';
 import { Suspense, useCallback } from 'react';
 
@@ -167,6 +168,11 @@ export default function AdminDashboard() {
             title="Average Order Value"
             value={formatCurrency(metrics.orders?.averageValue || 0)}
             icon={<Package className="h-5 w-5" />}
+          />
+          <MetricCard
+            title="Unread Contacts"
+            value={formatNumber(metrics.contacts?.unread || 0)}
+            icon={<Mail className="h-5 w-5" />}
           />
         </div>
 

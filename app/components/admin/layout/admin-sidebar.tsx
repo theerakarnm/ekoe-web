@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router';
-import { LayoutDashboard, Package, FileText, Ticket, ShoppingCart, Menu, X, Tag } from 'lucide-react';
+import { LayoutDashboard, Package, FileText, Ticket, ShoppingCart, Menu, X, Tag, Mail } from 'lucide-react';
 import { cn } from '~/lib/utils';
+import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router';
+import { getUnreadContactsCount } from '~/lib/services/admin/contacts-admin.service';
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
 import { useAuthStore } from '~/store/auth-store';
@@ -37,12 +38,35 @@ const navigationItems = [
     href: '/admin/promotions',
     icon: Tag,
   },
+  {
+    name: 'Contacts',
+    href: '/admin/contacts',
+    icon: Mail,
+  },
 ];
 
 export function AdminSidebar() {
   const location = useLocation();
   const { signOut } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const count = await getUnreadContactsCount();
+        setUnreadCount(count);
+      } catch (error) {
+        console.error('Failed to fetch unread contacts count:', error);
+      }
+    };
+
+    fetchUnreadCount();
+
+    // Refresh every 5 minutes
+    const interval = setInterval(fetchUnreadCount, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const isActiveRoute = (href: string) => {
     return location.pathname === href || location.pathname.startsWith(href + '/');
@@ -98,8 +122,15 @@ export function AdminSidebar() {
                     : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                 )}
               >
-                <Icon className="size-5" />
-                <span>{item.name}</span>
+                <div className="flex items-center gap-3 flex-1">
+                  <Icon className="size-5" />
+                  <span>{item.name}</span>
+                </div>
+                {item.name === 'Contacts' && unreadCount > 0 && (
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </Link>
             );
           })}
