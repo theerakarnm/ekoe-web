@@ -4,7 +4,7 @@ function FeatureSection() {
   return (
     <section className="grid md:grid-cols-2 gap-0">
       <div className="bg-gray-50 py-12 md:py-16 px-8 flex items-center">
-        <div className="max-w-md">
+        <div className="max-w-lg">
           <h2 className="text-3xl font-serif text-gray-900 mb-6">
             Glow That's Worth Obsessing Over
           </h2>

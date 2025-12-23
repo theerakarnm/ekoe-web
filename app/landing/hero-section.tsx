@@ -181,9 +181,9 @@ function HeroSection() {
                   <p className="text-sm sm:text-base md:text-lg mb-8 max-w-2xl mx-auto opacity-90 drop-shadow-md  font-sans">
                     {slide.description}
                   </p>
-                  <button className="border-2 border-white text-white px-8 py-3 rounded-full font-serif hover:bg-white hover:text-gray-900 transition-all duration-300 text-sm sm:text-base uppercase tracking-wider backdrop-blur-sm">
+                  <Link to="/shop" className="border-2 border-white text-white px-8 py-3 rounded-full font-serif hover:bg-white hover:text-gray-900 transition-all duration-300 text-sm sm:text-base uppercase tracking-wider backdrop-blur-sm">
                     Shop Ekoe
-                  </button>
+                  </Link>
                 </div>
               </CarouselItem>
             ))}
@@ -454,7 +454,7 @@ function HeroSection() {
 
       {/* Search Popup Overlay */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-100 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div
             ref={searchContainerRef}
             className="absolute top-0 left-0 right-0 bg-white shadow-xl animate-in slide-in-from-top duration-300"
