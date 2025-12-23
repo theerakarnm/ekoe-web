@@ -795,24 +795,13 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             )
           )}
 
-          <div className="mb-24">
-            <h2 className="text-3xl font-serif mb-8 text-start font-bold">How to Use</h2>
-
-            {/* New Media-based display */}
-            {productData.howToUse?.mediaUrl && productData.howToUse?.mediaType ? (
-              <HowToUseMedia
-                productName={productData.productName}
-                productImage={productData.image.url}
-                price={currentPrice}
-                mediaUrl={productData.howToUse.mediaUrl}
-                mediaType={productData.howToUse.mediaType}
-                onAddToCart={handleAddToCart}
-              />
-            ) : (
-              /* Legacy step-based display */
+          {/* How to Use Section - Text Steps */}
+          {productData.howToUse?.steps && productData.howToUse.steps.length > 0 && (
+            <div className="mb-24">
+              <h2 className="text-3xl font-serif mb-8 text-start font-bold">How to Use</h2>
               <div className="text-center">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-                  {productData.howToUse?.steps?.map((step, idx) => (
+                  {productData.howToUse.steps.map((step, idx) => (
                     <div key={idx} className="flex flex-col items-center text-center group">
                       <div className="w-24 h-24 rounded-full border border-gray-200 flex items-center justify-center mb-6 group-hover:border-black transition-colors duration-300">
                         <div className="text-2xl font-serif">{idx + 1}</div>
@@ -839,8 +828,23 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                   </div>
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Application Section - Video/Image Media */}
+          {productData.howToUse?.mediaUrl && productData.howToUse?.mediaType && (
+            <div className="mb-24">
+              <h2 className="text-3xl font-serif mb-8 text-start font-bold">Application</h2>
+              <HowToUseMedia
+                productName={productData.productName}
+                productImage={productData.image.url}
+                price={currentPrice}
+                mediaUrl={productData.howToUse.mediaUrl}
+                mediaType={productData.howToUse.mediaType}
+                onAddToCart={handleAddToCart}
+              />
+            </div>
+          )}
 
           {/* Related Products */}
           <RelatedProducts
