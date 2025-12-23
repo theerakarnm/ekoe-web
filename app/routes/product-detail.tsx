@@ -21,6 +21,7 @@ import { ProductTabs } from "~/components/product/product-tabs";
 import { RelatedProducts } from "~/components/product/related-products";
 import { ProductHeroCTA } from "~/components/product/product-hero-cta";
 import { HowToUseMedia } from "~/components/product/how-to-use-media";
+import { StickyImageScroll } from "~/components/product/sticky-image-scroll";
 
 import { getProduct, type Product } from "~/lib/services/product.service";
 import { formatCurrencyFromCents } from "~/lib/formatter";
@@ -169,6 +170,8 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & {
     // CTA Hero Section
     ctaBackgroundUrl: apiProduct.ctaBackgroundUrl || undefined,
     ctaBackgroundType: apiProduct.ctaBackgroundType as 'image' | 'video' | undefined,
+    // Scrolling Experience
+    scrollingExperience: apiProduct.scrollingExperience || undefined,
   };
 }
 
@@ -728,6 +731,11 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                 />
               </div>
             </div>
+          )}
+
+          {/* Sticky Image Scroll Section */}
+          {productData.scrollingExperience && productData.scrollingExperience.length > 0 && (
+            <StickyImageScroll blocks={productData.scrollingExperience} />
           )}
 
           {/* Conditional Section: Real User Reviews (single) OR This Set Includes (set) */}

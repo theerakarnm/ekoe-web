@@ -97,6 +97,15 @@ export const realUserReviewsSchema = z.object({
   content: z.string().optional(),
 });
 
+// Scrolling Experience Schema
+export const scrollBlockSchema = z.object({
+  id: z.string(),
+  title: z.string().min(1, 'Title is required'),
+  imageUrl: z.string().url('Must be a valid image URL').optional().or(z.literal('')),
+});
+
+export const scrollingExperienceSchema = z.array(scrollBlockSchema).optional();
+
 export const productSetItemSchema = z.object({
   productId: z.string(),
   quantity: z.number().min(1).default(1),
@@ -151,6 +160,9 @@ export const productSchema = z.object({
   // CTA Hero Section (background should be <50MB in image or video format)
   ctaBackgroundUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   ctaBackgroundType: z.enum(['image', 'video']).optional().or(z.literal('')),
+
+  // Scrolling Experience
+  scrollingExperience: scrollingExperienceSchema,
 });
 
 export type ProductFormData = z.infer<typeof productSchema>;

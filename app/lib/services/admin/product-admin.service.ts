@@ -72,6 +72,12 @@ export interface Product {
   // CTA Hero Section
   ctaBackgroundUrl?: string;
   ctaBackgroundType?: 'image' | 'video';
+  // Scrolling Experience
+  scrollingExperience?: {
+    id: string;
+    title: string;
+    imageUrl?: string;
+  }[];
 }
 
 export interface ProductImage {

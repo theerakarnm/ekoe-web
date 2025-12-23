@@ -34,6 +34,7 @@ import { RealUserReviewsForm } from './real-user-reviews-form';
 import { ProductSetManager } from './product-set-manager';
 import { BenefitManager } from './benefit-manager';
 import { TagManager } from './tag-manager';
+import { ScrollingExperienceManager } from './scrolling-experience-manager';
 import {
   Form,
   FormControl,
@@ -155,6 +156,8 @@ export function ProductForm({ product }: ProductFormProps) {
       // CTA Hero Section
       ctaBackgroundUrl: product?.ctaBackgroundUrl || '',
       ctaBackgroundType: product?.ctaBackgroundType as 'image' | 'video' | undefined,
+      // Scrolling Experience
+      scrollingExperience: product?.scrollingExperience || [],
     },
   });
 
@@ -300,7 +303,7 @@ export function ProductForm({ product }: ProductFormProps) {
     try {
       // Transform form data to match API expectations
       // Exclude fields that don't exist in Product type or are managed separately
-      const { categoryIds, tags, variants, images: _images, ingredients, howToUse, realUserReviews, setItems, benefits, ...productFields } = data;
+      const { categoryIds, tags, variants, images: _images, ingredients, howToUse, realUserReviews, setItems, benefits, scrollingExperience, ...productFields } = data;
 
       const productData: Partial<Product> = {
         ...productFields,
@@ -345,6 +348,14 @@ export function ProductForm({ product }: ProductFormProps) {
         // CTA Hero Section
         ctaBackgroundUrl: data.ctaBackgroundUrl || undefined,
         ctaBackgroundType: data.ctaBackgroundType || undefined,
+        // Scrolling Experience
+        scrollingExperience: scrollingExperience && scrollingExperience.length > 0
+          ? scrollingExperience.map(block => ({
+            id: block.id,
+            title: block.title,
+            imageUrl: block.imageUrl || undefined,
+          }))
+          : undefined,
       };
 
       let productId = product?.id;
@@ -982,6 +993,12 @@ export function ProductForm({ product }: ProductFormProps) {
                     </div>
                   )}
                 </div>
+              </Card>
+
+              {/* Scrolling Experience */}
+              <Card className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Scrolling Experience</h2>
+                <ScrollingExperienceManager control={form.control} />
               </Card>
 
               {/* SEO */}
