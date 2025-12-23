@@ -1,24 +1,17 @@
-import { getProducts, type Product } from '~/lib/services/product.service';
+import { useMenuProductsStore } from '~/store/menu-products';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { useState, useEffect } from 'react';
 
 function Footer() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const { products, fetchProducts } = useMenuProductsStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const fetchProducts = async () => {
-      try {
-        const result = await getProducts({ limit: 10 }); // Limit to keep menu manageable
-        setProducts(result.data);
-      } catch (error) {
-        console.error("Failed to fetch products for header menu", error);
-      }
-    };
+    // Fetch products from shared store (handles deduplication internally)
     fetchProducts();
-  }, []);
+  }, [fetchProducts]);
   return (
     <footer className='relative mt-48'>
       <div className="absolute h-48 w-[95%] md:w-[80%] left-1/2 -translate-x-1/2 -translate-y-[80%]  overflow-hidden py-6">

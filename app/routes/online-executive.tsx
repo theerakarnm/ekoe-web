@@ -39,8 +39,6 @@ export async function loader() {
 export default function OnlineExecutive() {
   const { promotionData } = useLoaderData<{ promotionData: PromotionDisplayData }>();
 
-  console.log();
-
   return (
     <div className="min-h-screen bg-white font-serif">
       <Header />

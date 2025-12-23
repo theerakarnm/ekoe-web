@@ -34,8 +34,6 @@ export async function action({ request }: Route.ActionArgs) {
       };
     }
 
-    console.log({ paymentResponseAction: paymentResponse, objectx: atob(paymentResponse) });
-
     return {
       data: JSON.parse(atob(paymentResponse)) as {
         invoiceNo: string;
@@ -68,8 +66,6 @@ export default function TwoC2PReturnPage({ loaderData }: Route.ComponentProps) {
 
   // Use actionData if available (from POST), otherwise loaderData (from GET)
   const result = actionData;
-
-  console.log(result);
 
 
   // If neither (initial load of action path without post? shouldn't happen for return URL usually), show loading or return null

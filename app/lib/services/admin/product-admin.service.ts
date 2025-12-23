@@ -95,7 +95,7 @@ export interface ProductVariant {
   name: string;
   value: string;
   price: number;
-  compareAtPrice?: number;
+  compareAtPrice?: number | null;
   stockQuantity: number;
   lowStockThreshold: number;
   isActive: boolean;

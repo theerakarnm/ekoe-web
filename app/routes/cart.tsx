@@ -12,6 +12,7 @@ import { validateCart, type ValidatedCart } from "~/lib/services/cart.service";
 import { getBestSellers, type Product } from "~/lib/services/product.service";
 import { Gift, Loader2 } from "lucide-react";
 import { Skeleton } from "~/components/ui/skeleton";
+import { Link } from "react-router";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -220,9 +221,9 @@ export default function Cart() {
 
               {/* Continue Shopping */}
               <div className="mt-8">
-                <button className="bg-black text-white px-8 py-3 uppercase text-xs tracking-widest hover:bg-gray-800 transition-colors">
+                <Link to={'/shop'} className="bg-black text-white px-8 py-3 uppercase text-xs tracking-widest hover:bg-gray-800 transition-colors">
                   Continue Shopping
-                </button>
+                </Link>
               </div>
             </div>
 

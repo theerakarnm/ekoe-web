@@ -44,8 +44,6 @@ export function ProfileInfoForm() {
 
   // Load profile on mount
   useEffect(() => {
-    console.log(profile);
-
     if (!profile) {
       loadProfile();
     }

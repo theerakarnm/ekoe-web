@@ -18,7 +18,7 @@ import {
 import { useCartStore } from '~/store/cart';
 import { useAuthStore } from '~/store/auth-store';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import { getProducts, type Product } from '~/lib/services/product.service';
+import { useMenuProductsStore } from '~/store/menu-products';
 
 // Format price from cents to display format
 function formatPrice(priceInCents: number): string {
@@ -56,7 +56,7 @@ function HeroSection() {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [mounted, setMounted] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
+  const { products, fetchProducts } = useMenuProductsStore();
 
   // Search state
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -114,17 +114,9 @@ function HeroSection() {
     setMounted(true);
     // Ensure auth state is fresh
     useAuthStore.getState().checkAuth();
-
-    const fetchProducts = async () => {
-      try {
-        const result = await getProducts({ limit: 10 });
-        setProducts(result.data);
-      } catch (error) {
-        console.error("Failed to fetch products for hero menu", error);
-      }
-    };
+    // Fetch products from shared store (handles deduplication internally)
     fetchProducts();
-  }, []);
+  }, [fetchProducts]);
 
   const totalItems = useCartStore((state) => state.getTotalItems());
   const displayCount = mounted ? totalItems : 0;

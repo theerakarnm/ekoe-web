@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import { getProducts, type Product } from '~/lib/services/product.service';
+import { useMenuProductsStore } from '~/store/menu-products';
 import { cn } from '~/lib/utils';
 
 // Format price from cents to display format
@@ -31,7 +31,7 @@ export default function Header({
   const totalItems = useCartStore((state) => state.getTotalItems());
   const { user, isAuthenticated, signOut } = useAuthStore();
   const [mounted, setMounted] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
+  const { products, fetchProducts } = useMenuProductsStore();
 
   // Search state
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -87,16 +87,9 @@ export default function Header({
 
   useEffect(() => {
     setMounted(true);
-    const fetchProducts = async () => {
-      try {
-        const result = await getProducts({ limit: 10 }); // Limit to keep menu manageable
-        setProducts(result.data);
-      } catch (error) {
-        console.error("Failed to fetch products for header menu", error);
-      }
-    };
+    // Fetch products from shared store (handles deduplication internally)
     fetchProducts();
-  }, []);
+  }, [fetchProducts]);
 
   const displayCount = mounted ? totalItems : 0;
 

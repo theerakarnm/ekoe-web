@@ -16,13 +16,11 @@ import {
  */
 function transformProduct(product: Product): IProduct {
   const primaryImage = product.images?.find(img => img.isPrimary) || product.images?.[0];
-  // Get secondary image (explicitly marked, or first non-primary image)
   const secondaryImage = product.images?.find(img => img.isSecondary)
     || product.images?.find(img => !img.isPrimary && img.url !== primaryImage?.url)
     || (product.images && product.images.length > 1 ? product.images[1] : undefined);
   const variants = product.variants || [];
 
-  // Calculate price range from variants or use base price
   let priceTitle: string;
   if (variants.length > 0) {
     const prices = variants.map(v => (v.compareAtPrice || v.price));
@@ -38,7 +36,6 @@ function transformProduct(product: Product): IProduct {
     priceTitle = formatCurrencyFromCents(product.basePrice);
   }
 
-  // Map variants to sizes
   const sizes = variants.map(v => ({
     label: v.name,
     value: v.value,
@@ -70,6 +67,8 @@ interface BestSellerSectionProps {
 
 function BestSellerSection({ products = [], isLoading = false, error = null }: BestSellerSectionProps) {
   // Show loading skeleton
+  console.dir(products, { depth: null });
+
   if (isLoading) {
     return (
       <div className="mx-auto *:mt-16 sm:*:mt-20 md:*:mt-24 mb-8 sm:mb-12 md:mb-16 container px-4 sm:px-6">

@@ -24,8 +24,6 @@ export async function loader({ request }: Route.LoaderArgs) {
     sortOrder,
   }, request.headers);
 
-  console.log(response);
-
 
   return {
     products: response.data,
