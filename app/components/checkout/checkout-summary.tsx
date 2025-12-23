@@ -115,10 +115,8 @@ export function CheckoutSummary({
         ))}
       </div>
 
-      {/* Discount Code */}
-      <div className="mb-8 pb-8 border-b border-gray-200">
-        <DiscountCodeInput />
-      </div>
+      {/* Discount Code - REMOVED*/}
+
 
       {/* Shipping Method */}
       <div className="mb-8 pb-8 border-b border-gray-200">
@@ -149,12 +147,7 @@ export function CheckoutSummary({
           <span className="text-gray-600">Tax (7% VAT)</span>
           <span className="font-medium">{formatCurrencyFromCents(taxAmount, { symbol: '฿' })}</span>
         </div>
-        {discount > 0 && (
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Discount</span>
-            <span className="font-medium text-green-600">-{formatCurrencyFromCents(discount, { symbol: '฿' })}</span>
-          </div>
-        )}
+
       </div>
 
       <div className="flex justify-between items-center mb-8">
@@ -164,8 +157,8 @@ export function CheckoutSummary({
         </span>
       </div>
 
-      {/* Free Gifts - Shows both complimentary and eligible gifts */}
-      <FreeGiftDisplay gifts={allGifts} />
+      {/* Free Gifts - REMOVED */}
+
     </div>
   );
 }
