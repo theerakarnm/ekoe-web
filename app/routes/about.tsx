@@ -26,7 +26,7 @@ export default function About() {
         {/* Hero Section */}
         <section className="relative h-[60vh] sm:h-[70vh] w-full overflow-hidden">
           <img
-            src="/ekoe-asset/ABOUT/ABOUT-2.JPG"
+            src="/ekoe-asset/PHOTO/ABOUT US_1_COVER_PHOTO.png"
             alt="Ekoe - Natural Beauty"
             className="w-full h-full object-cover object-[50%_70%]"
           />
@@ -63,7 +63,7 @@ export default function About() {
         <section className="grid md:grid-cols-2 gap-0">
           <div className="relative h-[400px] sm:h-[500px] md:h-auto">
             <img
-              src="https://images.unsplash.com/photo-1612817288484-6f916006741a?q=80&w=1200&auto=format&fit=crop"
+              src="/ekoe-asset/PHOTO/ABOUT US_2 BE YOURSELF, BE BEAUTIFUL.JPG"
               alt="Natural skincare"
               className="w-full h-full object-cover"
             />
@@ -105,7 +105,7 @@ export default function About() {
           </div>
           <div className="relative h-[400px] sm:h-[500px] md:h-auto order-1 md:order-2">
             <img
-              src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1200&auto=format&fit=crop"
+              src="/ekoe-asset/PHOTO/ABOUT US_3 MORE THAN LIVING, ITS LIFESTYLE.png"
               alt="Lifestyle beauty"
               className="w-full h-full object-cover"
             />
@@ -116,7 +116,7 @@ export default function About() {
         <section className="grid md:grid-cols-2 gap-0">
           <div className="relative h-[400px] sm:h-[500px] md:h-auto">
             <img
-              src="https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=1200&auto=format&fit=crop"
+              src="/ekoe-asset/PHOTO/ABOUT US_4 SCIENCE MEETS NATURE.JPG"
               alt="Science meets nature"
               className="w-full h-full object-cover"
             />
@@ -160,7 +160,7 @@ export default function About() {
         <section className="relative py-24 sm:py-32 px-4 sm:px-6 lg:px-8 bg-gray-900 text-white overflow-hidden">
           <div className="absolute inset-0 opacity-30">
             <img
-              src="https://images.unsplash.com/photo-1596463989378-1232c8cfeb9e?q=80&w=2000&auto=format&fit=crop"
+              src="/ekoe-asset/PHOTO/ABOUT US_5 BOTTOM จะโกลว์แค่ไหน.png"
               alt="Background"
               className="w-full h-full object-cover"
             />
