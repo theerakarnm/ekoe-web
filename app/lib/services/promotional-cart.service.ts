@@ -89,7 +89,7 @@ class PromotionalCartService {
     discountCode?: string,
     shippingMethod?: string
   ): Promise<PromotionalCartResult> {
-    const response = await apiClient.post('/cart/promotional/evaluate', {
+    const response = await apiClient.post('/api/cart/promotional/evaluate', {
       items,
       customerId,
       discountCode,
@@ -110,7 +110,7 @@ class PromotionalCartService {
     items: PromotionalCartItem[],
     customerId?: string
   ): Promise<CartValidationResult> {
-    const response = await apiClient.post('/cart/promotional/validate', {
+    const response = await apiClient.post('/api/cart/promotional/validate', {
       items,
       customerId,
     });
@@ -129,7 +129,7 @@ class PromotionalCartService {
     productId: string,
     variantId?: string
   ): Promise<GiftRemovalValidation> {
-    const response = await apiClient.post('/cart/promotional/gift/can-remove', {
+    const response = await apiClient.post('/api/cart/promotional/gift/can-remove', {
       productId,
       variantId,
     });
@@ -145,7 +145,7 @@ class PromotionalCartService {
    * Get gift display information for cart items
    */
   async getGiftDisplayInfo(items: PromotionalCartItem[]): Promise<{ items: GiftDisplayInfo[] }> {
-    const response = await apiClient.post('/cart/promotional/gift/display-info', {
+    const response = await apiClient.post('/api/cart/promotional/gift/display-info', {
       items,
     });
 
@@ -160,7 +160,7 @@ class PromotionalCartService {
    * Get promotional gift summary
    */
   async getGiftSummary(items: PromotionalCartItem[]): Promise<GiftSummary> {
-    const response = await apiClient.post('/cart/promotional/gift/summary', {
+    const response = await apiClient.post('/api/cart/promotional/gift/summary', {
       items,
     });
 
@@ -202,9 +202,9 @@ class PromotionalCartService {
     quantity: number = 1
   ): PromotionalCartItem[] {
     const existingItemIndex = items.findIndex(
-      item => 
-        item.productId === productId && 
-        item.variantId === variantId && 
+      item =>
+        item.productId === productId &&
+        item.variantId === variantId &&
         !this.isPromotionalGift(item)
     );
 
@@ -239,9 +239,9 @@ class PromotionalCartService {
     variantId?: string
   ): PromotionalCartItem[] {
     return items.filter(
-      item => 
-        !(item.productId === productId && 
-          item.variantId === variantId && 
+      item =>
+        !(item.productId === productId &&
+          item.variantId === variantId &&
           !this.isPromotionalGift(item))
     );
   }
@@ -261,8 +261,8 @@ class PromotionalCartService {
 
     return items.map(item => {
       if (
-        item.productId === productId && 
-        item.variantId === variantId && 
+        item.productId === productId &&
+        item.variantId === variantId &&
         !this.isPromotionalGift(item)
       ) {
         return { ...item, quantity };

@@ -53,6 +53,7 @@ export interface PromotionRule {
   giftName?: string;
   giftPrice?: number;
   giftImageUrl?: string;
+  giftQuantity?: number;
   createdAt: string;
 }
 
@@ -141,6 +142,7 @@ export interface CreatePromotionRuleDto {
   giftName?: string;
   giftPrice?: number;
   giftImageUrl?: string;
+  giftQuantity?: number;
 }
 
 export interface GetPromotionsParams {

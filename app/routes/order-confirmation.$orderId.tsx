@@ -8,6 +8,7 @@ import { apiClient, type SuccessResponseWrapper } from "~/lib/api-client";
 import type { OrderDetail, OrderItemDetail } from "~/lib/services/order.service";
 import { formatCurrencyFromCents } from "~/lib/formatter";
 import { useCartStore } from "~/store/cart";
+import { OrderPromotionDisplay } from "~/components/promotion/order-promotion-display";
 
 export function meta() {
   return [
@@ -211,6 +212,22 @@ export default function OrderConfirmation() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Applied Promotions */}
+        {order.appliedPromotions && Array.isArray(order.appliedPromotions) && order.appliedPromotions.length > 0 && (
+          <OrderPromotionDisplay
+            appliedPromotions={order.appliedPromotions}
+            totalDiscountAmount={order.promotionDiscountAmount ?? 0}
+            totalGiftValue={order.appliedPromotions.reduce(
+              (sum: number, promo: any) => sum + promo.freeGifts.reduce(
+                (giftSum: number, gift: any) => giftSum + (gift.value || 0), 0
+              ), 0
+            )}
+            orderSubtotal={order.subtotal}
+            showSavingsPercentage={true}
+            className="mb-8"
+          />
+        )}
 
         {/* Shipping Address */}
         {order.shippingAddress && (

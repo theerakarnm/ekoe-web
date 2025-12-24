@@ -9,6 +9,7 @@ import { CartSummary } from "~/components/cart/cart-summary";
 import { RecommendedProduct } from "~/components/cart/recommended-product";
 import { CartValidationErrors } from "~/components/cart/cart-validation-errors";
 import { validateCart, type ValidatedCart } from "~/lib/services/cart.service";
+import { promotionalCartService, type PromotionalCartResult } from "~/lib/services/promotional-cart.service";
 import { getBestSellers, type Product } from "~/lib/services/product.service";
 import { Gift, Loader2 } from "lucide-react";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -49,8 +50,11 @@ export default function Cart() {
   const removeItem = useCartStore((state) => state.removeItem);
 
   const [validationResult, setValidationResult] = useState<ValidatedCart | null>(null);
+  const [promotionalResult, setPromotionalResult] = useState<PromotionalCartResult | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [showErrors, setShowErrors] = useState(true);
+
+  const discountCode = useCartStore((state) => state.discountCode);
 
   // State for recommended products from API
   const [recommendedProducts, setRecommendedProducts] = useState<RecommendedProductType[]>([]);
@@ -74,11 +78,12 @@ export default function Cart() {
     fetchRecommendedProducts();
   }, []);
 
-  // Validate cart when items change
+  // Validate cart and evaluate promotions when items change
   useEffect(() => {
-    async function performValidation() {
+    async function performValidationAndEvaluation() {
       if (items.length === 0) {
         setValidationResult(null);
+        setPromotionalResult(null);
         return;
       }
 
@@ -92,6 +97,7 @@ export default function Cart() {
           quantity: item.quantity,
         }));
 
+        // 1. Basic Validation (Stock check)
         const result = await validateCart(cartItems);
         setValidationResult(result);
 
@@ -113,6 +119,22 @@ export default function Cart() {
             }
           });
         }
+
+        // 2. Promotional Evaluation
+        const promoItems = items.map(item => ({
+          productId: item.productId,
+          variantId: item.variantId,
+          quantity: item.quantity
+        }));
+
+        const evaluation = await promotionalCartService.evaluateCartWithPromotions(
+          promoItems,
+          undefined, // customerId
+          discountCode,
+          undefined  // shippingMethod
+        );
+
+        setPromotionalResult(evaluation);
       } catch (error) {
         console.error('Cart validation error:', error);
       } finally {
@@ -120,8 +142,8 @@ export default function Cart() {
       }
     }
 
-    performValidation();
-  }, [items.length]); // Only validate when number of items changes
+    performValidationAndEvaluation();
+  }, [items.length, discountCode]); // Re-run when items or discount changes
 
   return (
     <div className="min-h-screen bg-white font-sans text-[#1a1a1a]">
@@ -192,7 +214,7 @@ export default function Cart() {
 
             {/* Right Column - Summary & Recommendations */}
             <div className="lg:col-span-4 space-y-12">
-              <CartSummary />
+              <CartSummary promotionalResult={promotionalResult} />
 
               <div>
                 <h3 className="font-serif text-xl mb-6">You May Also Like</h3>

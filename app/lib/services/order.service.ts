@@ -110,6 +110,21 @@ export interface Order {
   currency: string | null;
   customerNote: string | null;
   internalNote: string | null;
+  appliedPromotions: Array<{
+    promotionId: string;
+    promotionName: string;
+    discountAmount: number;
+    freeGifts: Array<{
+      productId?: string;
+      variantId?: string;
+      quantity: number;
+      name: string;
+      imageUrl?: string;
+      value: number;
+    }>;
+    appliedAt: string;
+  }> | null;
+  promotionDiscountAmount: number | null;
   createdAt: string;
   updatedAt: string;
   paidAt: string | null;

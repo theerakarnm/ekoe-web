@@ -80,6 +80,7 @@ const ruleSchema = z.object({
   giftName: z.string().optional(),
   giftPrice: z.number().optional(),
   giftImageUrl: z.string().optional(),
+  giftQuantity: z.number().int().positive().optional(),
 });
 
 // Tier interface: groups a condition with its benefit
@@ -97,6 +98,7 @@ interface PromotionTier {
     giftName?: string;
     giftPrice?: number;
     giftImageUrl?: string;
+    giftQuantity?: number;
   };
 }
 
@@ -135,6 +137,7 @@ const rulesToTiers = (rules: RuleFormData[]): PromotionTier[] => {
         giftName: benefit?.giftName,
         giftPrice: benefit?.giftPrice,
         giftImageUrl: benefit?.giftImageUrl,
+        giftQuantity: benefit?.giftQuantity,
       },
     });
   }
@@ -165,6 +168,7 @@ const tiersToRules = (tiers: PromotionTier[]): RuleFormData[] => {
       giftName: tier.benefit.giftName,
       giftPrice: tier.benefit.giftPrice,
       giftImageUrl: tier.benefit.giftImageUrl,
+      giftQuantity: tier.benefit.giftQuantity,
     });
   }
 
@@ -205,6 +209,7 @@ export function PromotionForm({ promotion, onSuccess, onCancel }: PromotionFormP
     giftName: rule.giftName,
     giftPrice: rule.giftPrice,
     giftImageUrl: rule.giftImageUrl,
+    giftQuantity: rule.giftQuantity,
   })) || [];
 
   const [tiers, setTiers] = useState<PromotionTier[]>(
@@ -709,6 +714,17 @@ export function PromotionForm({ promotion, onSuccess, onCancel }: PromotionFormP
                                     placeholder="ระบุราคา (ไม่จำเป็น)"
                                   />
                                   <p className="text-xs text-muted-foreground mt-1">ราคาสำหรับแสดงมูลค่าของแถม (ไม่บังคับ)</p>
+                                </div>
+                                <div>
+                                  <Label className="text-xs">จำนวน (ชิ้น)</Label>
+                                  <Input
+                                    type="number"
+                                    min="1"
+                                    value={tier.benefit.giftQuantity || 1}
+                                    onChange={(e) => updateTierBenefit(index, { giftQuantity: parseInt(e.target.value) || 1 })}
+                                    placeholder="1"
+                                  />
+                                  <p className="text-xs text-muted-foreground mt-1">จำนวนของแถมที่ลูกค้าจะได้รับ</p>
                                 </div>
                               </div>
                               <div>

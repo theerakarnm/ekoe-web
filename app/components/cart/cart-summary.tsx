@@ -5,17 +5,28 @@ import { useCartStore } from "~/store/cart";
 import { Link } from "react-router";
 import { useState } from "react";
 import { validateDiscountCode } from "~/lib/services/cart.service";
-import { Loader2 } from "lucide-react";
+import { Loader2, Gift, Tag } from "lucide-react";
+import type { PromotionalCartResult } from "~/lib/services/promotional-cart.service";
 
-export function CartSummary() {
-  const subtotal = useCartStore((state) => state.getSubtotal());
-  const discount = useCartStore((state) => state.discountAmount);
+interface CartSummaryProps {
+  promotionalResult?: PromotionalCartResult | null;
+}
+
+export function CartSummary({ promotionalResult }: CartSummaryProps) {
+  const getSubtotal = useCartStore((state) => state.getSubtotal);
+  const storeDiscount = useCartStore((state) => state.discountAmount);
   const discountCode = useCartStore((state) => state.discountCode);
   const items = useCartStore((state) => state.items);
   const applyDiscountCode = useCartStore((state) => state.applyDiscountCode);
   const removeDiscountCode = useCartStore((state) => state.removeDiscountCode);
 
-  // Only dealing with 0 shipping/tax for now as per previous implementation
+  // Use promotional result pricing if available, otherwise fall back to store values
+  const subtotal = promotionalResult?.pricing.subtotal ?? getSubtotal();
+  const discount = promotionalResult?.pricing.discountAmount ?? storeDiscount;
+  const freeGifts = promotionalResult?.freeGifts ?? [];
+  const appliedPromotions = promotionalResult?.appliedPromotions ?? [];
+
+  // Calculate total
   const total = subtotal - discount;
 
   const [couponCode, setCouponCode] = useState("");
@@ -58,20 +69,66 @@ export function CartSummary() {
       <div className="space-y-4 mb-8">
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Subtotal</span>
-          <span className="font-medium">{formatCurrencyFromCents(subtotal, { symbol: '$' })}</span>
+          <span className="font-medium">{formatCurrencyFromCents(subtotal, { symbol: '฿' })}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Shipping</span>
           <span className="font-medium uppercase">Free</span>
         </div>
 
+        {/* Discount display */}
+        {discount > 0 && (
+          <div className="flex justify-between text-sm text-green-600">
+            <span className="flex items-center gap-1">
+              <Tag className="w-3 h-3" />
+              Discount
+            </span>
+            <span className="font-medium">-{formatCurrencyFromCents(discount, { symbol: '฿' })}</span>
+          </div>
+        )}
+
+        {/* Applied promotions */}
+        {appliedPromotions.length > 0 && (
+          <div className="border-t border-gray-100 pt-3 mt-3 space-y-2">
+            {appliedPromotions.map((promo) => (
+              <div key={promo.promotionId} className="text-xs text-green-600 flex items-center gap-1">
+                <Tag className="w-3 h-3" />
+                {promo.promotionName}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-
+      {/* Free Gifts Section */}
+      {freeGifts.length > 0 && (
+        <div className="mb-8 p-4 bg-green-50 border border-green-200 rounded">
+          <h3 className="text-sm font-medium text-green-800 flex items-center gap-2 mb-3">
+            <Gift className="w-4 h-4" />
+            Free Gifts
+          </h3>
+          <div className="space-y-2">
+            {freeGifts.map((gift, index) => (
+              <div key={`${gift.productId}-${index}`} className="flex items-center gap-3">
+                {gift.imageUrl && (
+                  <img src={gift.imageUrl} alt={gift.name} className="w-10 h-10 object-cover rounded" />
+                )}
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-green-800">{gift.name}</p>
+                  <p className="text-xs text-green-600">Qty: {gift.quantity}</p>
+                </div>
+                <span className="text-xs text-green-600">
+                  {formatCurrencyFromCents(gift.value, { symbol: '฿' })}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="flex justify-between items-center mb-8 pt-4 border-t border-gray-100">
         <span className="font-serif text-lg">Total</span>
-        <span className="font-serif text-xl font-medium">{formatCurrencyFromCents(Math.max(0, total), { symbol: '$' })}</span>
+        <span className="font-serif text-xl font-medium">{formatCurrencyFromCents(Math.max(0, total), { symbol: '฿' })}</span>
       </div>
 
       <Link to="/checkout" className="block w-full">
@@ -82,3 +139,4 @@ export function CartSummary() {
     </div>
   );
 }
+
