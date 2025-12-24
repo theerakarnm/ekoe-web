@@ -6,6 +6,7 @@ import { NewArrivalsSection } from "./new-arrivals";
 import { FeatureSection } from "./feature-section";
 import BlogSection from "./blog-section";
 import { Footer } from "~/components/share/footer";
+import { WelcomePopup } from "~/components/share/welcome-popup";
 import type { Product } from "~/lib/services/product.service";
 import type { BlogPost } from "~/interface/blog.interface";
 
@@ -76,6 +77,7 @@ export function Landing({ loaderData }: LandingProps) {
         <BlogSection posts={loaderData?.blogs} />
         <Footer />
       </main>
+      <WelcomePopup />
     </div>
   );
 }

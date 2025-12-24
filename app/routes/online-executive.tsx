@@ -154,7 +154,7 @@ export default function OnlineExecutive() {
         <div className="mt-20 relative h-80 w-full overflow-hidden">
           <div className="absolute inset-0 bg-gray-900">
             <img
-              src="https://images.unsplash.com/photo-1551009175-8a68da93d5f9?q=80&w=2000&auto=format&fit=crop"
+              src="/ekoe-asset/PHOTO/ONLINE EXECUTIVE_BOTTOM_Ekoe สร้างประสบการณ์พิเศษ.png"
               alt="Ocean Wave"
               className="w-full h-full object-cover opacity-40"
             />

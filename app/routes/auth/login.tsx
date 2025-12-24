@@ -18,11 +18,13 @@ import { AlertCircle } from 'lucide-react';
 export default function CustomerLogin() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { signIn, signInWithGoogle, isAuthenticated, user, checkAuth, isLoading } = useAuthStore();
+  const { signIn, signInWithGoogle, signInWithFacebook, signInWithLine, isAuthenticated, user, checkAuth, isLoading } = useAuthStore();
   const { items: cartItems, addItem } = useCartStore();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isFacebookLoading, setIsFacebookLoading] = useState(false);
+  const [isLineLoading, setIsLineLoading] = useState(false);
 
   const returnUrl = searchParams.get('returnUrl') || '/';
 
@@ -111,6 +113,42 @@ export default function CustomerLogin() {
     }
   };
 
+  const handleFacebookSignIn = async () => {
+    setError(null);
+    setIsFacebookLoading(true);
+
+    try {
+      // Save return URL before OAuth redirect
+      if (returnUrl !== '/') {
+        setReturnUrl(returnUrl);
+      }
+      await signInWithFacebook();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Facebook sign-in failed';
+      setError(errorMessage);
+      handleApiError(err, 'Failed to sign in with Facebook');
+      setIsFacebookLoading(false);
+    }
+  };
+
+  const handleLineSignIn = async () => {
+    setError(null);
+    setIsLineLoading(true);
+
+    try {
+      // Save return URL before OAuth redirect
+      if (returnUrl !== '/') {
+        setReturnUrl(returnUrl);
+      }
+      await signInWithLine();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Line sign-in failed';
+      setError(errorMessage);
+      handleApiError(err, 'Failed to sign in with Line');
+      setIsLineLoading(false);
+    }
+  };
+
   // Show loading state while checking auth
   if (isLoading) {
     return (
@@ -146,7 +184,7 @@ export default function CustomerLogin() {
                   type="email"
                   placeholder="you@example.com"
                   aria-invalid={!!errors.email}
-                  disabled={isSubmitting || isGoogleLoading}
+                  disabled={isSubmitting || isGoogleLoading || isFacebookLoading || isLineLoading}
                   {...register('email')}
                 />
                 {errors.email && (
@@ -169,7 +207,7 @@ export default function CustomerLogin() {
                   type="password"
                   placeholder="Enter your password"
                   aria-invalid={!!errors.password}
-                  disabled={isSubmitting || isGoogleLoading}
+                  disabled={isSubmitting || isGoogleLoading || isFacebookLoading || isLineLoading}
                   {...register('password')}
                 />
                 {errors.password && (
@@ -180,7 +218,7 @@ export default function CustomerLogin() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isSubmitting || isGoogleLoading}
+                disabled={isSubmitting || isGoogleLoading || isFacebookLoading || isLineLoading}
               >
                 {isSubmitting ? 'Signing in...' : 'Sign in'}
               </Button>
@@ -201,7 +239,7 @@ export default function CustomerLogin() {
                 variant="outline"
                 className="w-full"
                 onClick={handleGoogleSignIn}
-                disabled={isSubmitting || isGoogleLoading}
+                disabled={isSubmitting || isGoogleLoading || isFacebookLoading || isLineLoading}
               >
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                   <path
@@ -222,6 +260,36 @@ export default function CustomerLogin() {
                   />
                 </svg>
                 {isGoogleLoading ? 'Connecting...' : 'Sign in with Google'}
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleFacebookSignIn}
+                disabled={isSubmitting || isGoogleLoading || isFacebookLoading || isLineLoading}
+              >
+                <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="#1877F2">
+                  <path
+                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                  />
+                </svg>
+                {isFacebookLoading ? 'Connecting...' : 'Sign in with Facebook'}
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleLineSignIn}
+                disabled={isSubmitting || isGoogleLoading || isFacebookLoading || isLineLoading}
+              >
+                <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="#00B900">
+                  <path
+                    d="M24 10.304c0-5.369-5.383-9.738-12-9.738-6.616 0-12 4.369-12 9.738 0 4.814 4.269 8.846 10.036 9.608.391.084.922.258 1.057.592.122.303.079.778.039 1.085l-.171 1.027c-.053.303-.242 1.186 1.039.647 1.281-.54 6.911-4.069 9.428-6.967C23.268 14.247 24 12.373 24 10.304zm-16.26 3.017H6.104a.506.506 0 01-.506-.506V8.938a.506.506 0 01.506-.506.506.506 0 01.506.506v3.372h1.13a.506.506 0 01.506.506.506.506 0 01-.506.505zm2.018-.506a.506.506 0 01-.506.506.506.506 0 01-.506-.506V8.938a.506.506 0 01.506-.506.506.506 0 01.506.506v3.877zm4.794 0a.506.506 0 01-.353.481.506.506 0 01-.153.025.506.506 0 01-.404-.202l-2.186-2.981v2.677a.506.506 0 01-.506.506.506.506 0 01-.506-.506V8.938a.506.506 0 01.316-.469.506.506 0 01.541.094l2.186 2.981V8.938a.506.506 0 01.506-.506.506.506 0 01.506.506v3.877h.053zm3.652-2.418a.506.506 0 01.506.506.506.506 0 01-.506.506h-1.13v.9h1.13a.506.506 0 01.506.506.506.506 0 01-.506.506h-1.636a.506.506 0 01-.506-.506V8.938a.506.506 0 01.506-.506h1.636a.506.506 0 01.506.506.506.506 0 01-.506.506h-1.13v.953h1.13z"
+                  />
+                </svg>
+                {isLineLoading ? 'Connecting...' : 'Sign in with Line'}
               </Button>
 
               <div className="text-center text-sm">

@@ -62,6 +62,8 @@ interface AuthState {
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInWithFacebook: () => Promise<void>;
+  signInWithLine: () => Promise<void>;
   signOut: () => Promise<void>;
   checkAuth: () => Promise<void>;
 
@@ -205,6 +207,46 @@ export const useAuthStore = create<AuthState>()(
           // better-auth will handle the redirect and callback
           await authClient.signIn.social({
             provider: 'google',
+            callbackURL: `${window.location.origin}/auth/callback`,
+          });
+        } catch (error) {
+          set({
+            user: null,
+            profile: null,
+            addresses: [],
+            isAuthenticated: false,
+            isEmailVerified: false,
+          });
+          throw error;
+        }
+      },
+
+      signInWithFacebook: async () => {
+        try {
+          // Initiate Facebook OAuth flow
+          // better-auth will handle the redirect and callback
+          await authClient.signIn.social({
+            provider: 'facebook',
+            callbackURL: `${window.location.origin}/auth/callback`,
+          });
+        } catch (error) {
+          set({
+            user: null,
+            profile: null,
+            addresses: [],
+            isAuthenticated: false,
+            isEmailVerified: false,
+          });
+          throw error;
+        }
+      },
+
+      signInWithLine: async () => {
+        try {
+          // Initiate Line OAuth flow
+          // better-auth will handle the redirect and callback
+          await authClient.signIn.social({
+            provider: 'line',
             callbackURL: `${window.location.origin}/auth/callback`,
           });
         } catch (error) {
