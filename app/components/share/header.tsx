@@ -385,97 +385,95 @@ export default function Header({
           </header></> : null
       }
 
-      {/* Search Popup Overlay */}
+      {/* Search Sidebar Overlay */}
       {isSearchOpen && (
         <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div
             ref={searchContainerRef}
-            className="absolute top-0 left-0 right-0 bg-white shadow-xl animate-in slide-in-from-top duration-300"
+            className="absolute top-0 right-0 h-full w-full max-w-md bg-white shadow-xl animate-in slide-in-from-right duration-300 flex flex-col"
           >
-            <div className="max-w-4xl mx-auto px-4 py-6">
-              {/* Search Header */}
-              <div className="flex items-center gap-4 mb-6">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 text-lg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6E604D] focus:border-transparent transition-all"
-                  />
+            {/* Search Header */}
+            <div className="flex items-center gap-4 p-4 border-b border-gray-200">
+              <div className="flex-1 relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 text-lg border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6E604D] focus:border-transparent transition-all"
+                />
+              </div>
+              <button
+                onClick={handleCloseSearch}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="h-6 w-6 text-gray-600" />
+              </button>
+            </div>
+
+            {/* Products List */}
+            <div className="flex-1 overflow-y-auto p-4">
+              {filteredProducts.length > 0 ? (
+                <div className="flex flex-col gap-3">
+                  {filteredProducts.map((product) => (
+                    <Link
+                      key={product.id}
+                      to={`/product-detail/${product.id}`}
+                      onClick={handleCloseSearch}
+                      className="group flex items-center gap-4 p-3 rounded-lg border border-gray-100 hover:border-[#6E604D] hover:shadow-md transition-all duration-200"
+                    >
+                      {/* Product Image */}
+                      <div className="w-20 h-20 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
+                        {product.images && product.images[0] ? (
+                          <img
+                            src={product.images[0].url}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <Search className="h-8 w-8" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Product Info */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-gray-900 group-hover:text-[#6E604D] transition-colors line-clamp-2">
+                          {product.name}
+                        </h3>
+                        <p className="text-sm text-[#6E604D] font-semibold mt-1">
+                          {formatPrice(product.basePrice)}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
-                <button
-                  onClick={handleCloseSearch}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <X className="h-6 w-6 text-gray-600" />
-                </button>
-              </div>
-
-              {/* Products List */}
-              <div className="max-h-[60vh] overflow-y-auto">
-                {filteredProducts.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredProducts.map((product) => (
-                      <Link
-                        key={product.id}
-                        to={`/product-detail/${product.id}`}
-                        onClick={handleCloseSearch}
-                        className="group flex items-center gap-4 p-3 rounded-lg border border-gray-100 hover:border-[#6E604D] hover:shadow-md transition-all duration-200"
-                      >
-                        {/* Product Image */}
-                        <div className="w-20 h-20 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
-                          {product.images && product.images[0] ? (
-                            <img
-                              src={product.images[0].url}
-                              alt={product.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400">
-                              <Search className="h-8 w-8" />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Product Info */}
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-gray-900 group-hover:text-[#6E604D] transition-colors line-clamp-2">
-                            {product.name}
-                          </h3>
-                          <p className="text-sm text-[#6E604D] font-semibold mt-1">
-                            {formatPrice(product.basePrice)}
-                          </p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">
-                      {searchQuery ? `No products found for "${searchQuery}"` : 'Start typing to search products...'}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* View All Products Link */}
-              {filteredProducts.length > 0 && (
-                <div className="mt-6 pt-4 border-t border-gray-100 text-center">
-                  <Link
-                    to="/shop"
-                    onClick={handleCloseSearch}
-                    className="inline-flex items-center text-[#6E604D] hover:text-[#5a5040] font-medium transition-colors"
-                  >
-                    View all products
-                    <ChevronDown className="ml-1 h-4 w-4 rotate-[-90deg]" />
-                  </Link>
+              ) : (
+                <div className="text-center py-12">
+                  <Search className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">
+                    {searchQuery ? `No products found for "${searchQuery}"` : 'Start typing to search products...'}
+                  </p>
                 </div>
               )}
             </div>
+
+            {/* View All Products Link */}
+            {filteredProducts.length > 0 && (
+              <div className="p-4 border-t border-gray-100 text-center">
+                <Link
+                  to="/shop"
+                  onClick={handleCloseSearch}
+                  className="inline-flex items-center text-[#6E604D] hover:text-[#5a5040] font-medium transition-colors"
+                >
+                  View all products
+                  <ChevronDown className="ml-1 h-4 w-4 rotate-[-90deg]" />
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}
