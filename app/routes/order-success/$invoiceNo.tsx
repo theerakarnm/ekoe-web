@@ -317,10 +317,18 @@ export default function OrderSuccessByInvoice() {
                     <span>{formatCurrencyFromCents(order.taxAmount, { symbol: '฿' })}</span>
                   </div>
                 )}
+                {/* Coupon discount (from discount code) */}
                 {order.discountAmount !== null && order.discountAmount > 0 && (
                   <div className="flex justify-between text-green-600">
-                    <span>Discount</span>
+                    <span>Coupon</span>
                     <span>-{formatCurrencyFromCents(order.discountAmount, { symbol: '฿' })}</span>
+                  </div>
+                )}
+                {/* Promotional discount (from auto promotions) */}
+                {order.promotionDiscountAmount !== null && order.promotionDiscountAmount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Discount</span>
+                    <span>-{formatCurrencyFromCents(order.promotionDiscountAmount, { symbol: '฿' })}</span>
                   </div>
                 )}
                 <Separator />
