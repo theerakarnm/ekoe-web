@@ -11,7 +11,7 @@ interface WelcomePopupProps {
 }
 
 export function WelcomePopup({
-  imageUrl = '/ekoe-asset/PHOTO/POP UP.JPG',
+  imageUrl = '/ekoe-asset/HOME/POPUP.JPG',
   couponCode = 'WELCOMEXXX',
   discountText = 'ลดเพิ่ม 100 บาท ทุกยอดซื้อ 500 บาท',
 }: WelcomePopupProps) {

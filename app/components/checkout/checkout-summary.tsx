@@ -36,8 +36,7 @@ export function CheckoutSummary({
   const subtotal = promotionalResult?.pricing.subtotal ?? getSubtotal();
   const shippingCost = promotionalResult?.pricing.shippingCost ?? internalShippingCost;
   const discount = promotionalResult?.pricing.discountAmount ?? storeDiscountAmount;
-  const taxAmount = promotionalResult?.pricing.taxAmount ?? Math.round((subtotal + shippingCost) * 0.07);
-  const total = promotionalResult?.pricing.totalAmount ?? (subtotal + shippingCost + taxAmount - discount);
+  const total = promotionalResult?.pricing.totalAmount ?? (subtotal + shippingCost - discount);
 
   // Combine eligible gifts and complimentary gifts
   const allGifts = useMemo(() => {
@@ -130,7 +129,7 @@ export function CheckoutSummary({
       {/* Totals */}
       <div className="space-y-4 mb-8 pb-8 border-b border-gray-200">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Subtotal</span>
+          <span className="text-gray-600">Subtotal (Tax included)</span>
           <span className="font-medium">{formatCurrencyFromCents(subtotal, { symbol: '฿' })}</span>
         </div>
         <div className="flex justify-between text-sm">
@@ -142,10 +141,6 @@ export function CheckoutSummary({
               formatCurrencyFromCents(shippingCost, { symbol: '฿' })
             )}
           </span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Tax (7% VAT)</span>
-          <span className="font-medium">{formatCurrencyFromCents(taxAmount, { symbol: '฿' })}</span>
         </div>
 
       </div>
