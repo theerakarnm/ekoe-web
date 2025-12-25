@@ -6,6 +6,7 @@ import { CheckoutSummary } from "~/components/checkout/checkout-summary";
 import { CustomerAuthGuard } from "~/components/auth/customer-auth-guard";
 import { ShoppingCart, AlertCircle, Loader2 } from "lucide-react";
 import { useCartStore } from "~/store/cart";
+import { useAuthStore } from "~/store/auth-store";
 import { createOrder, type CreateOrderRequest } from "~/lib/services/order.service";
 import { createPromptPayPayment, initiate2C2PPayment } from "~/lib/services/payment.service";
 import { validateCart, type ValidatedCart } from "~/lib/services/cart.service";
@@ -97,6 +98,7 @@ export default function Checkout() {
   const items = useCartStore((state) => state.items);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
+  const user = useAuthStore((state) => state.user);
 
   const [validationResult, setValidationResult] = useState<ValidatedCart | null>(null);
   const [promotionalResult, setPromotionalResult] = useState<PromotionalCartResult | null>(null);
@@ -160,7 +162,7 @@ export default function Checkout() {
 
         const evaluation = await promotionalCartService.evaluateCartWithPromotions(
           promoItems,
-          undefined, // customerId (could get from auth if needed, but usually handled by session/cookie?)
+          user?.id, // Pass user ID to check customer-specific usage limits
           discountCode,
           selectedShippingMethod
         );
@@ -176,7 +178,7 @@ export default function Checkout() {
     }
 
     performValidationAndEvaluation();
-  }, [items, discountCode, selectedShippingMethod]); // Re-run when items, discount, or shipping changes
+  }, [items, discountCode, selectedShippingMethod, user]); // Re-run when items, discount, shipping, or user changes
 
   const handleShippingMethodChange = (methodId: string, cost: number) => {
     setSelectedShippingMethod(methodId);
