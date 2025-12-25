@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Copy, Check, X } from 'lucide-react';
+import { apiClient, type SuccessResponseWrapper } from '~/lib/api-client';
 
 const WELCOME_POPUP_KEY = 'ekoe_welcome_popup_shown';
 
@@ -25,14 +26,16 @@ export function WelcomePopup({
     description: ''
   });
 
+
+
   useEffect(() => {
     setMounted(true);
     if (sessionStorage.getItem(WELCOME_POPUP_KEY)) return;
 
     async function checkFeatured() {
       try {
-        const res = await fetch('/api/coupons/featured');
-        const json = await res.json();
+        const res = await apiClient.get<SuccessResponseWrapper<any>>('/api/coupons/featured');
+        const json = res.data;
 
         if (json.success && json.data) {
           const c = json.data;
@@ -51,13 +54,11 @@ export function WelcomePopup({
             description: c.description || text
           });
 
-          setTimeout(() => setIsOpen(true), 500);
-        } else if (couponCode !== 'WELCOMEXXX') {
-          // If no featured coupon but props provided (not default), show it
-          setTimeout(() => setIsOpen(true), 500);
         }
       } catch (error) {
         console.error('Failed to fetch featured coupon', error);
+      } finally {
+        setTimeout(() => setIsOpen(true), 500);
       }
     }
 
@@ -153,15 +154,15 @@ export function WelcomePopup({
               )}
 
               {/* Coupon Code Box and Buttons */}
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="border-2 border-black px-6 py-3 text-center min-w-[180px]">
+              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+                <div className="border-2 border-black px-6 py-3 text-center w-full md:w-auto min-w-[180px]">
                   <span className="font-mono text-lg font-semibold tracking-wider">
                     {couponData.code}
                   </span>
                 </div>
                 <button
                   onClick={handleCopyCode}
-                  className="bg-black text-white px-6 py-3 text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+                  className="bg-black text-white px-6 py-3 text-sm font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 w-full md:w-auto"
                 >
                   {isCopied ? (
                     <>
@@ -177,7 +178,7 @@ export function WelcomePopup({
                 </button>
                 <button
                   onClick={handleClose}
-                  className="border-2 border-black px-6 py-3 text-sm font-medium hover:bg-gray-100 transition-colors whitespace-nowrap"
+                  className="border-2 border-black px-6 py-3 text-sm font-medium hover:bg-gray-100 transition-colors whitespace-nowrap w-full md:w-auto"
                 >
                   ยังไม่ใช่ตอนนี้
                 </button>

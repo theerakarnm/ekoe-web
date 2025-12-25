@@ -447,13 +447,13 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
                         <Star
                           key={i}
                           size={16}
-                          fill={i < Math.floor(productData.rating || 0) ? "currentColor" : "none"}
-                          className={i < Math.floor(productData.rating || 0) ? "" : "text-gray-300"}
+                          fill={i < Math.floor(productData.rating || 5) ? "currentColor" : "none"}
+                          className={i < Math.floor(productData.rating || 5) ? "" : "text-gray-300"}
                         />
                       ))}
                     </div>
                     <span className="text-sm text-gray-500">
-                      ({productData.reviewCount} Reviews)
+                      ({productData.reviewCount || 20} Reviews)
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-2 mb-2">
