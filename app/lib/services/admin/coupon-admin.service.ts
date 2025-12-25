@@ -24,6 +24,8 @@ export interface DiscountCode {
   applicableToProducts?: string[];
   applicableToCategories?: string[];
   isActive: boolean;
+  isFeatured?: boolean; // Featured coupon appears in welcome popup
+  linkedProductIds?: string[]; // Product IDs where coupon appears on detail page
   startsAt?: string;
   expiresAt?: string;
   createdAt: string;

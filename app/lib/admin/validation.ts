@@ -306,6 +306,8 @@ export const discountCodeSchema = z.object({
 
   // Status
   isActive: z.boolean().default(true),
+  isFeatured: z.boolean().default(false), // Featured coupon appears in welcome popup
+  linkedProductIds: z.array(z.string()).optional(), // Product IDs where coupon appears on detail page
 
   // Validity period
   startsAt: dateValidator,

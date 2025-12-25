@@ -353,3 +353,30 @@ export async function getPriceRange(): Promise<PriceRange> {
     handleApiError(error);
   }
 }
+
+/**
+ * Coupon data for product detail page
+ */
+export interface LinkedCoupon {
+  code: string;
+  title: string;
+  description: string | null;
+  discountType: 'percentage' | 'fixed_amount' | 'free_shipping';
+  discountValue: number;
+  minPurchaseAmount?: number;
+}
+
+/**
+ * Get coupons linked to a specific product
+ */
+export async function getLinkedCoupons(productId: string): Promise<LinkedCoupon[]> {
+  try {
+    const response = await apiClient.get<SuccessResponseWrapper<LinkedCoupon[]>>(
+      `/api/coupons/by-product/${productId}`
+    );
+    return response.data.data;
+  } catch (error) {
+    // Don't throw, just return empty array for coupons
+    return [];
+  }
+}

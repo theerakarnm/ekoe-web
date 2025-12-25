@@ -19,21 +19,50 @@ export function WelcomePopup({
   const [isCopied, setIsCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  const [couponData, setCouponData] = useState({
+    code: couponCode,
+    text: discountText,
+    description: ''
+  });
+
   useEffect(() => {
     setMounted(true);
+    if (sessionStorage.getItem(WELCOME_POPUP_KEY)) return;
 
-    // Check if this is the first visit
-    const hasSeenPopup = sessionStorage.getItem(WELCOME_POPUP_KEY);
+    async function checkFeatured() {
+      try {
+        const res = await fetch('/api/coupons/featured');
+        const json = await res.json();
 
-    if (!hasSeenPopup) {
-      // Small delay to ensure page is fully loaded
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 500);
+        if (json.success && json.data) {
+          const c = json.data;
+          let text = '';
+          if (c.discountType === 'percentage') text = `ลด ${c.discountValue}%`;
+          else if (c.discountType === 'fixed_amount') text = `ลด ${(c.discountValue / 100).toLocaleString()} บาท`;
+          else if (c.discountType === 'free_shipping') text = 'ส่งฟรี';
 
-      return () => clearTimeout(timer);
+          if (c.minPurchaseAmount) {
+            text += ` เมื่อช้อปครบ ${(c.minPurchaseAmount / 100).toLocaleString()} บาท`;
+          }
+
+          setCouponData({
+            code: c.code,
+            text: c.title || text, // Use title as main text if available
+            description: c.description || text
+          });
+
+          setTimeout(() => setIsOpen(true), 500);
+        } else if (couponCode !== 'WELCOMEXXX') {
+          // If no featured coupon but props provided (not default), show it
+          setTimeout(() => setIsOpen(true), 500);
+        }
+      } catch (error) {
+        console.error('Failed to fetch featured coupon', error);
+      }
     }
-  }, []);
+
+    checkFeatured();
+  }, [couponCode]);
 
   const handleClose = () => {
     sessionStorage.setItem(WELCOME_POPUP_KEY, 'true');
@@ -42,7 +71,7 @@ export function WelcomePopup({
 
   const handleCopyCode = async () => {
     try {
-      await navigator.clipboard.writeText(couponCode);
+      await navigator.clipboard.writeText(couponData.code);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
@@ -117,14 +146,17 @@ export function WelcomePopup({
                 className="text-xl md:text-2xl font-bold text-black mb-6"
                 style={{ fontFamily: "'Noto Serif Thai', serif" }}
               >
-                {discountText}
+                {couponData.text}
               </p>
+              {couponData.description && couponData.description !== couponData.text && (
+                <p className="text-sm text-gray-600 mb-6 text-center md:text-left">{couponData.description}</p>
+              )}
 
               {/* Coupon Code Box and Buttons */}
               <div className="flex flex-wrap items-center gap-3">
                 <div className="border-2 border-black px-6 py-3 text-center min-w-[180px]">
                   <span className="font-mono text-lg font-semibold tracking-wider">
-                    {couponCode}
+                    {couponData.code}
                   </span>
                 </div>
                 <button

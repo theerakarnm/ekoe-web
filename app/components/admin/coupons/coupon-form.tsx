@@ -1,7 +1,12 @@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useEffect } from 'react';
-import { Loader2, Info } from 'lucide-react';
+import { Loader2, Info, Search, Plus, Trash2, Package } from 'lucide-react';
+import { Checkbox } from '~/components/ui/checkbox';
+import { Badge } from '~/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table';
+import { getProducts, getProduct, type Product } from '~/lib/services/admin/product-admin.service';
+import { useDebounce } from '~/hooks/use-debounce';
 import { discountCodeSchema, type DiscountCodeFormData } from '~/lib/admin/validation';
 import type { DiscountCode } from '~/lib/services/admin/coupon-admin.service';
 import { useKeyboardShortcuts } from '~/lib/admin/use-keyboard-shortcuts';
@@ -27,6 +32,7 @@ interface CouponFormProps {
 
 export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   // Keyboard shortcuts
   useKeyboardShortcuts([
@@ -77,6 +83,8 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
         usageLimit: initialData.usageLimit,
         usageLimitPerCustomer: initialData.usageLimitPerCustomer,
         isActive: initialData.isActive,
+        isFeatured: initialData.isFeatured || false,
+        linkedProductIds: initialData.linkedProductIds || [],
         startsAt: initialData.startsAt ? new Date(initialData.startsAt) : undefined,
         expiresAt: initialData.expiresAt ? new Date(initialData.expiresAt) : undefined,
       }
@@ -91,6 +99,8 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
         usageLimit: undefined,
         usageLimitPerCustomer: 1,
         isActive: true,
+        isFeatured: false,
+        linkedProductIds: [],
         startsAt: undefined,
         expiresAt: undefined,
       },
@@ -99,6 +109,63 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
   const discountType = watch('discountType');
   const discountValue = watch('discountValue');
   const isActive = watch('isActive');
+
+  // Product Search & Linking State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const debouncedSearch = useDebounce(searchQuery, 300);
+  const [linkedProductsDetail, setLinkedProductsDetail] = useState<Product[]>([]);
+
+  useEffect(() => {
+    async function loadDetails() {
+      if (initialData?.linkedProductIds?.length) {
+        try {
+          const promises = initialData.linkedProductIds.map(id => getProduct(id));
+          const products = await Promise.all(promises);
+          setLinkedProductsDetail(products);
+        } catch (error) {
+          console.error('Failed to load linked product details', error);
+        }
+      }
+    }
+    loadDetails();
+  }, [initialData]);
+
+  useEffect(() => {
+    async function performSearch() {
+      if (debouncedSearch.length < 2) {
+        setSearchResults([]);
+        return;
+      }
+      setIsSearching(true);
+      try {
+        const result = await getProducts({ search: debouncedSearch, limit: 5, status: 'active' });
+        const currentIds = new Set(watch('linkedProductIds') || []);
+        const filtered = (result.data || []).filter(p => !currentIds.has(p.id));
+        setSearchResults(filtered);
+      } catch (error) {
+        console.error('Search failed', error);
+      } finally {
+        setIsSearching(false);
+      }
+    }
+    performSearch();
+  }, [debouncedSearch, watch]);
+
+  const handleAddProduct = (product: Product) => {
+    const currentIds = watch('linkedProductIds') || [];
+    setValue('linkedProductIds', [...currentIds, product.id]);
+    setLinkedProductsDetail(prev => [...prev, product]);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
+  const handleRemoveProduct = (productId: string) => {
+    const currentIds = watch('linkedProductIds') || [];
+    setValue('linkedProductIds', currentIds.filter((id: string) => id !== productId));
+    setLinkedProductsDetail(prev => prev.filter(p => p.id !== productId));
+  };
 
   // Auto-uppercase code
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -469,6 +536,125 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
         </CardContent>
       </Card>
 
+      {/* Product Linking */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Linked Products</CardTitle>
+          <CardDescription>
+            Select products to display this coupon on their detail pages
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <Label>Search & Add Products</Label>
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search products by name..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8"
+                disabled={isSubmitting}
+              />
+            </div>
+
+            {/* Search Results */}
+            {searchResults.length > 0 && (
+              <div className="border rounded-md shadow-md bg-popover max-h-[200px] overflow-y-auto mt-2 absolute z-10 w-full bg-white">
+                {searchResults.map((product) => (
+                  <div
+                    key={product.id}
+                    className="flex items-center justify-between p-3 hover:bg-accent cursor-pointer transition-colors"
+                    onClick={() => handleAddProduct(product)}
+                  >
+                    <div className="flex items-center gap-3">
+                      {product.images?.[0] ? (
+                        <img
+                          src={product.images[0].url}
+                          alt={product.name}
+                          className="h-8 w-8 rounded object-cover"
+                        />
+                      ) : (
+                        <div className="h-8 w-8 rounded bg-muted flex items-center justify-center">
+                          <Package className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">{product.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {product.basePrice ? `$${(product.basePrice / 100).toFixed(2)}` : 'No price'}
+                        </span>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="ghost" type="button">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Selected Products ({linkedProductsDetail.length})</Label>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product Name</TableHead>
+                    <TableHead className="w-[50px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {linkedProductsDetail.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={2} className="text-center text-muted-foreground py-6">
+                        No products linked. Search above to add.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    linkedProductsDetail.map((product) => (
+                      <TableRow key={product.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            {product.images?.[0] ? (
+                              <img
+                                src={product.images[0].url}
+                                alt={product.name}
+                                className="h-8 w-8 rounded object-cover"
+                              />
+                            ) : (
+                              <div className="h-8 w-8 rounded bg-muted flex items-center justify-center">
+                                <Package className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            )}
+                            <span className="font-medium">{product.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveProduct(product.id)}
+                            className="text-destructive hover:text-destructive/90"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              The coupon will be displayed on the product detail page for these products.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Status */}
       <Card>
         <CardHeader>
@@ -477,7 +663,7 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
             Control whether this coupon is currently active
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="isActive">
               Active Status <span className="text-destructive">*</span>
@@ -501,6 +687,24 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
             <p className="text-xs text-muted-foreground">
               Inactive coupons cannot be used by customers
             </p>
+          </div>
+
+          <div className="flex items-start space-x-3 pt-4 border-t">
+            <Checkbox
+              id="isFeatured"
+              checked={watch('isFeatured')}
+              onCheckedChange={(checked) => setValue('isFeatured', checked as boolean)}
+              disabled={isSubmitting}
+              className="mt-1"
+            />
+            <div className="grid gap-1.5 leading-none">
+              <Label htmlFor="isFeatured" className="cursor-pointer font-medium">
+                Feature Coupon (Welcome Popup)
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                If checked, this coupon will be displayed in the Welcome Popup for new visitors.
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -23,7 +23,7 @@ import { ProductHeroCTA } from "~/components/product/product-hero-cta";
 import { HowToUseMedia } from "~/components/product/how-to-use-media";
 import { StickyImageScroll } from "~/components/product/sticky-image-scroll";
 
-import { getProduct, type Product } from "~/lib/services/product.service";
+import { getProduct, getLinkedCoupons, type Product } from "~/lib/services/product.service";
 import { formatCurrencyFromCents } from "~/lib/formatter";
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -36,7 +36,15 @@ export async function loader({ params }: Route.LoaderArgs) {
     // Fetch product only - related products now handled by component
     const product = await getProduct(id);
 
-    return { product };
+    // Fetch linked coupons
+    let linkedCoupons: any[] = [];
+    try {
+      linkedCoupons = await getLinkedCoupons(product.id);
+    } catch (error) {
+      console.error("Failed to fetch linked coupons", error);
+    }
+
+    return { product, linkedCoupons };
   } catch (error: any) {
     // Handle 404 errors for non-existent products
     if (error?.statusCode === 404 || error?.response?.status === 404) {
@@ -186,8 +194,24 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function ProductDetail({ loaderData }: Route.ComponentProps) {
-  const { product: apiProduct } = loaderData;
-  const productData = useMemo(() => mapApiProductToDetail(apiProduct), [apiProduct]);
+  const { product: apiProduct, linkedCoupons } = loaderData;
+  const productData = useMemo(() => {
+    const details = mapApiProductToDetail(apiProduct);
+
+    // Attach linked coupons if available
+    if (linkedCoupons && linkedCoupons.length > 0) {
+      return {
+        ...details,
+        discountCodes: linkedCoupons.map((c: any) => ({
+          code: c.code,
+          title: c.title,
+          condition: c.description || (c.minPurchaseAmount ? `เมื่อช้อปครบ ${(c.minPurchaseAmount / 100).toLocaleString()} บาท` : 'ไม่มีขั้นต่ำ')
+        }))
+      };
+    }
+
+    return details;
+  }, [apiProduct, linkedCoupons]);
 
   console.log(productData);
 
