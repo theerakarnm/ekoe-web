@@ -114,7 +114,10 @@ export function CheckoutSummary({
         ))}
       </div>
 
-      {/* Discount Code - REMOVED*/}
+      {/* Discount Code */}
+      <div className="mb-8 pb-8 border-b border-gray-200">
+        <DiscountCodeInput />
+      </div>
 
 
       {/* Shipping Method */}
