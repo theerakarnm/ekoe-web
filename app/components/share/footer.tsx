@@ -7,6 +7,8 @@ function Footer() {
   const { products, fetchProducts } = useMenuProductsStore();
   const [mounted, setMounted] = useState(false);
 
+  const currentYear = new Date().getFullYear();
+
   useEffect(() => {
     setMounted(true);
     // Fetch products from shared store (handles deduplication internally)
@@ -93,22 +95,22 @@ function Footer() {
 
             <div>
               <h4 className="font-medium mb-4 font-serif">FAQ</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors font-serif">Returns Policy</a></li>
-              </ul>
+              <h4 className="font-medium mb-4 font-serif">Returns Policy</h4>
             </div>
           </div>
 
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-end">
             <p className="text-sm text-gray-400 mb-4 md:mb-0">
-              © 2024 Ekoe. All rights reserved.
+              © {currentYear} Ekoe. All rights reserved.
             </p>
-            <div className="flex items-center space-x-4">
-
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Thai_QR_Logo.svg/1600px-Thai_QR_Logo.svg.png?20250310160238" alt="Thai QR" className="h-10" />
-              <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-10" />
-              <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-10" />
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/JCB_logo.svg/2560px-JCB_logo.svg.png" alt="JCB" className="h-10" />
+            <div className="space-x-4">
+              <h4 className="font-medium mb-4 font-serif">Payment</h4>
+              <div className="flex items-center space-x-4">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Thai_QR_Logo.svg/1600px-Thai_QR_Logo.svg.png?20250310160238" alt="Thai QR" className="h-10" />
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-10" />
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-10" />
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/JCB_logo.svg/2560px-JCB_logo.svg.png" alt="JCB" className="h-10" />
+              </div>
 
             </div>
           </div>
