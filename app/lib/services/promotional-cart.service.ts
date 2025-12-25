@@ -39,6 +39,8 @@ export interface CartPricing {
     amount: number;
   };
   freeGifts: FreeGift[];
+  promotionalDiscount?: number;
+  appliedPromotions?: AppliedPromotion[];
 }
 
 export interface PromotionalCartResult {

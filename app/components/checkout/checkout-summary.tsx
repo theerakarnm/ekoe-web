@@ -145,7 +145,20 @@ export function CheckoutSummary({
             )}
           </span>
         </div>
-
+        {/* Coupon discount (from discount code) */}
+        {promotionalResult?.pricing.discount?.amount && promotionalResult.pricing.discount.amount > 0 && (
+          <div className="flex justify-between text-sm text-green-600">
+            <span>Coupon ({promotionalResult.pricing.discount.code})</span>
+            <span className="font-medium">-{formatCurrencyFromCents(promotionalResult.pricing.discount.amount, { symbol: '฿' })}</span>
+          </div>
+        )}
+        {/* Promotional discount (from auto promotions) */}
+        {(promotionalResult?.pricing.promotionalDiscount || 0) > 0 && (
+          <div className="flex justify-between text-sm text-green-600">
+            <span>Discount</span>
+            <span className="font-medium">-{formatCurrencyFromCents(promotionalResult?.pricing.promotionalDiscount || 0, { symbol: '฿' })}</span>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-between items-center mb-8">
@@ -155,7 +168,12 @@ export function CheckoutSummary({
         </span>
       </div>
 
-      {/* Free Gifts - REMOVED */}
+      {/* Free Gifts */}
+      {allGifts.length > 0 && (
+        <div className="mb-8">
+          <FreeGiftDisplay gifts={allGifts} />
+        </div>
+      )}
 
     </div>
   );

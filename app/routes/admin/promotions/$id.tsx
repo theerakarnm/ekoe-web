@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
-import { 
-  ArrowLeft, 
-  Edit, 
-  BarChart3, 
-  Play, 
-  Pause, 
-  Square, 
+import {
+  ArrowLeft,
+  Edit,
+  BarChart3,
+  Play,
+  Pause,
+  Square,
   Copy,
   AlertTriangle,
   CheckCircle,
@@ -50,7 +50,7 @@ export default function PromotionDetail() {
 
   const loadPromotion = async () => {
     if (!id) return;
-    
+
     setIsLoading(true);
     try {
       const promotionData = await getPromotion(id);
@@ -65,7 +65,7 @@ export default function PromotionDetail() {
 
   const loadStats = async () => {
     if (!id) return;
-    
+
     try {
       const statsData = await getPromotionStats(id);
       setStats(statsData);
@@ -76,7 +76,7 @@ export default function PromotionDetail() {
 
   const loadConflicts = async () => {
     if (!id) return;
-    
+
     try {
       const conflictsData = await getPromotionConflicts(id);
       setConflicts(conflictsData);
@@ -87,7 +87,7 @@ export default function PromotionDetail() {
 
   const handleStatusChange = async (action: string) => {
     if (!id) return;
-    
+
     setActionLoading(action);
     try {
       switch (action) {
@@ -118,7 +118,7 @@ export default function PromotionDetail() {
 
   const handleDuplicate = async () => {
     if (!id) return;
-    
+
     setActionLoading('duplicate');
     try {
       const newPromotion = await duplicatePromotion(id);
@@ -296,7 +296,7 @@ export default function PromotionDetail() {
               Edit
             </Link>
           </Button>
-          
+
           {/* Status Actions */}
           {canActivate(promotion) && (
             <Button
@@ -354,7 +354,7 @@ export default function PromotionDetail() {
                   <p className="text-muted-foreground">{promotion.description}</p>
                 </div>
               )}
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h4 className="font-medium mb-2">Start Date</h4>
@@ -398,19 +398,48 @@ export default function PromotionDetail() {
                 <div className="space-y-6">
                   {/* Conditions */}
                   <div>
-                    <h4 className="font-medium mb-3">Conditions</h4>
-                    <div className="space-y-2">
+                    <h4 className="font-medium mb-3 flex items-center gap-2">
+                      <span className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs">📋</span>
+                      Conditions
+                    </h4>
+                    <div className="space-y-3">
                       {promotion.rules
                         .filter(rule => rule.ruleType === 'condition')
-                        .map((rule, index) => (
-                          <div key={index} className="p-3 border rounded-lg">
-                            <div className="flex items-center space-x-2 text-sm">
-                              <Badge variant="outline">{rule.conditionType}</Badge>
-                              <span>{rule.operator}</span>
-                              <span className="font-medium">{rule.numericValue}</span>
+                        .map((rule, index) => {
+                          const conditionLabels: Record<string, string> = {
+                            cart_value: 'ยอดรวมตะกร้า (บาท)',
+                            product_quantity: 'จำนวนสินค้า (ชิ้น)',
+                            specific_products: 'สินค้าเฉพาะ',
+                            category_products: 'หมวดหมู่สินค้า'
+                          };
+                          const operatorLabels: Record<string, string> = {
+                            gte: '≥',
+                            lte: '≤',
+                            eq: '=',
+                            in: 'อยู่ใน',
+                            not_in: 'ไม่อยู่ใน'
+                          };
+                          return (
+                            <div key={index} className="p-4 border rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                                    {conditionLabels[rule.conditionType || ''] || rule.conditionType}
+                                  </Badge>
+                                  <span className="text-lg font-semibold text-slate-600">
+                                    {operatorLabels[rule.operator || ''] || rule.operator}
+                                  </span>
+                                  <span className="text-lg font-bold text-slate-900">
+                                    {rule.numericValue?.toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
+                      {promotion.rules.filter(rule => rule.ruleType === 'condition').length === 0 && (
+                        <p className="text-sm text-muted-foreground italic">No conditions defined</p>
+                      )}
                     </div>
                   </div>
 
@@ -418,30 +447,107 @@ export default function PromotionDetail() {
 
                   {/* Benefits */}
                   <div>
-                    <h4 className="font-medium mb-3">Benefits</h4>
-                    <div className="space-y-2">
+                    <h4 className="font-medium mb-3 flex items-center gap-2">
+                      <span className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs">🎁</span>
+                      Benefits
+                    </h4>
+                    <div className="space-y-3">
                       {promotion.rules
                         .filter(rule => rule.ruleType === 'benefit')
-                        .map((rule, index) => (
-                          <div key={index} className="p-3 border rounded-lg">
-                            <div className="flex items-center space-x-2 text-sm">
-                              <Badge variant="outline">{rule.benefitType}</Badge>
-                              {rule.benefitValue && (
-                                <span className="font-medium">
-                                  {rule.benefitType === 'percentage_discount' 
-                                    ? `${rule.benefitValue}%` 
-                                    : formatCurrency(rule.benefitValue * 100)
-                                  }
-                                </span>
-                              )}
-                              {rule.maxDiscountAmount && (
-                                <span className="text-muted-foreground">
-                                  (max {formatCurrency(rule.maxDiscountAmount)})
-                                </span>
-                              )}
+                        .map((rule, index) => {
+                          const benefitLabels: Record<string, string> = {
+                            percentage_discount: 'ส่วนลดเปอร์เซ็นต์',
+                            fixed_discount: 'ส่วนลดจำนวนเงิน',
+                            free_gift: 'ของแถม'
+                          };
+                          const benefitColors: Record<string, string> = {
+                            percentage_discount: 'bg-purple-100 text-purple-800 border-purple-200',
+                            fixed_discount: 'bg-orange-100 text-orange-800 border-orange-200',
+                            free_gift: 'bg-pink-100 text-pink-800 border-pink-200'
+                          };
+
+                          return (
+                            <div key={index} className="p-4 border rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
+                              <div className="flex items-start gap-4">
+                                {/* Gift Image */}
+                                {rule.benefitType === 'free_gift' && rule.giftImageUrl && (
+                                  <div className="shrink-0">
+                                    <img
+                                      src={rule.giftImageUrl}
+                                      alt={rule.giftName || 'Gift'}
+                                      className="w-20 h-20 object-cover rounded-lg border shadow-sm"
+                                    />
+                                  </div>
+                                )}
+
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Badge className={benefitColors[rule.benefitType || ''] || 'bg-gray-100 text-gray-800'}>
+                                      {benefitLabels[rule.benefitType || ''] || rule.benefitType}
+                                    </Badge>
+                                  </div>
+
+                                  {/* Discount Benefits */}
+                                  {(rule.benefitType === 'percentage_discount' || rule.benefitType === 'fixed_discount') && (
+                                    <div className="space-y-1">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm text-muted-foreground">ส่วนลด:</span>
+                                        <span className="text-xl font-bold text-green-600">
+                                          {rule.benefitType === 'percentage_discount'
+                                            ? `${rule.benefitValue}%`
+                                            : `฿${rule.benefitValue?.toLocaleString()}`
+                                          }
+                                        </span>
+                                      </div>
+                                      {rule.maxDiscountAmount && (
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm text-muted-foreground">ลดสูงสุด:</span>
+                                          <span className="text-sm font-medium text-amber-600">
+                                            ฿{rule.maxDiscountAmount.toLocaleString()}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {/* Free Gift Benefits */}
+                                  {rule.benefitType === 'free_gift' && (
+                                    <div className="space-y-2">
+                                      {rule.giftName && (
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm text-muted-foreground">ชื่อของแถม:</span>
+                                          <span className="font-semibold text-slate-900">{rule.giftName}</span>
+                                        </div>
+                                      )}
+                                      {rule.giftQuantity && (
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm text-muted-foreground">จำนวน:</span>
+                                          <span className="font-medium">{rule.giftQuantity} ชิ้น</span>
+                                        </div>
+                                      )}
+                                      {rule.giftPrice !== undefined && rule.giftPrice !== null && (
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm text-muted-foreground">มูลค่า:</span>
+                                          <span className="font-medium text-green-600">
+                                            ฿{rule.giftPrice.toLocaleString()}
+                                          </span>
+                                        </div>
+                                      )}
+                                      {!rule.giftName && !rule.giftImageUrl && (
+                                        <p className="text-sm text-muted-foreground italic">
+                                          ไม่มีรายละเอียดของแถม
+                                        </p>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
+                      {promotion.rules.filter(rule => rule.ruleType === 'benefit').length === 0 && (
+                        <p className="text-sm text-muted-foreground italic">No benefits defined</p>
+                      )}
                     </div>
                   </div>
                 </div>
