@@ -19,6 +19,7 @@ export default [
     route("checkout", "routes/checkout.tsx"),
     route("about", "routes/about.tsx"),
     route("contact", "routes/contact.tsx"),
+    route("return-policy", "routes/return-policy.tsx"),
 
     // Payment routes
     route("payment/2c2p/return", "routes/payment/2c2p/return.tsx"),

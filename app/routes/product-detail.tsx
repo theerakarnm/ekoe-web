@@ -25,6 +25,7 @@ import { StickyImageScroll } from "~/components/product/sticky-image-scroll";
 
 import { getProduct, getLinkedCoupons, type Product } from "~/lib/services/product.service";
 import { formatCurrencyFromCents } from "~/lib/formatter";
+import { Link } from "react-router";
 
 export async function loader({ params }: Route.LoaderArgs) {
   try {
@@ -411,9 +412,12 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
 
       <main className={hasCTABackground ? "pb-16" : "pt-16 pb-16"}>
         <div className="container mx-auto px-4 md:px-6 max-w-7xl">
-          {/* Breadcrumb - simplified for now */}
+          {/* Breadcrumb */}
           <div className={`text-sm text-gray-500 mb-8 ${hasCTABackground ? 'mt-8' : ''}`}>
-            Home / Body / The Body Oil
+            <Link to="/" className=" hover:text-gray-900">Home</Link>
+            {' / '}
+            <Link to="/shop" className=" hover:text-gray-900">Shop</Link>
+            {apiProduct.category?.name ? ` / ${apiProduct.category.name}` : ''} / {productData.productName}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-24">

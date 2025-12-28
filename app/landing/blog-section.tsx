@@ -47,6 +47,9 @@ export default function BlogSection({ posts = [] }: BlogSectionProps) {
             <h3 className="text-lg font-serif font-semibold text-gray-900 group-hover:text-gray-600 transition-colors line-clamp-2">
               {post.title}
             </h3>
+            <p className="text-xs text-gray-500 mb-1 font-serif uppercase tracking-wider">
+              {post.subtitle}
+            </p>
             {post.excerpt && (
               <p className="text-sm text-gray-600 mt-2 line-clamp-3 font-serif">
                 {post.excerpt}

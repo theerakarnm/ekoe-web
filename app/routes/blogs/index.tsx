@@ -95,6 +95,9 @@ export default function BlogIndex() {
                   <h3 className="text-xl font-serif font-semibold text-gray-900 group-hover:text-gray-600 transition-colors mb-2">
                     {post.title}
                   </h3>
+                  <p className="text-xs text-gray-500 mb-1 font-serif uppercase tracking-wider">
+                    {post.subtitle}
+                  </p>
                   {post.excerpt && (
                     <p className="text-gray-600 line-clamp-3 font-serif mb-4">
                       {post.excerpt}

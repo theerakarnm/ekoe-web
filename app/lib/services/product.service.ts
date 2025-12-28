@@ -123,6 +123,12 @@ export interface Product {
     title: string;
     imageUrl?: string;
   }[];
+  // Category for breadcrumb
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+  };
 }
 
 /**

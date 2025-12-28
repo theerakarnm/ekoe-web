@@ -95,7 +95,9 @@ function Footer() {
 
             <div>
               <h4 className="font-medium mb-4 font-serif">FAQ</h4>
-              <h4 className="font-medium mb-4 font-serif">Returns Policy</h4>
+              <h4 className="font-medium mb-4 font-serif">
+                <a href="/return-policy" className="hover:text-white transition-colors">Returns Policy</a>
+              </h4>
             </div>
           </div>
 
