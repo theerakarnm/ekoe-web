@@ -68,6 +68,12 @@ export function LazyVideo({
     return () => observer.disconnect();
   }, [priority, rootMargin, threshold]);
 
+  // Reset state when src changes (important for navigation between product pages)
+  useEffect(() => {
+    setIsLoaded(false);
+    setHasStartedPlaying(false);
+  }, [src]);
+
   // Handle video loading and autoplay
   const handleLoadedData = useCallback(() => {
     setIsLoaded(true);

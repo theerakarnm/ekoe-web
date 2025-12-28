@@ -398,6 +398,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
       {/* CTA Hero Section - shown when background is configured */}
       {hasCTABackground && (
         <ProductHeroCTA
+          key={productData.productId}
           productName={productData.productName}
           rating={productData.rating || 0}
           reviewCount={productData.reviewCount}
