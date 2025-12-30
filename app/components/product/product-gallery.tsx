@@ -2,9 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { FullscreenLightbox } from "./fullscreen-lightbox";
 
 interface ProductGalleryProps {
-  images: { url: string; description: string; associatedSize?: string }[];
+  images: { url: string; description: string; associatedSize?: string; mediaType?: 'image' | 'video' }[];
   selectedImage: string;
-  onImageClick: (img: { url: string; description: string; associatedSize?: string }) => void;
+  selectedMediaType?: 'image' | 'video';
+  onImageClick: (img: { url: string; description: string; associatedSize?: string; mediaType?: 'image' | 'video' }) => void;
   badgeText?: string;
   enableZoom?: boolean;
   enableFullscreen?: boolean;
@@ -19,6 +20,7 @@ const ZOOM_FACTOR = 2.5;
 export function ProductGallery({
   images,
   selectedImage,
+  selectedMediaType = 'image',
   onImageClick,
   badgeText = "Best Seller",
   enableZoom = true,
@@ -119,15 +121,27 @@ export function ProductGallery({
             onMouseLeave={handleMouseLeave}
             onClick={openFullscreen}
           >
-            <img
-              src={selectedImage}
-              alt="Product Main"
-              className="w-full h-full object-cover"
-              draggable={false}
-            />
+            {selectedMediaType === 'video' ? (
+              <video
+                key={selectedImage}
+                src={selectedImage}
+                className="w-full h-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            ) : (
+              <img
+                src={selectedImage}
+                alt="Product Main"
+                className="w-full h-full object-cover"
+                draggable={false}
+              />
+            )}
 
-            {/* Zoom Lens Indicator - Desktop only */}
-            {isZooming && !isMobile && enableZoom && (
+            {/* Zoom Lens Indicator - Desktop only (disabled for video) */}
+            {isZooming && !isMobile && enableZoom && selectedMediaType !== 'video' && (
               <div
                 className="absolute pointer-events-none border-2 border-black/40 bg-white/20 backdrop-blur-[1px] transition-opacity duration-150"
                 style={{
@@ -181,16 +195,28 @@ export function ProductGallery({
             <button
               key={idx}
               onClick={() => handleThumbnailClick(img)}
-              className={`w-20 h-24 shrink-0 border-2 transition-all rounded ${selectedImage === img.url
-                  ? "border-black ring-2 ring-black"
-                  : "border-gray-200 hover:border-gray-400"
+              className={`w-20 h-24 shrink-0 border-2 transition-all rounded relative ${selectedImage === img.url
+                ? "border-black ring-2 ring-black"
+                : "border-gray-200 hover:border-gray-400"
                 }`}
             >
-              <img
-                src={img.url}
-                alt={img.description}
-                className="w-full h-full object-cover"
-              />
+              {img.mediaType === 'video' ? (
+                <>
+                  <video
+                    src={img.url}
+                    className="w-full h-full object-cover"
+                    muted
+                    playsInline
+                  />
+                  <div className="absolute bottom-1 right-1 bg-black/60 px-1 py-0.5 rounded text-[8px] text-white font-bold">VIDEO</div>
+                </>
+              ) : (
+                <img
+                  src={img.url}
+                  alt={img.description}
+                  className="w-full h-full object-cover"
+                />
+              )}
             </button>
           ))}
         </div>

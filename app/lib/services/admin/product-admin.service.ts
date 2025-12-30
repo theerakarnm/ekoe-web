@@ -90,6 +90,7 @@ export interface ProductImage {
   sortOrder: number;
   isPrimary: boolean;
   isSecondary: boolean;
+  mediaType?: 'image' | 'video';
   createdAt: string;
 }
 

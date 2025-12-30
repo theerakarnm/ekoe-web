@@ -55,7 +55,7 @@ export function ImageUploader({
     setIsDragging(false);
 
     const files = Array.from(e.dataTransfer.files).filter((file) =>
-      file.type.startsWith('image/')
+      file.type.startsWith('image/') || file.type.startsWith('video/')
     );
 
     if (files.length > 0) {
@@ -129,12 +129,12 @@ export function ImageUploader({
       >
         <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
         <p className="text-sm text-muted-foreground mb-2">
-          Drag and drop images here, or click to select files
+          Drag and drop images or videos here, or click to select files
         </p>
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/*,video/*"
           multiple
           onChange={handleFileSelect}
           className="hidden"
@@ -146,7 +146,7 @@ export function ImageUploader({
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading}
         >
-          {isUploading ? 'Uploading...' : 'Select Images'}
+          {isUploading ? 'Uploading...' : 'Select Media'}
         </Button>
       </div>
 
@@ -171,11 +171,25 @@ export function ImageUploader({
                 <div className="flex items-start gap-3">
                   <GripVertical className="h-5 w-5 text-muted-foreground mt-1 shrink-0" />
                   <div className="relative shrink-0">
-                    <img
-                      src={image.url}
-                      alt={image.altText || 'Product image'}
-                      className="w-24 h-24 object-cover rounded"
-                    />
+                    {image.mediaType === 'video' ? (
+                      <video
+                        src={image.url}
+                        className="w-24 h-24 object-cover rounded"
+                        muted
+                        playsInline
+                      />
+                    ) : (
+                      <img
+                        src={image.url}
+                        alt={image.altText || 'Product image'}
+                        className="w-24 h-24 object-cover rounded"
+                      />
+                    )}
+                    {image.mediaType === 'video' && (
+                      <div className="absolute -bottom-2 -right-2 bg-purple-500 rounded-full p-1" title="Video">
+                        <span className="text-white text-[8px] font-bold">MP4</span>
+                      </div>
+                    )}
                     {image.isPrimary && (
                       <div className="absolute -top-2 -right-2 bg-yellow-500 rounded-full p-1" title="Primary Image">
                         <Star className="h-4 w-4 text-white fill-white" />

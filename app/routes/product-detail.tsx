@@ -90,7 +90,8 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & {
   const galleryImages = apiProduct.images?.map(img => ({
     url: img.url,
     description: img.altText || img.description || apiProduct.name,
-    associatedSize: img.variantId ? apiProduct.variants?.find(v => v.id === img.variantId?.toString())?.value : undefined
+    associatedSize: img.variantId ? apiProduct.variants?.find(v => v.id === img.variantId?.toString())?.value : undefined,
+    mediaType: img.mediaType || 'image' as 'image' | 'video',
   })) || [];
 
   const sizes = apiProduct.variants?.map(v => ({
@@ -246,11 +247,15 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
 
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(productData.image.url);
+  const [selectedMediaType, setSelectedMediaType] = useState<'image' | 'video'>(
+    productData.galleryImages?.[0]?.mediaType || 'image'
+  );
 
   // Sync image when product changes
   useEffect(() => {
     setSelectedImage(productData.image.url);
-  }, [productData.image.url]);
+    setSelectedMediaType(productData.galleryImages?.[0]?.mediaType || 'image');
+  }, [productData.image.url, productData.galleryImages]);
 
   // Derived state
   const isOutOfStock = Object.values(selectedOptions).some(opt => opt.stockQuantity === 0);
@@ -316,11 +321,13 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
     );
     if (associatedImage) {
       setSelectedImage(associatedImage.url);
+      setSelectedMediaType(associatedImage.mediaType || 'image');
     }
   };
 
-  const handleImageClick = (img: { url: string; associatedSize?: string }) => {
+  const handleImageClick = (img: { url: string; associatedSize?: string; mediaType?: 'image' | 'video' }) => {
     setSelectedImage(img.url);
+    setSelectedMediaType(img.mediaType || 'image');
     if (img.associatedSize) {
       if (productData.groupedVariants) {
         for (const group of productData.groupedVariants) {
@@ -434,6 +441,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
             <ProductGallery
               images={productData.galleryImages || []}
               selectedImage={selectedImage}
+              selectedMediaType={selectedMediaType}
               onImageClick={handleImageClick}
               enableZoom={true}
               enableFullscreen={true}

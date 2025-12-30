@@ -12,7 +12,7 @@ export interface IProduct {
   priceTitle: string;
   quickCartPrice: number;
   // Detail page optional fields
-  galleryImages?: { description: string; url: string; associatedSize?: string }[];
+  galleryImages?: { description: string; url: string; associatedSize?: string; mediaType?: 'image' | 'video' }[];
   subtitle?: string;
   rating?: number;
   reviewCount?: number;
