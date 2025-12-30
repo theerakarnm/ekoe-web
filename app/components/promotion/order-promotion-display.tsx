@@ -1,10 +1,10 @@
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
-import { 
-  CheckCircle, 
-  Gift, 
-  Percent, 
+import {
+  CheckCircle,
+  Gift,
+  Percent,
   Sparkles,
   TrendingDown,
   Tag
@@ -16,7 +16,7 @@ interface OrderPromotionItem {
   promotionName: string;
   discountAmount: number;
   freeGifts: Array<{
-    productId: string;
+    productId?: string;
     variantId?: string;
     quantity: number;
     name: string;
@@ -72,7 +72,7 @@ export function OrderPromotionDisplay({
               Promotion{appliedPromotions.length > 1 ? 's' : ''}
             </div>
           </div>
-          
+
           <div className="text-center bg-white rounded-lg p-3 border border-green-100">
             <div className="text-lg font-bold text-green-600">
               ฿{(totalSavings / 100).toFixed(2)}
@@ -110,7 +110,7 @@ export function OrderPromotionDisplay({
         {/* Individual Promotions */}
         <div className="space-y-3">
           <h4 className="text-sm font-medium text-gray-700">Promotion Details:</h4>
-          
+
           {appliedPromotions.map((promotion) => (
             <div key={promotion.promotionId} className="bg-white rounded-lg p-4 border border-green-100">
               <div className="flex items-start justify-between mb-3">
@@ -148,12 +148,12 @@ export function OrderPromotionDisplay({
                       <span>Free Gifts Received:</span>
                     </div>
                     {promotion.freeGifts.map((gift, index) => (
-                      <div key={`${gift.productId}-${gift.variantId || 'default'}-${index}`} 
-                           className="ml-6 flex items-center justify-between text-sm">
+                      <div key={`${gift.productId}-${gift.variantId || 'default'}-${index}`}
+                        className="ml-6 flex items-center justify-between text-sm">
                         <div className="flex items-center gap-2">
                           {gift.imageUrl && (
-                            <img 
-                              src={gift.imageUrl} 
+                            <img
+                              src={gift.imageUrl}
                               alt={gift.name}
                               className="w-6 h-6 object-cover rounded"
                             />
@@ -201,7 +201,7 @@ export function OrderPromotionDisplay({
             )}
 
             <Separator className="bg-green-300" />
-            
+
             <div className="flex justify-between font-bold text-green-800">
               <span>Total Benefit:</span>
               <span className="text-lg">฿{(totalSavings / 100).toFixed(2)}</span>
