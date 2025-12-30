@@ -52,7 +52,7 @@ function Footer() {
               <img src="/ekoe-asset/Ekoe_Logo-01.png" alt="Ekoe Logo" className='-translate-x-10 invert' />
               {/* <h3 className="text-[6rem] -mb-6 font-serif">Ekoe</h3> */}
               <p className="text-sm text-gray-400 mb-4 font-serif">
-                For moments That Matter - Follow Us
+                For moments that matter | Join our journey, day by day
               </p>
               <div className="flex space-x-4">
                 <a href="https://www.instagram.com/ekoebeauty" target='_blank' className="w-6 h-6 invert">

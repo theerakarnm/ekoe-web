@@ -252,11 +252,11 @@ export default function ContactPage() {
                 </p>
                 <div className="flex flex-col sm:flex-row justify-center gap-6 text-sm">
                   <a
-                    href="mailto:support@ekoe.co.th"
+                    href="mailto:ekoecare@ekoe.co.th"
                     className="flex items-center justify-center gap-2 text-gray-700 hover:text-black transition-colors"
                   >
                     <Mail className="w-4 h-4" />
-                    support@ekoe.co.th
+                    ekoecare@ekoe.co.th
                   </a>
                 </div>
               </div>

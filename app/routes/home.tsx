@@ -6,7 +6,7 @@ import type { BlogPost } from "~/interface/blog.interface";
 
 export function meta({ }: Route.MetaArgs) {
   return [
-    { title: "Ekoe - Natural Skincare Products" },
+    { title: "Ekoe | Biological Beauty For Living Skin" },
     { name: "description", content: "Discover our collection of natural skincare products" },
   ];
 }

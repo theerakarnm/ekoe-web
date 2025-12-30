@@ -96,7 +96,7 @@ const faqItems: FAQItem[] = [
         <p className="text-gray-600 text-sm">*หากคุณไม่ทราบเลขที่คําสั่งซื้อ <a href="/contact" className="text-black underline hover:text-gray-600">คลิกที่นี่</a></p>
         <div className="bg-gray-50 p-4 rounded-lg mt-4">
           <p className="text-sm text-gray-700">
-            <strong>หมายเหตุ:</strong> หากท่านเลือกวิธีการชําระเงิน ผ่านเคาน์เตอร์ หรือโมบายแบงค์กิ้ง/การโอนเงิน หลังจากท่านดําเนินการชําระเงิน ระบบจะเปลี่ยนสถานะการสั่งซื้อของท่าน ภายใน 1 ชั่วโมง หากท่านมีข้อสงสัย สามารถติดต่อสอบถามเพื่อการบริการลูกค้าผ่านทาง Line official: xxx หรืออีเมลถึงเราที่ <a href="mailto:ekoecare@ekoe.co.th" className="text-black underline">ekoecare@ekoe.co.th</a>
+            <strong>หมายเหตุ:</strong> หากท่านเลือกวิธีการชําระเงิน ผ่านเคาน์เตอร์ หรือโมบายแบงค์กิ้ง/การโอนเงิน หลังจากท่านดําเนินการชําระเงิน ระบบจะเปลี่ยนสถานะการสั่งซื้อของท่าน ภายใน 1 ชั่วโมง หากท่านมีข้อสงสัย สามารถติดต่อสอบถามเพื่อการบริการลูกค้าผ่านทาง Line official: @ekoe หรืออีเมลถึงเราที่ <a href="mailto:ekoecare@ekoe.co.th" className="text-black underline">ekoecare@ekoe.co.th</a>
           </p>
         </div>
       </div>
