@@ -129,6 +129,7 @@ export default function BlogIndexPage() {
           onSort={handleSort}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onRefresh={() => revalidator.revalidate()}
           currentSearch={searchParams.get('search') || ''}
           currentStatus={searchParams.get('status') || 'all'}
           currentSortBy={searchParams.get('sortBy') || ''}

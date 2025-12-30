@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Search, ArrowUpDown, ArrowUp, ArrowDown, Edit, Trash2, Eye } from 'lucide-react';
+import { Search, ArrowUpDown, ArrowUp, ArrowDown, Edit, Trash2, Eye, GripVertical } from 'lucide-react';
 import type { BlogPost } from '~/lib/services/admin/blog-admin.service';
+import { updateBlogSequence, updateBlogSequences } from '~/lib/services/admin/blog-admin.service';
 import {
   Table,
   TableBody,
@@ -50,6 +51,7 @@ interface BlogTableProps {
   onSort: (sortBy: string, sortOrder: 'asc' | 'desc') => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => Promise<void>;
+  onRefresh?: () => void;
   currentSearch: string;
   currentStatus: string;
   currentSortBy: string;
@@ -67,6 +69,7 @@ export function BlogTable({
   onSort,
   onEdit,
   onDelete,
+  onRefresh,
   currentSearch,
   currentStatus,
   currentSortBy,
@@ -76,6 +79,14 @@ export function BlogTable({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<BlogPost | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Sequence editing state
+  const [editingSequence, setEditingSequence] = useState<{ id: string; value: number } | null>(null);
+  const [isSavingSequence, setIsSavingSequence] = useState(false);
+
+  // Drag and drop state
+  const [draggedPostId, setDraggedPostId] = useState<string | null>(null);
+  const [dragOverPostId, setDragOverPostId] = useState<string | null>(null);
 
   // Debounce search
   useEffect(() => {
@@ -157,6 +168,98 @@ export function BlogTable({
         setIsDeleting(false);
       }
     }
+  };
+
+  // Handle sequence input change
+  const handleSequenceChange = (postId: string, value: string) => {
+    const numValue = parseInt(value, 10);
+    if (!isNaN(numValue) && numValue >= 0) {
+      setEditingSequence({ id: postId, value: numValue });
+    }
+  };
+
+  // Save sequence on blur
+  const handleSequenceSave = async (post: BlogPost) => {
+    if (!editingSequence || editingSequence.id !== post.id) return;
+    if (editingSequence.value === post.sortOrder) {
+      setEditingSequence(null);
+      return;
+    }
+
+    setIsSavingSequence(true);
+    try {
+      await updateBlogSequence(post.id, editingSequence.value);
+      onRefresh?.();
+    } catch (error) {
+      console.error('Failed to update sequence:', error);
+    } finally {
+      setIsSavingSequence(false);
+      setEditingSequence(null);
+    }
+  };
+
+  // Drag and drop handlers
+  const handleDragStart = (e: React.DragEvent, postId: string) => {
+    setDraggedPostId(postId);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', postId);
+  };
+
+  const handleDragOver = (e: React.DragEvent, postId: string) => {
+    e.preventDefault();
+    if (draggedPostId && draggedPostId !== postId) {
+      setDragOverPostId(postId);
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragOverPostId(null);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetPostId: string) => {
+    e.preventDefault();
+    setDragOverPostId(null);
+
+    if (!draggedPostId || draggedPostId === targetPostId) {
+      setDraggedPostId(null);
+      return;
+    }
+
+    // Find the indices
+    const draggedIndex = posts.findIndex(p => p.id === draggedPostId);
+    const targetIndex = posts.findIndex(p => p.id === targetPostId);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedPostId(null);
+      return;
+    }
+
+    // Calculate new sort orders for affected posts
+    const updates: { blogId: string; sortOrder: number }[] = [];
+    const reorderedPosts = [...posts];
+    const [draggedPost] = reorderedPosts.splice(draggedIndex, 1);
+    reorderedPosts.splice(targetIndex, 0, draggedPost);
+
+    // Assign new sort orders based on position
+    reorderedPosts.forEach((post, index) => {
+      updates.push({ blogId: post.id, sortOrder: index });
+    });
+
+    setIsSavingSequence(true);
+    try {
+      await updateBlogSequences(updates);
+      onRefresh?.();
+    } catch (error) {
+      console.error('Failed to update sequences:', error);
+    } finally {
+      setIsSavingSequence(false);
+      setDraggedPostId(null);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggedPostId(null);
+    setDragOverPostId(null);
   };
 
   const renderPaginationItems = () => {
@@ -275,6 +378,17 @@ export function BlogTable({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[40px]"></TableHead>
+              <TableHead className="w-[70px]">
+                <button
+                  onClick={() => handleSortClick('sortOrder')}
+                  className="flex items-center hover:text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+                  aria-label="Sort by sequence"
+                >
+                  Seq
+                  {getSortIcon('sortOrder')}
+                </button>
+              </TableHead>
               <TableHead>
                 <button
                   onClick={() => handleSortClick('title')}
@@ -313,7 +427,7 @@ export function BlogTable({
           <TableBody>
             {posts?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={8} className="h-24 text-center">
                   <div className="flex flex-col items-center justify-center text-muted-foreground">
                     <p className="text-sm">No blog posts found</p>
                     <p className="text-xs mt-1">
@@ -324,7 +438,41 @@ export function BlogTable({
               </TableRow>
             ) : (
               posts?.map((post) => (
-                <TableRow key={post.id}>
+                <TableRow
+                  key={post.id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, post.id)}
+                  onDragOver={(e) => handleDragOver(e, post.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, post.id)}
+                  onDragEnd={handleDragEnd}
+                  className={`
+                    ${draggedPostId === post.id ? 'opacity-50' : ''}
+                    ${dragOverPostId === post.id ? 'bg-accent' : ''}
+                    cursor-move
+                  `}
+                >
+                  <TableCell className="w-[40px]">
+                    <GripVertical className="size-4 text-muted-foreground" />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={editingSequence?.id === post.id ? editingSequence.value : (post.sortOrder ?? 0)}
+                      onChange={(e) => handleSequenceChange(post.id, e.target.value)}
+                      onFocus={() => setEditingSequence({ id: post.id, value: post.sortOrder ?? 0 })}
+                      onBlur={() => handleSequenceSave(post)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          (e.target as HTMLInputElement).blur();
+                        }
+                      }}
+                      className="w-16 h-8 text-center"
+                      disabled={isSavingSequence}
+                      aria-label={`Sequence for ${post.title}`}
+                    />
+                  </TableCell>
                   <TableCell>
                     <div className="flex flex-col max-w-md">
                       <span className="font-medium truncate">{post.title}</span>

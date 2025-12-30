@@ -82,6 +82,8 @@ export interface BlogPost {
   metaTitle?: string;
   metaDescription?: string;
   status: 'draft' | 'published' | 'archived';
+  viewCount?: number;
+  sortOrder?: number;
   publishedAt?: string;
   createdAt: string;
   updatedAt: string;

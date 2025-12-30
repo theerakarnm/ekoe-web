@@ -28,6 +28,7 @@ export interface BlogPost {
   metaDescription?: string;
   status: 'draft' | 'published' | 'archived';
   viewCount: number;
+  sortOrder: number;
   createdAt: string;
   updatedAt: string;
   publishedAt?: string;
@@ -134,6 +135,49 @@ export async function updateBlogPost(
 export async function deleteBlogPost(id: string, headers?: HeadersInit): Promise<void> {
   try {
     await apiClient.delete(`/api/admin/blog/${id}`, getAxiosConfig(headers));
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
+// ============================================================================
+// Sequence/Sort Order Functions
+// ============================================================================
+
+/**
+ * Update a single blog post's sort order/sequence
+ */
+export async function updateBlogSequence(
+  blogId: string,
+  sortOrder: number,
+  headers?: HeadersInit
+): Promise<BlogPost> {
+  try {
+    const response = await apiClient.patch<SuccessResponseWrapper<BlogPost>>(
+      `/api/admin/blog/${blogId}/sequence`,
+      { sortOrder },
+      getAxiosConfig(headers)
+    );
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
+/**
+ * Bulk update blog sequences (for drag-and-drop reordering)
+ */
+export async function updateBlogSequences(
+  updates: { blogId: string; sortOrder: number }[],
+  headers?: HeadersInit
+): Promise<{ updated: number }> {
+  try {
+    const response = await apiClient.patch<SuccessResponseWrapper<{ updated: number }>>(
+      '/api/admin/blog/sequences',
+      { updates },
+      getAxiosConfig(headers)
+    );
+    return response.data.data;
   } catch (error) {
     throw handleApiError(error);
   }
