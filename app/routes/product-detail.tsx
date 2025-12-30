@@ -279,10 +279,18 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
     const selectedInfos = Object.values(selectedOptions).sort((a, b) => a.variantType.localeCompare(b.variantType));
     const variantName = selectedInfos.map(s => `${s.variantType}: ${s.label}`).join(', ');
 
+    // Build composite variantId from all selected options (sorted for consistency)
+    const variantId = selectedInfos.map(s => s.variantId).join('-') || undefined;
+
+    // Use the currently selected image (which updates when variant changes)
+    // This ensures the cart shows the correct product image for the selected variant
+    const cartImage = selectedImage || productData.image.url;
+
     addItem({
       productId: String(productData.productId),
+      variantId: variantId,
       productName: productData.productName,
-      image: productData.image.url,
+      image: cartImage,
       price: currentPrice,
       quantity: quantity,
       variantName: variantName || undefined,

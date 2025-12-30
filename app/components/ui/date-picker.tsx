@@ -170,12 +170,16 @@ interface DateTimePickerProps {
   date?: Date | undefined
   onDateChange?: (date: Date | undefined) => void
   disabled?: boolean
+  fromYear?: number
+  toYear?: number
 }
 
 export function DateTimePicker({
   date: controlledDate,
   onDateChange,
-  disabled = false
+  disabled = false,
+  fromYear = new Date().getFullYear(),
+  toYear = new Date().getFullYear() + 10,
 }: DateTimePickerProps = {}) {
   const [open, setOpen] = React.useState(false)
   const [internalDate, setInternalDate] = React.useState<Date | undefined>(undefined)
@@ -246,6 +250,8 @@ export function DateTimePicker({
               captionLayout="dropdown"
               onSelect={handleDateSelect}
               disabled={disabled}
+              startMonth={new Date(fromYear, 0)}
+              endMonth={new Date(toYear, 11)}
             />
           </PopoverContent>
         </Popover>

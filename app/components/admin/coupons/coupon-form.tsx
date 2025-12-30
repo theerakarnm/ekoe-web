@@ -545,7 +545,7 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-2">
+          <div className="space-y-2 relative">
             <Label>Search & Add Products</Label>
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -560,7 +560,7 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
 
             {/* Search Results */}
             {searchResults.length > 0 && (
-              <div className="border rounded-md shadow-md bg-popover max-h-[200px] overflow-y-auto mt-2 absolute z-10 w-full bg-white">
+              <div className="border rounded-md shadow-md bg-popover max-h-[200px] overflow-y-auto mt-2 absolute z-10 w-full">
                 {searchResults.map((product) => (
                   <div
                     key={product.id}
