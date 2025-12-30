@@ -43,7 +43,7 @@ const slides = [
     description: "สัมผัสประสบการณ์การดูแลผิวที่เหนือระดับ ด้วยส่วนผสมที่คัดสรรมาจากธรรมชาติ",
     media: {
       type: 'image',
-      url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2000&auto=format&fit=crop'
+      url: '/ekoe-asset/branding-img2.png'
     }
   }
 ];
@@ -374,7 +374,7 @@ function HeroSection() {
                         {products.map((product) => (
                           <Link
                             key={product.id}
-                            to={`/products/${product.slug}`}
+                            to={`/products/${product.id}`}
                             className="text-gray-300 text-base py-1 truncate"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >

@@ -60,12 +60,16 @@ export default function Cart() {
   const [recommendedProducts, setRecommendedProducts] = useState<RecommendedProductType[]>([]);
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(true);
 
+  // Get product IDs that are already in cart
+  const cartProductIds = items.map(item => item.productId);
+
   // Fetch recommended products from API
   useEffect(() => {
     async function fetchRecommendedProducts() {
       try {
         setIsLoadingRecommendations(true);
-        const products = await getBestSellers(4);
+        // Fetch more products to account for filtering out cart items
+        const products = await getBestSellers(8);
         const transformed = products.map(transformToRecommendedProduct);
         setRecommendedProducts(transformed);
       } catch (error) {
@@ -77,6 +81,11 @@ export default function Cart() {
 
     fetchRecommendedProducts();
   }, []);
+
+  // Filter out products that are already in cart and limit to 4
+  const filteredRecommendedProducts = recommendedProducts
+    .filter(product => !cartProductIds.includes(String(product.id)))
+    .slice(0, 4);
 
   // Validate cart and evaluate promotions when items change
   useEffect(() => {
@@ -231,8 +240,8 @@ export default function Cart() {
                         <Skeleton className="h-8 w-16" />
                       </div>
                     ))
-                  ) : recommendedProducts.length > 0 ? (
-                    recommendedProducts.map((product) => (
+                  ) : filteredRecommendedProducts.length > 0 ? (
+                    filteredRecommendedProducts.map((product) => (
                       <RecommendedProduct key={product.id} product={product} />
                     ))
                   ) : null}

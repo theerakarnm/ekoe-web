@@ -771,9 +771,9 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
           )}
 
           {/* Sticky Image Scroll Section */}
-          {productData.scrollingExperience && productData.scrollingExperience.length > 0 && (
+          {/* {productData.scrollingExperience && productData.scrollingExperience.length > 0 && (
             <StickyImageScroll blocks={productData.scrollingExperience} />
-          )}
+          )} */}
 
           {/* Conditional Section: Real User Reviews (single) OR This Set Includes (set) */}
           {productData.productType === 'set' && productData.setItems && productData.setItems.length > 0 ? (

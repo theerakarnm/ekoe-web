@@ -318,7 +318,7 @@ export default function Header({
                           {products.map((product) => (
                             <Link
                               key={product.id}
-                              to={`/products/${product.slug}`}
+                              to={`/products/${product.id}`}
                               className="text-gray-600 text-sm py-1 truncate"
                               onClick={() => setIsMobileMenuOpen(false)}
                             >

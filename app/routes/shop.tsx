@@ -34,8 +34,10 @@ function mapProductToIProduct(product: Product): IProduct {
 
   // Calculate price range from variants or use base price
   let priceTitle: string;
+  let quickCartPrice: number;
+
   if (variants.length > 0) {
-    const prices = variants.map(v => (v.compareAtPrice || 0));
+    const prices = variants.map(v => v.price);
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
 
@@ -44,8 +46,11 @@ function mapProductToIProduct(product: Product): IProduct {
     } else {
       priceTitle = `${formatCurrencyFromCents(minPrice)} - ${formatCurrencyFromCents(maxPrice)}`;
     }
+    // Use the minimum variant price for quick cart
+    quickCartPrice = minPrice;
   } else {
     priceTitle = formatCurrencyFromCents(product.basePrice);
+    quickCartPrice = product.basePrice;
   }
 
   // Map variants to sizes
@@ -67,7 +72,7 @@ function mapProductToIProduct(product: Product): IProduct {
     } : undefined,
     productName: product.name,
     priceTitle: priceTitle,
-    quickCartPrice: product.basePrice,
+    quickCartPrice: quickCartPrice,
     sizes,
     subtitle: product.subtitle ?? undefined,
     rating: parseFloat(product.rating || '0') || 0,
@@ -263,7 +268,7 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
         {/* Hero Section */}
         <section className="relative h-[400px] sm:h-[500px] w-full overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=2000&auto=format&fit=crop"
+            src="/ekoe-asset/shop-all.png"
             alt="Spa Collection"
             className="w-full h-full object-cover"
           />

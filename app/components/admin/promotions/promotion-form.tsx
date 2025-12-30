@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { CalendarIcon, Plus, Trash2, Gift, Layers } from 'lucide-react';
+import { CalendarIcon, Plus, Trash2, Gift, Layers, AlertTriangle } from 'lucide-react';
 import { SingleImageUploader } from '~/components/admin/products/single-image-uploader';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
@@ -221,16 +221,37 @@ export function PromotionForm({ promotion, onSuccess, onCancel }: PromotionFormP
   const handleSubmit = async (data: PromotionFormData) => {
     setIsLoading(true);
     try {
-      const promotionData: CreatePromotionDto = {
-        ...data,
-        startsAt: data.startsAt.toISOString(),
-        endsAt: data.endsAt.toISOString(),
-      };
-
       let result;
       if (promotion) {
-        result = await updatePromotion(promotion.id, promotionData);
+        // When updating, exclude restricted fields if promotion is active
+        // to prevent 400 error from backend validation
+        const isActive = promotion.status === 'active';
+
+        // Build update data, excluding restricted fields for active promotions
+        const updateData: Partial<CreatePromotionDto> = {
+          name: data.name,
+          description: data.description,
+          priority: data.priority,
+          endsAt: data.endsAt.toISOString(),
+          usageLimit: data.usageLimit,
+          usageLimitPerCustomer: data.usageLimitPerCustomer,
+          exclusiveWith: data.exclusiveWith,
+        };
+
+        // Only include type and startsAt if promotion is NOT active
+        if (!isActive) {
+          updateData.type = data.type;
+          updateData.startsAt = data.startsAt.toISOString();
+        }
+
+        result = await updatePromotion(promotion.id, updateData);
       } else {
+        // For new promotion, include all fields
+        const promotionData: CreatePromotionDto = {
+          ...data,
+          startsAt: data.startsAt.toISOString(),
+          endsAt: data.endsAt.toISOString(),
+        };
         result = await createPromotion(promotionData);
       }
 
@@ -248,6 +269,7 @@ export function PromotionForm({ promotion, onSuccess, onCancel }: PromotionFormP
       setIsLoading(false);
     }
   };
+
 
   const addTier = () => {
     const newTier: PromotionTier = {
@@ -315,6 +337,16 @@ export function PromotionForm({ promotion, onSuccess, onCancel }: PromotionFormP
 
           {/* Information Tab */}
           <TabsContent value="information" className="space-y-6 mt-6">
+            {/* Warning for active promotions */}
+            {promotion?.status === 'active' && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+                <div className="text-sm text-amber-800">
+                  <p className="font-medium">โปรโมชั่นนี้กำลังใช้งานอยู่</p>
+                  <p className="mt-1">ไม่สามารถแก้ไข "ประเภทโปรโมชั่น" และ "วันที่เริ่มต้น" ได้ หากต้องการแก้ไข กรุณาหยุดโปรโมชั่น (Pause) ก่อน</p>
+                </div>
+              </div>
+            )}
             <div className="grid gap-6">
               <div className="grid grid-cols-2 gap-4">
                 <FormField
@@ -337,9 +369,13 @@ export function PromotionForm({ promotion, onSuccess, onCancel }: PromotionFormP
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>ประเภทโปรโมชั่น</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        disabled={promotion?.status === 'active'}
+                      >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className={promotion?.status === 'active' ? 'opacity-60' : ''}>
                             <SelectValue placeholder="เลือกประเภท" />
                           </SelectTrigger>
                         </FormControl>
@@ -349,6 +385,11 @@ export function PromotionForm({ promotion, onSuccess, onCancel }: PromotionFormP
                           <SelectItem value="free_gift">ของแถม</SelectItem>
                         </SelectContent>
                       </Select>
+                      {promotion?.status === 'active' && (
+                        <FormDescription className="text-amber-600">
+                          ไม่สามารถแก้ไขได้ขณะใช้งาน
+                        </FormDescription>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -383,37 +424,56 @@ export function PromotionForm({ promotion, onSuccess, onCancel }: PromotionFormP
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>วันที่เริ่มต้น</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                formatDate(field.value)
-                              ) : (
-                                <span>เลือกวันที่</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date < new Date(new Date().setHours(0, 0, 0, 0))
-                            }
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      {promotion?.status === 'active' ? (
+                        // Show disabled button for active promotions
+                        <>
+                          <Button
+                            variant="outline"
+                            disabled
+                            className={cn(
+                              "w-full pl-3 text-left font-normal opacity-60",
+                            )}
+                          >
+                            {field.value ? formatDate(field.value) : <span>เลือกวันที่</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                          <FormDescription className="text-amber-600">
+                            ไม่สามารถแก้ไขได้ขณะใช้งาน
+                          </FormDescription>
+                        </>
+                      ) : (
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  formatDate(field.value)
+                                ) : (
+                                  <span>เลือกวันที่</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date < new Date(new Date().setHours(0, 0, 0, 0))
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
