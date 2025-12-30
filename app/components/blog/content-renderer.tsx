@@ -28,7 +28,7 @@ function BlockRenderer({ block }: { block: ContentBlock }) {
       return (
         <div
           id={id}
-          className="prose prose-stone max-w-none dark:prose-invert font-thai!"
+          className="prose prose-stone max-w-none dark:prose-invert font-thai! [&_a]:text-blue-600 [&_a]:underline [&_a]:hover:text-blue-800"
           dangerouslySetInnerHTML={{ __html: block.content }}
         />
       );

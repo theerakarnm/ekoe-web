@@ -1,6 +1,16 @@
-import { useRef, useEffect, useCallback } from 'react';
-import { Bold, Italic, List, ListOrdered } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { Bold, Italic, Underline, List, ListOrdered, Link as LinkIcon } from 'lucide-react';
 import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/ui/dialog';
 import { cn } from '~/lib/utils';
 
 interface TextBlockProps {
@@ -11,6 +21,12 @@ interface TextBlockProps {
 export function TextBlock({ value, onChange }: TextBlockProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const isInitializedRef = useRef(false);
+
+  // Link dialog state
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkText, setLinkText] = useState('');
+  const savedSelectionRef = useRef<Range | null>(null);
 
   // Only set initial value once on mount
   useEffect(() => {
@@ -43,6 +59,53 @@ export function TextBlock({ value, onChange }: TextBlockProps) {
     handleInput();
   }, [handleInput]);
 
+  const handleOpenLinkDialog = () => {
+    // Save current selection before opening dialog
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      savedSelectionRef.current = selection.getRangeAt(0).cloneRange();
+      if (selection.toString().trim()) {
+        setLinkText(selection.toString());
+      } else {
+        setLinkText('');
+      }
+    } else {
+      savedSelectionRef.current = null;
+      setLinkText('');
+    }
+    setLinkUrl('');
+    setLinkDialogOpen(true);
+  };
+
+  const handleLinkInsert = () => {
+    if (linkUrl && editorRef.current) {
+      // Focus back on the editor
+      editorRef.current.focus();
+
+      // Restore the saved selection
+      if (savedSelectionRef.current) {
+        const selection = window.getSelection();
+        if (selection) {
+          selection.removeAllRanges();
+          selection.addRange(savedSelectionRef.current);
+        }
+      }
+
+      // Insert the link HTML
+      const html = `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: underline;">${linkText || linkUrl}</a>`;
+      document.execCommand('insertHTML', false, html);
+
+      // Update the value
+      onChange(editorRef.current.innerHTML);
+
+      // Clear state
+      setLinkUrl('');
+      setLinkText('');
+      savedSelectionRef.current = null;
+      setLinkDialogOpen(false);
+    }
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
@@ -69,6 +132,15 @@ export function TextBlock({ value, onChange }: TextBlockProps) {
         >
           <Italic className="size-3" />
         </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => execCommand('underline')}
+          title="Underline"
+        >
+          <Underline className="size-3" />
+        </Button>
         <div className="w-px h-4 bg-border mx-1" />
         <Button
           type="button"
@@ -88,7 +160,61 @@ export function TextBlock({ value, onChange }: TextBlockProps) {
         >
           <ListOrdered className="size-3" />
         </Button>
+        <div className="w-px h-4 bg-border mx-1" />
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          onClick={handleOpenLinkDialog}
+          title="Insert Link"
+        >
+          <LinkIcon className="size-3" />
+        </Button>
       </div>
+
+      {/* Link Dialog */}
+      <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Insert Link</DialogTitle>
+            <DialogDescription>
+              Add a hyperlink to your content
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="link-text">Link Text</Label>
+              <Input
+                id="link-text"
+                value={linkText}
+                onChange={(e) => setLinkText(e.target.value)}
+                placeholder="Click here"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="link-url">URL</Label>
+              <Input
+                id="link-url"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="https://example.com"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setLinkDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="button" onClick={handleLinkInsert} disabled={!linkUrl}>
+              Insert Link
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Editable Content */}
       <div
