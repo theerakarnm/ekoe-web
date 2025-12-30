@@ -4,8 +4,8 @@ import { Footer } from "~/components/share/footer";
 
 export function meta({ }: Route.MetaArgs) {
   return [
-    { title: "Return & Refund Policy - Ekoe" },
-    { name: "description", content: "Return & Refund Policy for Ekoe products." },
+    { title: "นโยบายการคืนและเปลี่ยนสินค้า - Ekoe" },
+    { name: "description", content: "นโยบายการคืนและเปลี่ยนสินค้าสำหรับ ekoe.co.th" },
   ];
 }
 
@@ -31,126 +31,68 @@ export default function ReturnPolicy() {
         {/* Content Section */}
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
           <h1 className="text-3xl sm:text-4xl font-serif text-gray-900 mb-2 text-center">
-            Return & Refund Policy
+            การคืนและเปลี่ยนสินค้า
           </h1>
-          <p className="text-gray-500 text-center mb-12 font-serif">
-            Last Updated: {currentDate}
+          <p className="text-gray-500 text-center mb-8 font-serif">
+            ekoe.co.th
           </p>
+
+          <div className="text-center mb-12">
+            <p className="text-xl font-medium text-gray-900 mb-2">คืนง่าย เปลี่ยนสะดวก จริงใจทุกขั้นตอน</p>
+            <p className="text-gray-600 italic">เราพร้อมรับผิดชอบ หากสินค้าไม่เป็นไปตามที่คุณหวัง</p>
+          </div>
 
           <div className="space-y-8 font-thai text-gray-700 leading-relaxed font-light">
             <section>
               <p className="mb-4">
-                At Ekoe, we believe in the quality of our formulations and want you to feel confident in your skincare journey. However, we understand that sometimes a product may not be the right fit, or things may happen during shipping.
+                เราหวังเป็นอย่างยิ่งว่าท่านจะได้รับความพึงพอใจในทุกการสั่งซื้อของท่าน อย่างไรก็ตามหากท่านต้องการความช่วยเหลือเพิ่มเติม สามารถติดต่อได้ที่ Line official: <a href="https://line.me/ti/p/@ekoe" className="text-black underline">@ekoe</a> เวลาทําการวันจันทร์-ศุกร์ เวลา 9.00‐18.00 น.ยกเว้นวันหยุดทําการของบริษัท หรืออีเมลถึงเราที่ <a href="mailto:ekoecare@ekoe.co.th" className="text-black underline">ekoecare@ekoe.co.th</a>
               </p>
               <p>
-                Below is our policy on returns, refunds, and exchanges.
+                โปรดทราบเงื่อนไขการคืนหรือเปลี่ยนสินค้าจะเป็นไปตามข้อกําหนด และเงื่อนไขของแต่ละช่องทางที่แตกต่างกัน อย่างไรก็ตาม หากท่านไม่ได้รับความพึงพอใจกับผลิตภัณฑ์ที่ซื้อจาก ekoe.co.th ท่านสามารถขอคืนสินค้าพร้อมด้วยหลักฐานการสั่งซื้อได้ภายใน 14 วันนับจากวันที่การจัดส่งสินค้าสําเร็จ ภายใต้ข้อกําหนดและเงื่อนไขดังต่อไปนี้
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-medium text-gray-900 mb-4 font-serif">1. Return Window</h2>
-              <p>
-                You have 30 days from the date of delivery to request a return. If 30 days have gone by since your purchase arrived, unfortunately, we cannot offer you a refund or exchange.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-medium text-gray-900 mb-4 font-serif">2. Eligibility for Returns</h2>
-              <p className="mb-2">
-                To ensure the safety and hygiene of our customers, our return eligibility depends on the condition of the product:
-              </p>
-              <ul className="list-disc pl-5 space-y-2">
+              <h2 className="text-xl font-medium text-gray-900 mb-4 font-serif">ข้อกําหนดและเงื่อนไขการคืนสินค้าจาก ekoe.co.th</h2>
+              <ol className="list-decimal pl-5 space-y-4">
                 <li>
-                  <strong className="font-medium text-gray-900">Unopened & Unused:</strong> Items that are in their original packaging, with the safety seal intact, are eligible for a full refund minus shipping costs.
+                  บริษัทฯ สงวนสิทธิในการรับคืนสินค้าเฉพาะสินค้าที่อยู่ในสภาพสมบูรณ์ ไม่ผ่านการใช้งาน และต้องอยู่ในบรรจุภัณฑ์เดิมของผลิตภัณฑ์
                 </li>
                 <li>
-                  <strong className="font-medium text-gray-900">Opened or Gently Used (Satisfaction Guarantee):</strong> If you have used the product and are not satisfied with the results, we accept returns on items that are at least 50% full. <span className="italic">Note: This is issued as Store Credit only.</span>
+                  กรณีคําสั่งซื้อภายใต้รายการส่งเสริมการขายที่มีข้อเสนอพิเศษ ของแถม หรือของสมนาคุณใด ๆ เช่น สินค้าตัวอย่างทดลองใช้ ชุดของขวัญ หรือส่วนลด ลูกค้ารับทราบว่าของแถมหรือของสมนาคุณดังกล่าวเป็นการให้ฟรีตามเงื่อนไขในข้อเสนอของรายการส่งเสริมการขายและเป็นการสั่งซื้อที่สมบูรณ์แล้ว
+                  <br /><br />
+                  หากมีการยกเลิกหรือขอคืนสินค้าจากรายการสั่งซื้อดังกล่าว ลูกค้าจะต้องคืนสินค้าที่ซื้อรวมทั้งรายการซึ่งรวมถึงของแถมหรือของสมนาคุณที่ไม่เสียค่าใช้จ่ายทั้งหมด
+                  <br /><br />
+                  สําหรับการสั่งซื้อที่มีการขอยกเลิกและการขอคืนเงินบางส่วน ลูกค้าจําเป็นต้องคืนสินค้าที่ได้สั่งซื้อ รวมถึงรายการของแถมหรือของสมนาคุณที่ไม่เสียค่าใช้จ่าย หากยอดซื้อสุดท้ายตํ่ากว่าเกณฑ์ที่จะได้รับของแถมหรือของสมนาคุณตามข้อเสนอ
                 </li>
                 <li>
-                  <strong className="font-medium text-gray-900">Sale Items:</strong> Only regular-priced items may be refunded. Sale items, bundles, and gift cards are final sale.
-                </li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-medium text-gray-900 mb-4 font-serif">3. Damages and Issues</h2>
-              <p className="mb-4">
-                Please inspect your order immediately upon receipt. If the item is defective, damaged, or if you received the wrong item, please contact us within 48 hours of delivery so that we can evaluate the issue and make it right.
-              </p>
-              <p className="mb-4">
-                Please provide a photo of the damaged product and the shipping box.
-              </p>
-              <p className="font-medium text-gray-900">
-                We will send a replacement immediately at no cost to you.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-medium text-gray-900 mb-4 font-serif">4. Allergic Reactions</h2>
-              <p className="mb-4">
-                We formulate with care, but we understand that everyone’s skin is unique.
-              </p>
-              <p className="mb-4">
-                We recommend performing a patch test on the inside of your wrist before incorporating a new product into your routine.
-              </p>
-              <p className="mb-4">
-                If you experience an allergic reaction, please discontinue use immediately and contact us at <a href="mailto:contact@ekoe.co.th" className="text-black underline">contact@ekoe.co.th</a>.
-              </p>
-              <p>
-                Returns for reactions are handled on a case-by-case basis. We may request a photo of the reaction or a brief description to help us improve our product information.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-medium text-gray-900 mb-4 font-serif">5. How to Initiate a Return</h2>
-              <p className="mb-4">
-                To start a return, please follow these steps:
-              </p>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>
-                  Email us at <a href="mailto:contact@ekoe.co.th" className="text-black underline">contact@ekoe.co.th</a> with your Order Number and the reason for the return.
+                  ลูกค้าต้องทําการติดต่อบริการลูกค้าผ่านทาง Line official: <a href="https://line.me/ti/p/@ekoe" className="text-black underline">@ekoe</a> หรืออีเมลถึงเราที่ <a href="mailto:ekoecare@ekoe.co.th" className="text-black underline">ekoecare@ekoe.co.th</a> เพื่อแจ้งความประสงค์พร้อมแจ้งรายละเอียดสินค้าที่ต้องการคืน พร้อมเหตุผล โดยบริษัทฯจะทําการพิจารณาอนุมัติรับคืนสินค้าตามเงื่อนไขที่บริษัทกําหนด ไว้ข้างต้น
                 </li>
                 <li>
-                  If your return is accepted, we will send you instructions on how and where to send your package.
+                  ภายใน 7 วันทําการหลังจากที่ท่านแจ้งเรื่องเข้ามา เจ้าหน้าที่จะทําการติดต่อท่านไปยังหมายเลขโทรศัพท์ที่ให้ไว้เพื่อแจ้งยืนยันการคืนสินค้า
                 </li>
                 <li>
-                  Items sent back to us without first requesting a return will not be accepted.
-                </li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-medium text-gray-900 mb-4 font-serif">6. Refunds</h2>
-              <p className="mb-4">
-                Once your return is received and inspected, we will notify you of the approval or rejection of your refund.
-              </p>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>
-                  <strong className="font-medium text-gray-900">Approved:</strong> If approved, your refund will be processed, and a credit will automatically be applied to your original method of payment within 5-10 business days.
+                  ในกรณีที่บริษัทฯ พิจารณาอนุมัติรับคืนสินค้า บริษัทฯจะดําเนินการเรื่องการคืนเงินค่าสินค้าและส่งคําขอคืนเงินไปยังผู้ให้บริการชําระเงินตามช่องทางที่ท่านใช้บริการภายใน 14 วัน นับจากวันที่สินค้ากลับเข้ามาที่คลังสินค้าของเราครบเรียบร้อยแล้ว
                 </li>
                 <li>
-                  <strong className="font-medium text-gray-900">Shipping Costs:</strong> Shipping costs are non-refundable. If you receive a refund, the cost of return shipping will be deducted from your refund (unless the return is due to our error).
+                  เมื่อทําเรื่องคืนเงินโดยการส่งคําขอคืนเงินไปยังผู้ให้บริการชําระเงินตามช่องทางที่ท่านใช้บริการเรียบร้อยแล้วจะมีการส่ง SMS เพื่อแจ้งให้ท่านทราบต่อไป
                 </li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-medium text-gray-900 mb-4 font-serif">7. Exchanges</h2>
-              <p>
-                We only replace items if they are defective or damaged. If you need to exchange an unopened item for a different product variant, please return the original item for a refund and make a separate purchase for the new item.
-              </p>
+                <li>
+                  กรุณาตรวจสอบรายละเอียดและเงื่อนไขเกี่ยวกับการคืนเงิน ได้ที่ นโยบายการคืนเงิน ด้านล่างนี้ กรณีที่ท่านเกิดการแพ้ หรือระคายเคืองจากการใช้ผลิตภัณฑ์จากการซื้อสินค้าจากเว็บไซต์ของเรา
+                </li>
+              </ol>
             </section>
 
             <div className="border-t border-gray-200 pt-8 mt-12">
-              <h2 className="text-xl font-medium text-gray-900 mb-4 font-serif">Contact Us</h2>
-              <p className="mb-4">
-                If you have any questions about our Returns and Refunds Policy, please contact us:
-              </p>
-              <div className="space-y-1">
-                <p>Email: <a href="mailto:contact@ekoe.co.th" className="text-black underline">contact@ekoe.co.th</a></p>
-              </div>
-              <p className="mt-4 text-gray-500 text-sm">
-                Support Hours: Mon-Fri, 9am - 5pm Bangkok Time
+              <h2 className="text-xl font-medium text-gray-900 mb-4 font-serif">หลักฐานจําเป็นในการใช้พิจารณาเปลี่ยนสินค้า</h2>
+              <ul className="list-disc pl-5 space-y-2">
+                <li>1) ภาพถ่ายสติ๊กเกอร์ภาษาไทยบนกล่องผลิตภัณฑ์สินค้าที่เสียหาย</li>
+                <li>2) ภาพกล่องผลิตภัณฑ์ และสินค้าด้านใน ที่เสียหายทุกด้าน</li>
+                <li>3) ภาพการห่อสินค้าภายในที่ได้รับ มีการห่อกันกระแทกด้วยหรือไม่ หรืออุปกรณ์ที่ใช้ในการห่อหุ้มสินค้ามีลักษณะอย่างไร</li>
+                <li>4) ภาพกล่องพัสดุด้านนอก (เสียหายหรือไม่) : (ทั้ง 6 ด้าน บน ล่าง ซ้าย ขวา หน้า หลัง) และ Barcode ข้างกล่องที่มีแปะทุกด้าน</li>
+              </ul>
+              <p className="mt-4">
+                ทั้งนี้ <span className="font-medium">วิดีโอ</span> ที่สามารถบันทึกภาพในขณะที่ท่านเปิดกล่องและพบความบกพร่องเสียหายหรือข้อผิดพลาดใด ๆ จากการจัดส่งจะช่วยพิสูจน์ปัญหาที่เกิดได้ชัดเจนมากขึ้น
               </p>
             </div>
           </div>
