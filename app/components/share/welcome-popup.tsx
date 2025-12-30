@@ -116,7 +116,7 @@ export function WelcomePopup({
             <img
               src={imageUrl}
               alt="Welcome to Ekoe"
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover object-[50%_70%]"
             />
           </div>
 
