@@ -122,7 +122,7 @@ export function CheckoutSummary({
 
       {/* Shipping Method */}
       <div className="mb-8 pb-8 border-b border-gray-200">
-        <h3 className="font-medium text-sm mb-3">Shipping Method</h3>
+        <h3 className="font-medium text-sm mb-3">วิธีการจัดส่ง</h3>
         <ShippingMethodSelector
           selectedMethod={currentShippingMethod}
           onMethodChange={handleShippingMethodChange}
@@ -132,14 +132,14 @@ export function CheckoutSummary({
       {/* Totals */}
       <div className="space-y-4 mb-8 pb-8 border-b border-gray-200">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Subtotal (Tax included)</span>
+          <span className="text-gray-600">ยอดรวมสินค้า (รวมภาษีแล้ว)</span>
           <span className="font-medium">{formatCurrencyFromCents(subtotal, { symbol: '฿' })}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Shipping</span>
+          <span className="text-gray-600">ค่าจัดส่ง</span>
           <span className="font-medium">
             {shippingCost === 0 ? (
-              <span className="text-xs uppercase">Free</span>
+              <span className="text-xs uppercase">ฟรี</span>
             ) : (
               formatCurrencyFromCents(shippingCost, { symbol: '฿' })
             )}
@@ -148,21 +148,21 @@ export function CheckoutSummary({
         {/* Coupon discount (from discount code) */}
         {promotionalResult?.pricing.discount?.amount && promotionalResult.pricing.discount.amount > 0 && (
           <div className="flex justify-between text-sm text-green-600">
-            <span>Coupon ({promotionalResult.pricing.discount.code})</span>
+            <span>คูปอง ({promotionalResult.pricing.discount.code})</span>
             <span className="font-medium">-{formatCurrencyFromCents(promotionalResult.pricing.discount.amount, { symbol: '฿' })}</span>
           </div>
         )}
         {/* Promotional discount (from auto promotions) */}
         {(promotionalResult?.pricing.promotionalDiscount || 0) > 0 && (
           <div className="flex justify-between text-sm text-green-600">
-            <span>Discount</span>
+            <span>ส่วนลดโปรโมชั่น</span>
             <span className="font-medium">-{formatCurrencyFromCents(promotionalResult?.pricing.promotionalDiscount || 0, { symbol: '฿' })}</span>
           </div>
         )}
       </div>
 
       <div className="flex justify-between items-center mb-8">
-        <span className="text-lg font-medium">Total</span>
+        <span className="text-lg font-medium">ยอดชำระทั้งหมด</span>
         <span className="text-2xl font-serif font-medium">
           {formatCurrencyFromCents(total, { symbol: '฿' })}
         </span>

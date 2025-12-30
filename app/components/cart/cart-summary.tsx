@@ -64,16 +64,16 @@ export function CartSummary({ promotionalResult }: CartSummaryProps) {
 
   return (
     <div className="border border-gray-200 p-8">
-      <h2 className="font-serif text-xl mb-8">Cart Total</h2>
+      <h2 className="font-serif text-xl mb-8">สรุปยอดตะกร้า</h2>
 
       <div className="space-y-4 mb-8">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Subtotal</span>
+          <span className="text-gray-600">ยอดรวมสินค้า</span>
           <span className="font-medium">{formatCurrencyFromCents(subtotal, { symbol: '฿' })}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Shipping</span>
-          <span className="font-medium uppercase">Free</span>
+          <span className="text-gray-600">ค่าจัดส่ง</span>
+          <span className="font-medium uppercase">ฟรี</span>
         </div>
 
         {/* Discount display */}
@@ -81,7 +81,7 @@ export function CartSummary({ promotionalResult }: CartSummaryProps) {
           <div className="flex justify-between text-sm text-green-600">
             <span className="flex items-center gap-1">
               <Tag className="w-3 h-3" />
-              Discount
+              ส่วนลด
             </span>
             <span className="font-medium">-{formatCurrencyFromCents(discount, { symbol: '฿' })}</span>
           </div>
@@ -105,7 +105,7 @@ export function CartSummary({ promotionalResult }: CartSummaryProps) {
         <div className="mb-8 p-4 bg-green-50 border border-green-200 rounded">
           <h3 className="text-sm font-medium text-green-800 flex items-center gap-2 mb-3">
             <Gift className="w-4 h-4" />
-            Free Gifts
+            ของแถมฟรี
           </h3>
           <div className="space-y-2">
             {freeGifts.map((gift, index) => (
@@ -115,7 +115,7 @@ export function CartSummary({ promotionalResult }: CartSummaryProps) {
                 )}
                 <div className="flex-1">
                   <p className="text-sm font-medium text-green-800">{gift.name}</p>
-                  <p className="text-xs text-green-600">Qty: {gift.quantity}</p>
+                  <p className="text-xs text-green-600">จำนวน: {gift.quantity}</p>
                 </div>
                 <span className="text-xs text-green-600">
                   {formatCurrencyFromCents(gift.value, { symbol: '฿' })}
@@ -127,13 +127,13 @@ export function CartSummary({ promotionalResult }: CartSummaryProps) {
       )}
 
       <div className="flex justify-between items-center mb-8 pt-4 border-t border-gray-100">
-        <span className="font-serif text-lg">Total</span>
+        <span className="font-serif text-lg">ยอดชำระทั้งหมด</span>
         <span className="font-serif text-xl font-medium">{formatCurrencyFromCents(Math.max(0, total), { symbol: '฿' })}</span>
       </div>
 
       <Link to="/checkout" className="block w-full">
         <Button disabled={subtotal <= 0} className="w-full h-12 bg-black text-white hover:bg-gray-800 rounded-none uppercase tracking-widest text-sm">
-          Checkout
+          ดำเนินการชำระเงิน
         </Button>
       </Link>
     </div>

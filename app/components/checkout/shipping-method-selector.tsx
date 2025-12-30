@@ -55,7 +55,7 @@ export function ShippingMethodSelector({
     return (
       <div className={`flex items-center justify-center py-8 ${className}`}>
         <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-        <span className="ml-2 text-gray-600">Loading shipping methods...</span>
+        <span className="ml-2 text-gray-600">กำลังโหลดวิธีจัดส่ง...</span>
       </div>
     );
   }
@@ -73,7 +73,7 @@ export function ShippingMethodSelector({
     return (
       <Alert className={className}>
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>No shipping methods available at this time.</AlertDescription>
+        <AlertDescription>ขณะนี้ไม่มีวิธีจัดส่งที่พร้อมใช้งาน</AlertDescription>
       </Alert>
     );
   }
@@ -88,13 +88,11 @@ export function ShippingMethodSelector({
         {methods.map((method, index) => (
           <div
             key={method.id}
-            className={`border rounded-md p-4 transition-colors ${
-              selectedMethod === method.id
+            className={`border rounded-md p-4 transition-colors ${selectedMethod === method.id
                 ? "bg-gray-50 border-black"
                 : "border-gray-200 hover:bg-gray-50/50"
-            } ${index === 0 ? "rounded-t-md" : ""} ${
-              index === methods.length - 1 ? "rounded-b-md" : ""
-            }`}
+              } ${index === 0 ? "rounded-t-md" : ""} ${index === methods.length - 1 ? "rounded-b-md" : ""
+              }`}
           >
             <div className="flex items-start space-x-3">
               <RadioGroupItem value={method.id} id={method.id} className="mt-1" />
@@ -114,7 +112,7 @@ export function ShippingMethodSelector({
                     </p>
                     {method.carrier && (
                       <p className="text-xs text-gray-500">
-                        Carrier: {method.carrier}
+                        ผู้ให้บริการ: {method.carrier}
                       </p>
                     )}
                   </div>
@@ -123,15 +121,15 @@ export function ShippingMethodSelector({
                   <div className="text-right shrink-0">
                     <div className="font-medium text-gray-900">
                       {method.cost === 0 ? (
-                        <span className="text-green-600">Free</span>
+                        <span className="text-green-600">ฟรี</span>
                       ) : (
                         formatCurrencyFromCents(method.cost, { symbol: "฿" })
                       )}
                     </div>
                     <div className="text-xs text-gray-500 mt-0.5">
                       {method.estimatedDays === 1
-                        ? "Next day"
-                        : `${method.estimatedDays} days`}
+                        ? "วันรุ่งขึ้น"
+                        : `${method.estimatedDays} วัน`}
                     </div>
                   </div>
                 </div>

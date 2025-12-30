@@ -115,10 +115,10 @@ export default function OrderSuccessByInvoice() {
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
             <h1 className="text-3xl font-serif text-gray-900 mb-2">
-              Order Confirmed!
+              ยืนยันคำสั่งซื้อเรียบร้อยแล้ว!
             </h1>
             <p className="text-gray-600">
-              Thank you for your purchase. Your order has been received and is being processed.
+              ขอบคุณสำหรับการสั่งซื้อ คำสั่งซื้อของคุณได้รับการยืนยันและกำลังดำเนินการ
             </p>
           </div>
         ) : (
@@ -127,10 +127,10 @@ export default function OrderSuccessByInvoice() {
               <AlertCircle className="w-10 h-10 text-yellow-600" />
             </div>
             <h1 className="text-3xl font-serif text-gray-900 mb-2">
-              Order Created - Payment Pending
+              สร้างคำสั่งซื้อแล้ว - รอชำระเงิน
             </h1>
             <p className="text-gray-600">
-              Your order has been created but payment is still pending.
+              คำสั่งซื้อของคุณถูกสร้างแล้ว แต่ยังรอการชำระเงิน
             </p>
           </div>
         )}
@@ -139,9 +139,9 @@ export default function OrderSuccessByInvoice() {
         {(hasFailedPayment || showRetry) && order.paymentStatus !== 'paid' && (
           <Alert variant="destructive" className="mb-6">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Payment Failed</AlertTitle>
+            <AlertTitle>การชำระเงินล้มเหลว</AlertTitle>
             <AlertDescription>
-              Your previous payment attempt was unsuccessful. Please try again with a different payment method or contact support if you need assistance.
+              การชำระเงินครั้งก่อนของคุณไม่สำเร็จ กรุณาลองอีกครั้งด้วยวิธีการชำระเงินอื่น หรือติดต่อฝ่ายบริการลูกค้า
             </AlertDescription>
           </Alert>
         )}
@@ -150,9 +150,9 @@ export default function OrderSuccessByInvoice() {
         {(showRetry || (hasFailedPayment && order.paymentStatus !== 'paid')) && (
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Retry Payment</CardTitle>
+              <CardTitle>ชำระเงินอีกครั้ง</CardTitle>
               <CardDescription>
-                Select a payment method to complete your order
+                เลือกวิธีชำระเงินเพื่อดำเนินการสั่งซื้อให้เสร็จสมบูรณ์
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -164,7 +164,7 @@ export default function OrderSuccessByInvoice() {
               )}
 
               <div className="space-y-4">
-                <Label>Payment Method</Label>
+                <Label>วิธีชำระเงิน</Label>
                 <RadioGroup
                   value={selectedPaymentMethod}
                   onValueChange={(value) => setSelectedPaymentMethod(value as 'promptpay' | 'credit_card')}
@@ -175,7 +175,7 @@ export default function OrderSuccessByInvoice() {
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="credit_card" id="retry_credit_card" />
                       <div className="flex-1 flex justify-between items-center">
-                        <Label htmlFor="retry_credit_card" className="font-medium cursor-pointer">Credit card</Label>
+                        <Label htmlFor="retry_credit_card" className="font-medium cursor-pointer">บัตรเครดิต</Label>
                         <div className="flex gap-1">
                           <div className="w-8 h-5 bg-blue-600 rounded text-[8px] text-white flex items-center justify-center font-bold italic">VISA</div>
                           <div className="w-8 h-5 bg-red-500 rounded text-[8px] text-white flex items-center justify-center font-bold">MC</div>
@@ -184,7 +184,7 @@ export default function OrderSuccessByInvoice() {
                     </div>
                     {selectedPaymentMethod === 'credit_card' && (
                       <div className="mt-4 pl-6 text-sm text-gray-500">
-                        You will be redirected to a secure payment page to enter your card details.
+                        คุณจะถูกนำทางไปยังหน้าชำระเงินที่ปลอดภัยเพื่อกรอกข้อมูลบัตรของคุณ
                       </div>
                     )}
                   </div>
@@ -194,13 +194,13 @@ export default function OrderSuccessByInvoice() {
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="promptpay" id="retry_promptpay" />
                       <div className="flex-1 flex justify-between items-center">
-                        <Label htmlFor="retry_promptpay" className="font-medium cursor-pointer">PromptPay QR Code</Label>
+                        <Label htmlFor="retry_promptpay" className="font-medium cursor-pointer">QR Code พร้อมเพย์</Label>
                         <QrCode size={20} />
                       </div>
                     </div>
                     {selectedPaymentMethod === 'promptpay' && (
                       <div className="mt-4 pl-6 text-sm text-gray-500">
-                        You will be shown a QR code to scan with your mobile banking app.
+                        คุณจะเห็น QR Code เพื่อสแกนผ่านแอปธนาคารบนมือถือของคุณ
                       </div>
                     )}
                   </div>
@@ -213,14 +213,14 @@ export default function OrderSuccessByInvoice() {
                   disabled={isRetrying}
                   className="flex-1"
                 >
-                  {isRetrying ? 'Processing...' : `Pay ${formatCurrencyFromCents(order.totalAmount, { symbol: '฿' })}`}
+                  {isRetrying ? 'กำลังดำเนินการ...' : `ชำระเงิน ${formatCurrencyFromCents(order.totalAmount, { symbol: '฿' })}`}
                 </Button>
                 <Button
                   variant="outline"
                   asChild
                   className="flex-1"
                 >
-                  <Link to="/">Cancel</Link>
+                  <Link to="/">ยกเลิก</Link>
                 </Button>
               </div>
             </CardContent>
@@ -231,13 +231,13 @@ export default function OrderSuccessByInvoice() {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>Order Details</span>
+              <span>รายละเอียดคำสั่งซื้อ</span>
               <span className="text-sm font-normal text-gray-600">
-                Order #{order.orderNumber}
+                หมายเลขคำสั่งซื้อ #{order.orderNumber}
               </span>
             </CardTitle>
             <CardDescription>
-              Confirmation email sent to {order.email}
+              ส่งอีเมลยืนยันไปยัง {order.email}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -245,7 +245,7 @@ export default function OrderSuccessByInvoice() {
             <div>
               <h3 className="font-medium text-sm text-gray-900 mb-4 flex items-center gap-2">
                 <Package className="w-4 h-4" />
-                Items Ordered
+                สินค้าที่สั่งซื้อ
               </h3>
               <div className="space-y-3">
                 {order.items.map((item: any) => (
@@ -255,7 +255,7 @@ export default function OrderSuccessByInvoice() {
                       {item.variantName && (
                         <p className="text-xs text-gray-500">{item.variantName}</p>
                       )}
-                      <p className="text-xs text-gray-500">Quantity: {item.quantity}</p>
+                      <p className="text-xs text-gray-500">จำนวน: {item.quantity}</p>
                     </div>
                     <p className="font-medium text-sm">
                       {formatCurrencyFromCents(item.subtotal, { symbol: '฿' })}
@@ -272,7 +272,7 @@ export default function OrderSuccessByInvoice() {
               <div>
                 <h3 className="font-medium text-sm text-gray-900 mb-3 flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
-                  Shipping Address
+                  ที่อยู่จัดส่ง
                 </h3>
                 <div className="text-sm text-gray-600 space-y-1">
                   <p>
@@ -299,41 +299,41 @@ export default function OrderSuccessByInvoice() {
 
             {/* Order Summary */}
             <div>
-              <h3 className="font-medium text-sm text-gray-900 mb-3">Order Summary</h3>
+              <h3 className="font-medium text-sm text-gray-900 mb-3">สรุปคำสั่งซื้อ</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal</span>
+                  <span className="text-gray-600">ยอดรวมสินค้า</span>
                   <span>{formatCurrencyFromCents(order.subtotal, { symbol: '฿' })}</span>
                 </div>
                 {order.shippingCost !== null && order.shippingCost > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Shipping</span>
+                    <span className="text-gray-600">ค่าจัดส่ง</span>
                     <span>{formatCurrencyFromCents(order.shippingCost, { symbol: '฿' })}</span>
                   </div>
                 )}
                 {order.taxAmount !== null && order.taxAmount > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Tax</span>
+                    <span className="text-gray-600">ภาษี</span>
                     <span>{formatCurrencyFromCents(order.taxAmount, { symbol: '฿' })}</span>
                   </div>
                 )}
                 {/* Coupon discount (from discount code) */}
                 {order.discountAmount !== null && order.discountAmount > 0 && (
                   <div className="flex justify-between text-green-600">
-                    <span>Coupon</span>
+                    <span>คูปอง</span>
                     <span>-{formatCurrencyFromCents(order.discountAmount, { symbol: '฿' })}</span>
                   </div>
                 )}
                 {/* Promotional discount (from auto promotions) */}
                 {order.promotionDiscountAmount !== null && order.promotionDiscountAmount > 0 && (
                   <div className="flex justify-between text-green-600">
-                    <span>Discount</span>
+                    <span>ส่วนลดโปรโมชั่น</span>
                     <span>-{formatCurrencyFromCents(order.promotionDiscountAmount, { symbol: '฿' })}</span>
                   </div>
                 )}
                 <Separator />
                 <div className="flex justify-between font-medium text-base">
-                  <span>Total</span>
+                  <span>ยอดชำระทั้งหมด</span>
                   <span>{formatCurrencyFromCents(order.totalAmount, { symbol: '฿' })}</span>
                 </div>
               </div>
@@ -345,9 +345,9 @@ export default function OrderSuccessByInvoice() {
         {payments.length > 0 && (
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Payment History</CardTitle>
+              <CardTitle>ประวัติการชำระเงิน</CardTitle>
               <CardDescription>
-                Payment attempts for this order
+                รายการชำระเงินสำหรับคำสั่งซื้อนี้
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -395,18 +395,18 @@ export default function OrderSuccessByInvoice() {
               <Mail className="w-5 h-5 text-gray-400 mt-0.5" />
               <div className="flex-1">
                 <h3 className="font-medium text-sm text-gray-900 mb-1">
-                  What's Next?
+                  ขั้นตอนต่อไป
                 </h3>
                 <p className="text-sm text-gray-600">
                   {order.paymentStatus === 'paid' ? (
                     <>
-                      We've sent a confirmation email to <strong>{order.email}</strong> with your order details.
-                      You'll receive another email when your order ships.
+                      เราได้ส่งอีเมลยืนยันพร้อมรายละเอียดคำสั่งซื้อไปยัง <strong>{order.email}</strong>
+                      คุณจะได้รับอีเมลอีกครั้งเมื่อคำสั่งซื้อถูกจัดส่ง
                     </>
                   ) : (
                     <>
-                      Once your payment is completed, we'll send a confirmation email to <strong>{order.email}</strong>.
-                      Please complete the payment to proceed with your order.
+                      เมื่อชำระเงินเสร็จสิ้น เราจะส่งอีเมลยืนยันไปยัง <strong>{order.email}</strong>
+                      กรุณาชำระเงินให้เสร็จเพื่อดำเนินการคำสั่งซื้อของคุณ
                     </>
                   )}
                 </p>
@@ -418,10 +418,10 @@ export default function OrderSuccessByInvoice() {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button asChild variant="outline" size="lg">
-            <Link to="/shop">Continue Shopping</Link>
+            <Link to="/shop">เลือกซื้อสินค้าต่อ</Link>
           </Button>
           <Button asChild size="lg">
-            <Link to="/">Return to Home</Link>
+            <Link to="/">กลับสู่หน้าหลัก</Link>
           </Button>
         </div>
       </main>
@@ -429,7 +429,7 @@ export default function OrderSuccessByInvoice() {
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-sm text-gray-600">
-          <p>Need help? Contact us at support@ekoe.com</p>
+          <p>ต้องการความช่วยเหลือ? ติดต่อเราที่ support@ekoe.com</p>
         </div>
       </footer>
     </div>

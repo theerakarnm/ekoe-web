@@ -20,7 +20,7 @@ export function FreeGiftDisplay({ gifts, className = "" }: FreeGiftDisplayProps)
           <Gift className="h-5 w-5 text-gray-700" />
           <Sparkles className="h-3 w-3 text-amber-500 absolute -top-1 -right-1" />
         </div>
-        <h3 className="font-serif text-base font-medium">Free Gift{gifts?.length > 1 ? 's' : ''} With Purchase</h3>
+        <h3 className="font-serif text-base font-medium">ของแถมฟรี{gifts?.length > 1 ? '' : ''}</h3>
       </div>
 
       {/* Gift List */}
@@ -57,7 +57,7 @@ export function FreeGiftDisplay({ gifts, className = "" }: FreeGiftDisplayProps)
               )}
               {gift.value > 0 && (
                 <div className="text-xs text-gray-600 mt-0.5">
-                  Value: {formatCurrencyFromCents(gift.value, { symbol: '฿' })}
+                  มูลค่า: {formatCurrencyFromCents(gift.value, { symbol: '฿' })}
                 </div>
               )}
             </div>
@@ -65,7 +65,7 @@ export function FreeGiftDisplay({ gifts, className = "" }: FreeGiftDisplayProps)
             {/* Included Badge */}
             <div className="shrink-0">
               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                Included
+                รวมแล้ว
               </span>
             </div>
           </div>
@@ -76,7 +76,7 @@ export function FreeGiftDisplay({ gifts, className = "" }: FreeGiftDisplayProps)
       <div className="mt-3 pt-3 border-t border-gray-200">
         <p className="text-xs text-gray-500 flex items-center gap-1">
           <Sparkles className="h-3 w-3" />
-          {gifts?.length > 1 ? 'These gifts will' : 'This gift will'} be automatically added to your order
+          {gifts?.length > 1 ? 'ของแถมเหล่านี้จะถูกเพิ่ม' : 'ของแถมนี้จะถูกเพิ่ม'}ในคำสั่งซื้อของท่านโดยอัตโนมัติ
         </p>
       </div>
     </div>

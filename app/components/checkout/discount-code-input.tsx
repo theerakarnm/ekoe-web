@@ -16,7 +16,7 @@ export function DiscountCodeInput({ onDiscountApplied, onDiscountRemoved }: Disc
   const [code, setCode] = useState("");
   const [isValidating, setIsValidating] = useState(false);
   const [validationResult, setValidationResult] = useState<DiscountValidation | null>(null);
-  
+
   const discountCode = useCartStore((state) => state.discountCode);
   const discountAmount = useCartStore((state) => state.discountAmount);
   const applyDiscountCode = useCartStore((state) => state.applyDiscountCode);
@@ -44,12 +44,12 @@ export function DiscountCodeInput({ onDiscountApplied, onDiscountRemoved }: Disc
       if (result.isValid && result.discountAmount) {
         // Apply discount to cart store
         applyDiscountCode(result.code!, result.discountAmount);
-        
+
         // Notify parent component
         if (onDiscountApplied) {
           onDiscountApplied(result.code!, result.discountAmount);
         }
-        
+
         // Clear input
         setCode("");
       }
@@ -67,7 +67,7 @@ export function DiscountCodeInput({ onDiscountApplied, onDiscountRemoved }: Disc
   const handleRemove = () => {
     removeDiscountCode();
     setValidationResult(null);
-    
+
     // Notify parent component
     if (onDiscountRemoved) {
       onDiscountRemoved();
@@ -82,7 +82,7 @@ export function DiscountCodeInput({ onDiscountApplied, onDiscountRemoved }: Disc
           <CheckCircle2 className="h-4 w-4 text-green-600" />
           <AlertDescription className="flex items-center justify-between">
             <div>
-              <span className="font-medium text-green-900">Code "{discountCode}" applied</span>
+              <span className="font-medium text-green-900">ใช้โค้ด "{discountCode}" แล้ว</span>
               <span className="text-green-700 ml-2">
                 (-฿{(discountAmount / 100).toFixed(2)})
               </span>
@@ -105,7 +105,7 @@ export function DiscountCodeInput({ onDiscountApplied, onDiscountRemoved }: Disc
         <>
           <div className="flex gap-2">
             <Input
-              placeholder="Discount code"
+              placeholder="ใส่โค้ดส่วนลด"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               onKeyDown={(e) => {
@@ -126,7 +126,7 @@ export function DiscountCodeInput({ onDiscountApplied, onDiscountRemoved }: Disc
               {isValidating ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                'Apply'
+                'ใช้งาน'
               )}
             </Button>
           </div>
