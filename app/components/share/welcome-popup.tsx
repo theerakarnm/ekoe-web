@@ -2,20 +2,37 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Copy, Check, X } from 'lucide-react';
 import { apiClient, type SuccessResponseWrapper } from '~/lib/api-client';
+import type { WelcomePopupSetting } from '~/lib/services/site-settings.service';
 
 const WELCOME_POPUP_KEY = 'ekoe_welcome_popup_shown';
 
+// Default settings for fallback
+const defaultPopupSettings: WelcomePopupSetting = {
+  image: '/ekoe-asset/HOME/POPUP.JPG',
+  title: 'เปิดประสบการณ์ใหม่กับ Ekoe',
+  subtitle: "Effective natural formulations for skin that's alive, evolving, beautifully yours.",
+  description: 'โค้ดพิเศษสำหรับคุณ',
+  terms: [
+    '*โค้ดมีจำนวนจำกัด',
+    '*เฉพาะการสั่งซื้อครั้งแรกที่ Ekoe',
+    '*ใช้ได้กับยอดหลังหักส่วนลด',
+    '*ใช้ร่วมกับ Online Executive ได้',
+    '*ส่งฟรีทุกออร์เดอร์',
+  ],
+};
+
 interface WelcomePopupProps {
-  imageUrl?: string;
+  settings?: WelcomePopupSetting;
   couponCode?: string;
   discountText?: string;
 }
 
 export function WelcomePopup({
-  imageUrl = '/ekoe-asset/HOME/POPUP.JPG',
+  settings: propSettings,
   couponCode = 'WELCOMEXXX',
   discountText = 'ลดเพิ่ม 100 บาท ทุกยอดซื้อ 500 บาท',
 }: WelcomePopupProps) {
+  const popupSettings = propSettings ?? defaultPopupSettings;
   const [isOpen, setIsOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -25,7 +42,6 @@ export function WelcomePopup({
     text: discountText,
     description: ''
   });
-
 
 
   useEffect(() => {
@@ -114,7 +130,7 @@ export function WelcomePopup({
           {/* Left Side - Image */}
           <div className="w-full md:w-[45%] h-64 md:h-auto md:min-h-[520px] relative overflow-hidden">
             <img
-              src={imageUrl}
+              src={popupSettings.image}
               alt="Welcome to Ekoe"
               className="absolute inset-0 w-full h-full object-cover object-[50%_70%]"
             />
@@ -127,12 +143,15 @@ export function WelcomePopup({
               className="text-2xl md:text-4xl font-serif mb-4"
               style={{ fontFamily: "'Noto Serif Thai', serif" }}
             >
-              เปิดประสบการณ์ใหม่กับ <span className="font-normal">Ekoe</span>
+              {popupSettings.title.includes('Ekoe') ? (
+                <>{popupSettings.title.replace('Ekoe', '')} <span className="font-normal">Ekoe</span></>
+              ) : (
+                popupSettings.title
+              )}
             </h2>
 
             <p className="text-gray-600 text-sm md:text-base mb-8">
-              Effective natural formulations<br />
-              for skin that's alive, evolving, beautifully yours.
+              {popupSettings.subtitle}
             </p>
 
             {/* Promo Section */}
@@ -187,11 +206,9 @@ export function WelcomePopup({
 
             {/* Terms */}
             <div className="text-xs text-gray-500 space-y-0.5">
-              <p>*โค้ดมีจำนวนจำกัด</p>
-              <p>*เฉพาะการสั่งซื้อครั้งแรกที่ Ekoe</p>
-              <p>*ใช้ได้กับยอดหลังหักส่วนลด</p>
-              <p>*ใช้ร่วมกับ Online Executive ได้</p>
-              <p>*ส่งฟรีทุกออร์เดอร์</p>
+              {popupSettings.terms.map((term, index) => (
+                <p key={index}>{term}</p>
+              ))}
             </div>
           </div>
         </div>

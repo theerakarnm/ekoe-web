@@ -6,12 +6,23 @@ import { Calendar } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { getActivePromotions, type PromotionDisplayData } from '~/lib/services/promotion.service';
+import { getOnlineExecutive, type OnlineExecutiveSetting } from '~/lib/services/site-settings.service';
 
-// Loader function to fetch active promotions
+// Default settings for fallback
+const defaultSettings: OnlineExecutiveSetting = {
+  mainImage: '/ekoe-asset/ONLINE_EXECUTIVE/ONLINE_EXECUTIVE.png',
+  quoteImage: '/ekoe-asset/PHOTO/ONLINE EXECUTIVE_BOTTOM_Ekoe สร้างประสบการณ์พิเศษ.png',
+  quoteText: 'Ekoe สร้างประสบการณ์พิเศษใน\nการดูแลผิว ให้เป็นเรื่องธรรมดาสำหรับคุณ',
+};
+
+// Loader function to fetch active promotions and site settings
 export async function loader() {
   try {
-    const promotionData = await getActivePromotions();
-    return { promotionData };
+    const [promotionData, siteSettings] = await Promise.all([
+      getActivePromotions(),
+      getOnlineExecutive().catch(() => null),
+    ]);
+    return { promotionData, siteSettings };
   } catch (error) {
     console.error('Failed to load promotions:', error);
     // Return fallback data if API fails
@@ -31,13 +42,21 @@ export async function loader() {
             conditions: []
           }
         ]
-      }
+      },
+      siteSettings: null as OnlineExecutiveSetting | null,
     };
   }
 }
 
 export default function OnlineExecutive() {
-  const { promotionData } = useLoaderData<{ promotionData: PromotionDisplayData }>();
+  const { promotionData, siteSettings } = useLoaderData<{
+    promotionData: PromotionDisplayData;
+    siteSettings?: OnlineExecutiveSetting | null;
+  }>();
+
+  const settings = siteSettings ?? defaultSettings;
+  // Parse quote text with line breaks
+  const quoteLines = settings.quoteText.split('\n');
 
   return (
     <div className="min-h-screen bg-white font-serif">
@@ -139,9 +158,8 @@ export default function OnlineExecutive() {
             {/* Right Image */}
             <div className="relative mt-10 lg:mt-0">
               <div className="aspect-4/5 bg-gray-100 rounded-lg overflow-hidden relative">
-                {/* Placeholder for the product set image */}
                 <img
-                  src="/ekoe-asset/ONLINE_EXECUTIVE/ONLINE_EXECUTIVE.png"
+                  src={settings.mainImage}
                   alt="Ekoe Product Set"
                   className="w-full h-full object-cover"
                 />
@@ -154,18 +172,22 @@ export default function OnlineExecutive() {
         <div className="mt-20 relative h-80 w-full overflow-hidden">
           <div className="absolute inset-0 bg-gray-900">
             <img
-              src="/ekoe-asset/PHOTO/ONLINE EXECUTIVE_BOTTOM_Ekoe สร้างประสบการณ์พิเศษ.png"
+              src={settings.quoteImage}
               alt="Ocean Wave"
               className="w-full h-full object-cover opacity-40"
             />
           </div>
           <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
-            <span className="text-white text-6xl font-serif opacity-80 absolute top-10 left-1/4">“</span>
+            <span className="text-white text-6xl font-serif opacity-80 absolute top-10 left-1/4">"</span>
             <h2 className="text-2xl md:text-3xl text-white font-serif max-w-3xl leading-relaxed">
-              Ekoe สร้างประสบการณ์พิเศษใน<br />
-              การดูแลผิว ให้เป็นเรื่องธรรมดาสำหรับคุณ
+              {quoteLines.map((line, index) => (
+                <span key={index}>
+                  {line}
+                  {index < quoteLines.length - 1 && <br />}
+                </span>
+              ))}
             </h2>
-            <span className="text-white text-6xl font-serif opacity-80 absolute bottom-10 right-1/4">”</span>
+            <span className="text-white text-6xl font-serif opacity-80 absolute bottom-10 right-1/4">"</span>
           </div>
         </div>
 

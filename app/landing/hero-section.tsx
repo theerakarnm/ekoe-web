@@ -19,13 +19,15 @@ import { useCartStore } from '~/store/cart';
 import { useAuthStore } from '~/store/auth-store';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { useMenuProductsStore } from '~/store/menu-products';
+import type { HeroSlide } from '~/lib/services/site-settings.service';
 
 // Format price from cents to display format
 function formatPrice(priceInCents: number): string {
   return `฿${(priceInCents / 100).toLocaleString('th-TH', { minimumFractionDigits: 0 })}`;
 }
 
-const slides = [
+// Default slides for fallback
+const defaultSlides: HeroSlide[] = [
   {
     id: 1,
     title: "One of Everything Really Good",
@@ -33,7 +35,7 @@ const slides = [
     description: "",
     media: {
       type: 'video',
-      url: '/ekoe-asset/branding-vid.mp4' // Placeholder nature video
+      url: '/ekoe-asset/branding-vid.mp4'
     }
   },
   {
@@ -48,7 +50,12 @@ const slides = [
   }
 ];
 
-function HeroSection() {
+interface HeroSectionProps {
+  slides?: HeroSlide[];
+}
+
+function HeroSection({ slides: propSlides }: HeroSectionProps) {
+  const slides = propSlides && propSlides.length > 0 ? propSlides : defaultSlides;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [isDiscoverOpen, setIsDiscoverOpen] = useState(false);

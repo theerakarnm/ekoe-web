@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, FileText, Ticket, ShoppingCart, Menu, X, Tag, Mail } from 'lucide-react';
+import { LayoutDashboard, Package, FileText, Ticket, ShoppingCart, Menu, X, Tag, Mail, Settings } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router';
@@ -42,6 +42,11 @@ const navigationItems = [
     name: 'Contacts',
     href: '/admin/contacts',
     icon: Mail,
+  },
+  {
+    name: 'Landing Page',
+    href: '/admin/landing-page',
+    icon: Settings,
   },
 ];
 

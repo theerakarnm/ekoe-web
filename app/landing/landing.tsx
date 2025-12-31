@@ -9,12 +9,14 @@ import { Footer } from "~/components/share/footer";
 import { WelcomePopup } from "~/components/share/welcome-popup";
 import type { Product } from "~/lib/services/product.service";
 import type { BlogPost } from "~/interface/blog.interface";
+import type { SiteSettings } from "~/lib/services/site-settings.service";
 
 interface LandingProps {
   loaderData?: {
     bestSellers: Product[];
     newArrivals: Product[];
     blogs?: BlogPost[];
+    siteSettings?: SiteSettings | null;
     error: string | null;
   };
 }
@@ -64,12 +66,12 @@ export function Landing({ loaderData }: LandingProps) {
     <div className="min-h-screen">
       <Header isLandingMagic={!showMainHeader} />
       <main className="min-h-screen bg-white">
-        <HeroSection />
+        <HeroSection slides={loaderData?.siteSettings?.hero_slides} />
         <BestSellerSection
           products={loaderData?.bestSellers}
           error={loaderData?.error}
         />
-        <FeatureSection />
+        <FeatureSection settings={loaderData?.siteSettings?.feature_section} />
         {/* <NewArrivalsSection 
           products={loaderData?.newArrivals} 
           error={loaderData?.error}
@@ -77,7 +79,7 @@ export function Landing({ loaderData }: LandingProps) {
         <BlogSection posts={loaderData?.blogs} />
         <Footer />
       </main>
-      <WelcomePopup />
+      <WelcomePopup settings={loaderData?.siteSettings?.welcome_popup} />
     </div>
   );
 }

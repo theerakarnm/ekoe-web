@@ -1,6 +1,19 @@
 import { Link } from "react-router";
+import type { FeatureSectionSetting } from '~/lib/services/site-settings.service';
 
-function FeatureSection() {
+// Default settings for fallback
+const defaultSettings: FeatureSectionSetting = {
+  leftImage: '/ekoe-asset/HOME/Glowthat_sworth.png',
+  rightImage: '/ekoe-asset/HOME/หนึ่งอย่างที่ดีจริง.png',
+};
+
+interface FeatureSectionProps {
+  settings?: FeatureSectionSetting;
+}
+
+function FeatureSection({ settings: propSettings }: FeatureSectionProps) {
+  const settings = propSettings ?? defaultSettings;
+
   return (
     <section className="grid md:grid-cols-2 gap-0">
       <div className="bg-gray-50 py-12 md:py-16 px-8 flex items-center">
@@ -10,7 +23,7 @@ function FeatureSection() {
           </h2>
           <div className="w-20 h-0.5 bg-black my-6 mx-auto md:mx-0"></div>
           <p className="text-gray-700 mb-8 leading-relaxed font-light font-thai">
-            ถ้าคุณชอบความโกลว์ แบบผิวสุขภาพดี และฟิลที่รู้สึกว่า “ผิวตัวเองดีกว่าเมื่อวาน” ลองให้ THE BODY OIL ของเราได้ดูแลผิวของคุณ เนื้อสัมผัสเบาสบาย แต่บำรุงเข้มข้น เติมเต็มความชุ่มชื้น ปลุกความเปล่งประกายให้ทั่วทั้งเรือนร่าง ไม่ว่าผิวแบบไหนหรือไลฟ์สไตล์แบบใด นี่คือออยล์ดูแลผิวที่คนรักผิวทุกคนควรมีไว้ใกล้ตัว
+            ถ้าคุณชอบความโกลว์ แบบผิวสุขภาพดี และฟิลที่รู้สึกว่า "ผิวตัวเองดีกว่าเมื่อวาน" ลองให้ THE BODY OIL ของเราได้ดูแลผิวของคุณ เนื้อสัมผัสเบาสบาย แต่บำรุงเข้มข้น เติมเต็มความชุ่มชื้น ปลุกความเปล่งประกายให้ทั่วทั้งเรือนร่าง ไม่ว่าผิวแบบไหนหรือไลฟ์สไตล์แบบใด นี่คือออยล์ดูแลผิวที่คนรักผิวทุกคนควรมีไว้ใกล้ตัว
           </p>
           <Link to={'/shop'} className="border-2 border-gray-900 text-gray-900 px-8 py-3 rounded-full hover:bg-gray-900 hover:text-white transition-all duration-300">
             Keep Me Glowing
@@ -20,7 +33,7 @@ function FeatureSection() {
 
       <div className="relative h-96 md:h-auto">
         <img
-          src="/ekoe-asset/HOME/Glowthat_sworth.png"
+          src={settings.leftImage}
           alt="Ekoe Product"
           className="w-full h-full object-cover"
         />
@@ -28,7 +41,7 @@ function FeatureSection() {
 
       <div className="relative h-96 md:h-auto order-4 md:order-3">
         <img
-          src="/ekoe-asset/HOME/หนึ่งอย่างที่ดีจริง.png"
+          src={settings.rightImage}
           alt="Ekoe Products Collection"
           className="w-full h-full object-cover"
         />

@@ -50,6 +50,8 @@ export default [
   layout("routes/admin/_layout.tsx", [
     route("admin/dashboard", "routes/admin/dashboard.tsx"),
 
+    route("admin/landing-page", "routes/admin/landing-page.tsx"),
+
     // Product routes
     route("admin/products", "routes/admin/products/index.tsx"),
     route("admin/products/new", "routes/admin/products/new.tsx"),

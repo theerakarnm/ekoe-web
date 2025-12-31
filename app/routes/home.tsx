@@ -3,6 +3,7 @@ import { Landing } from "../landing/landing";
 import { getBestSellers, getNewArrivals, type Product } from "~/lib/services/product.service";
 import { blogService } from "~/lib/services/blog.service";
 import type { BlogPost } from "~/interface/blog.interface";
+import { getSiteSettings, type SiteSettings } from "~/lib/services/site-settings.service";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -13,17 +14,19 @@ export function meta({ }: Route.MetaArgs) {
 
 export async function loader() {
   try {
-    // Fetch best sellers, new arrivals, and blogs in parallel
-    const [bestSellers, newArrivals, blogsResponse] = await Promise.all([
+    // Fetch best sellers, new arrivals, blogs, and site settings in parallel
+    const [bestSellers, newArrivals, blogsResponse, siteSettings] = await Promise.all([
       getBestSellers(8),
       getNewArrivals(8),
-      blogService.getBlogs({ limit: 3, sortOrder: 'desc' })
+      blogService.getBlogs({ limit: 3, sortOrder: 'desc' }),
+      getSiteSettings().catch(() => null), // Fail silently, use defaults
     ]);
 
     return {
       bestSellers,
       newArrivals,
       blogs: blogsResponse.data,
+      siteSettings,
       error: null
     };
   } catch (error) {
@@ -33,6 +36,7 @@ export async function loader() {
       bestSellers: [] as Product[],
       newArrivals: [] as Product[],
       blogs: [] as BlogPost[],
+      siteSettings: null as SiteSettings | null,
       error: error instanceof Error ? error.message : 'Failed to load products'
     };
   }
