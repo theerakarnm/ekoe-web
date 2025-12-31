@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { CalendarIcon, Plus, Trash2, Gift, Layers, AlertTriangle } from 'lucide-react';
 import { SingleImageUploader } from '~/components/admin/products/single-image-uploader';
+import { GiftOptionsEditor, type GiftOption } from './gift-options-editor';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
@@ -99,6 +100,10 @@ interface PromotionTier {
     giftPrice?: number;
     giftImageUrl?: string;
     giftQuantity?: number;
+    // Multiple gift options support
+    giftSelectionType?: 'single' | 'options';
+    giftOptions?: GiftOption[];
+    maxGiftSelections?: number;
   };
 }
 
@@ -169,7 +174,11 @@ const tiersToRules = (tiers: PromotionTier[]): RuleFormData[] => {
       giftPrice: tier.benefit.giftPrice,
       giftImageUrl: tier.benefit.giftImageUrl,
       giftQuantity: tier.benefit.giftQuantity,
-    });
+      // Include gift options for multi-option gifts
+      giftOptions: tier.benefit.giftOptions,
+      giftSelectionType: tier.benefit.giftSelectionType,
+      maxGiftSelections: tier.benefit.maxGiftSelections,
+    } as any);  // Cast to bypass strict typing - API will handle the extra fields
   }
 
   return rules;
@@ -748,56 +757,113 @@ export function PromotionForm({ promotion, onSuccess, onCancel }: PromotionFormP
                               <Gift className="h-4 w-4" />
                               <span>รายละเอียดของแถม</span>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              <div className="md:col-span-2 space-y-4">
-                                <div>
-                                  <Label className="flex items-center gap-1 text-xs">
-                                    ชื่อของแถม <span className="text-red-500">*</span>
-                                  </Label>
-                                  <Input
-                                    type="text"
-                                    value={tier.benefit.giftName || ''}
-                                    onChange={(e) => updateTierBenefit(index, { giftName: e.target.value })}
-                                    placeholder="กรอกชื่อของแถม (จำเป็น)"
-                                    required
-                                  />
-                                  {!tier.benefit.giftName && (
-                                    <p className="text-xs text-red-500 mt-1">กรุณากรอกชื่อของแถม</p>
-                                  )}
-                                </div>
-                                <div>
-                                  <Label className="text-xs">ราคาของแถม (บาท)</Label>
-                                  <Input
-                                    type="number"
-                                    value={tier.benefit.giftPrice || ''}
-                                    onChange={(e) => updateTierBenefit(index, { giftPrice: parseFloat(e.target.value) || undefined })}
-                                    placeholder="ระบุราคา (ไม่จำเป็น)"
-                                  />
-                                  <p className="text-xs text-muted-foreground mt-1">ราคาสำหรับแสดงมูลค่าของแถม (ไม่บังคับ)</p>
-                                </div>
-                                <div>
-                                  <Label className="text-xs">จำนวน (ชิ้น)</Label>
-                                  <Input
-                                    type="number"
-                                    min="1"
-                                    value={tier.benefit.giftQuantity || 1}
-                                    onChange={(e) => updateTierBenefit(index, { giftQuantity: parseInt(e.target.value) || 1 })}
-                                    placeholder="1"
-                                  />
-                                  <p className="text-xs text-muted-foreground mt-1">จำนวนของแถมที่ลูกค้าจะได้รับ</p>
-                                </div>
+
+                            {/* Gift Selection Type Toggle */}
+                            <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
+                              <Label className="text-sm font-medium mb-2 block">รูปแบบของแถม</Label>
+                              <div className="flex gap-2">
+                                <Button
+                                  type="button"
+                                  variant={tier.benefit.giftSelectionType !== 'options' ? 'default' : 'outline'}
+                                  size="sm"
+                                  onClick={() => updateTierBenefit(index, {
+                                    giftSelectionType: 'single',
+                                    giftOptions: undefined,
+                                    maxGiftSelections: 1
+                                  })}
+                                >
+                                  ของแถมเดียว
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant={tier.benefit.giftSelectionType === 'options' ? 'default' : 'outline'}
+                                  size="sm"
+                                  onClick={() => updateTierBenefit(index, {
+                                    giftSelectionType: 'options',
+                                    giftName: undefined,
+                                    giftPrice: undefined,
+                                    giftImageUrl: undefined,
+                                    giftQuantity: undefined,
+                                    giftOptions: [
+                                      { id: `opt_${Date.now()}_1`, name: '', quantity: 1 },
+                                      { id: `opt_${Date.now()}_2`, name: '', quantity: 1 }
+                                    ],
+                                    maxGiftSelections: 1
+                                  })}
+                                >
+                                  ให้ลูกค้าเลือก
+                                </Button>
                               </div>
-                              <div>
-                                <Label className="text-xs">รูปภาพของแถม</Label>
-                                <div className="mt-1">
-                                  <SingleImageUploader
-                                    value={tier.benefit.giftImageUrl}
-                                    onChange={(url) => updateTierBenefit(index, { giftImageUrl: url })}
-                                    placeholder="อัปโหลดรูปของแถม"
-                                  />
-                                </div>
-                              </div>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                {tier.benefit.giftSelectionType === 'options'
+                                  ? 'ลูกค้าจะเลือกของแถมจากตัวเลือกที่มี'
+                                  : 'ลูกค้าจะได้รับของแถมตามที่กำหนดโดยอัตโนมัติ'}
+                              </p>
                             </div>
+
+                            {/* Single Gift Mode */}
+                            {tier.benefit.giftSelectionType !== 'options' && (
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="md:col-span-2 space-y-4">
+                                  <div>
+                                    <Label className="flex items-center gap-1 text-xs">
+                                      ชื่อของแถม <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Input
+                                      type="text"
+                                      value={tier.benefit.giftName || ''}
+                                      onChange={(e) => updateTierBenefit(index, { giftName: e.target.value })}
+                                      placeholder="กรอกชื่อของแถม (จำเป็น)"
+                                      required
+                                    />
+                                    {!tier.benefit.giftName && (
+                                      <p className="text-xs text-red-500 mt-1">กรุณากรอกชื่อของแถม</p>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs">ราคาของแถม (บาท)</Label>
+                                    <Input
+                                      type="number"
+                                      value={tier.benefit.giftPrice || ''}
+                                      onChange={(e) => updateTierBenefit(index, { giftPrice: parseFloat(e.target.value) || undefined })}
+                                      placeholder="ระบุราคา (ไม่จำเป็น)"
+                                    />
+                                    <p className="text-xs text-muted-foreground mt-1">ราคาสำหรับแสดงมูลค่าของแถม (ไม่บังคับ)</p>
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs">จำนวน (ชิ้น)</Label>
+                                    <Input
+                                      type="number"
+                                      min="1"
+                                      value={tier.benefit.giftQuantity || 1}
+                                      onChange={(e) => updateTierBenefit(index, { giftQuantity: parseInt(e.target.value) || 1 })}
+                                      placeholder="1"
+                                    />
+                                    <p className="text-xs text-muted-foreground mt-1">จำนวนของแถมที่ลูกค้าจะได้รับ</p>
+                                  </div>
+                                </div>
+                                <div>
+                                  <Label className="text-xs">รูปภาพของแถม</Label>
+                                  <div className="mt-1">
+                                    <SingleImageUploader
+                                      value={tier.benefit.giftImageUrl}
+                                      onChange={(url) => updateTierBenefit(index, { giftImageUrl: url })}
+                                      placeholder="อัปโหลดรูปของแถม"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Multiple Gift Options Mode */}
+                            {tier.benefit.giftSelectionType === 'options' && (
+                              <GiftOptionsEditor
+                                options={tier.benefit.giftOptions || []}
+                                onChange={(options) => updateTierBenefit(index, { giftOptions: options })}
+                                maxSelections={tier.benefit.maxGiftSelections || 1}
+                                onMaxSelectionsChange={(max) => updateTierBenefit(index, { maxGiftSelections: max })}
+                              />
+                            )}
                           </div>
                         )}
                       </div>

@@ -3,6 +3,7 @@ import { formatCurrencyFromCents } from "~/lib/formatter";
 import { useCartStore, type FreeGift } from "~/store/cart";
 import { DiscountCodeInput } from "./discount-code-input";
 import { FreeGiftDisplay } from "./free-gift-display";
+import { FreeGiftSelectionCard } from "./free-gift-selection-card";
 import { ShippingMethodSelector } from "./shipping-method-selector";
 
 import type { PromotionalCartResult } from "~/lib/services/promotional-cart.service";
@@ -26,6 +27,12 @@ export function CheckoutSummary({
   const fetchEligibleGifts = useCartStore((state) => state.fetchEligibleGifts);
   const getComplimentaryGifts = useCartStore((state) => state.getComplimentaryGifts);
 
+  // Gift selection state from cart store
+  const giftSelections = useCartStore((state) => state.giftSelections);
+  const pendingGiftSelections = useCartStore((state) => state.pendingGiftSelections);
+  const selectGift = useCartStore((state) => state.selectGift);
+  const deselectGift = useCartStore((state) => state.deselectGift);
+
   // Internal state for standalone usage (backward compatibility/fallback)
   const [internalShippingCost, setInternalShippingCost] = useState(0);
   const [internalSelectedMethod, setInternalSelectedMethod] = useState<string>();
@@ -41,14 +48,16 @@ export function CheckoutSummary({
   // Combine eligible gifts and complimentary gifts
   const allGifts = useMemo(() => {
     if (promotionalResult) {
-      // Map promotional gifts to store FreeGift format
-      return promotionalResult.freeGifts.map(gift => ({
-        id: `promo-${gift.productId}`,
-        name: gift.name,
-        description: 'Promotional Gift',
-        imageUrl: gift.imageUrl || '',
-        value: gift.value,
-      }));
+      // Map promotional gifts to store FreeGift format, excluding those that require selection
+      return promotionalResult.freeGifts
+        .filter(gift => !gift.requiresSelection)  // Only show confirmed gifts
+        .map(gift => ({
+          id: `promo-${gift.productId || gift.optionId || gift.name}`,
+          name: gift.name,
+          description: 'ของแถมโปรโมชั่น',
+          imageUrl: gift.imageUrl || '',
+          value: gift.value,
+        }));
     }
 
     // Fallback to store logic
@@ -168,7 +177,26 @@ export function CheckoutSummary({
         </span>
       </div>
 
-      {/* Free Gifts */}
+      {/* Pending Gift Selections */}
+      {pendingGiftSelections.length > 0 && (
+        <div className="mb-8 space-y-4">
+          {pendingGiftSelections.map((pending, index) => (
+            <FreeGiftSelectionCard
+              key={`${pending.promotionId}-${index}`}
+              promotionId={pending.promotionId}
+              promotionName={pending.promotionName}
+              availableOptions={pending.availableOptions}
+              selectionsRemaining={pending.selectionsRemaining - (giftSelections[pending.promotionId]?.length || 0)}
+              selectedOptionIds={giftSelections[pending.promotionId] || []}
+              onSelect={(optionId) => selectGift(pending.promotionId, optionId)}
+              onDeselect={(optionId) => deselectGift(pending.promotionId, optionId)}
+              cardIndex={index}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Confirmed Free Gifts */}
       {allGifts.length > 0 && (
         <div className="mb-8">
           <FreeGiftDisplay gifts={allGifts} />

@@ -24,6 +24,27 @@ export interface FreeGift {
   name: string;
   imageUrl?: string;
   value: number;
+  optionId?: string;        // Which option this gift came from (for selectable gifts)
+  requiresSelection?: boolean;  // Indicates user must select from options
+}
+
+// Gift option for user-selectable gifts
+export interface GiftOption {
+  id: string;
+  name: string;
+  price?: number;
+  imageUrl?: string;
+  quantity: number;
+  productId?: string;
+}
+
+// Pending gift selection for promotions with multiple options
+export interface PendingGiftSelection {
+  promotionId: string;
+  promotionName: string;
+  availableOptions: GiftOption[];
+  selectionsRemaining: number;
+  selectedOptionIds: string[];
 }
 
 export interface CartPricing {
@@ -49,6 +70,7 @@ export interface PromotionalCartResult {
   totalDiscount: number;
   freeGifts: FreeGift[];
   pricing: CartPricing;
+  pendingGiftSelections?: PendingGiftSelection[];  // Gifts awaiting user selection
 }
 
 export interface GiftDisplayInfo {

@@ -11,6 +11,7 @@ import { CartValidationErrors } from "~/components/cart/cart-validation-errors";
 import { validateCart, type ValidatedCart } from "~/lib/services/cart.service";
 import { promotionalCartService, type PromotionalCartResult } from "~/lib/services/promotional-cart.service";
 import { getBestSellers, type Product } from "~/lib/services/product.service";
+import { FreeGiftSelectionCard } from "~/components/checkout/free-gift-selection-card";
 import { Gift, Loader2 } from "lucide-react";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Link } from "react-router";
@@ -55,6 +56,13 @@ export default function Cart() {
   const [showErrors, setShowErrors] = useState(true);
 
   const discountCode = useCartStore((state) => state.discountCode);
+
+  // Gift selection state from cart store
+  const giftSelections = useCartStore((state) => state.giftSelections);
+  const pendingGiftSelections = useCartStore((state) => state.pendingGiftSelections);
+  const selectGift = useCartStore((state) => state.selectGift);
+  const deselectGift = useCartStore((state) => state.deselectGift);
+  const setPendingGiftSelections = useCartStore((state) => state.setPendingGiftSelections);
 
   // State for recommended products from API
   const [recommendedProducts, setRecommendedProducts] = useState<RecommendedProductType[]>([]);
@@ -144,6 +152,13 @@ export default function Cart() {
         );
 
         setPromotionalResult(evaluation);
+
+        // Update pending gift selections in cart store
+        if (evaluation.pendingGiftSelections && evaluation.pendingGiftSelections.length > 0) {
+          setPendingGiftSelections(evaluation.pendingGiftSelections);
+        } else {
+          setPendingGiftSelections([]);
+        }
       } catch (error) {
         console.error('Cart validation error:', error);
       } finally {
@@ -210,8 +225,24 @@ export default function Cart() {
                 )}
               </div>
 
-              {/* Free Gift Section - REMOVED*/}
-
+              {/* Free Gift Selection Section */}
+              {pendingGiftSelections.length > 0 && (
+                <div className="mt-8 space-y-4">
+                  {pendingGiftSelections.map((pending, index) => (
+                    <FreeGiftSelectionCard
+                      key={`${pending.promotionId}-${index}`}
+                      promotionId={pending.promotionId}
+                      promotionName={pending.promotionName}
+                      availableOptions={pending.availableOptions}
+                      selectionsRemaining={pending.selectionsRemaining - (giftSelections[pending.promotionId]?.length || 0)}
+                      selectedOptionIds={giftSelections[pending.promotionId] || []}
+                      onSelect={(optionId) => selectGift(pending.promotionId, optionId)}
+                      onDeselect={(optionId) => deselectGift(pending.promotionId, optionId)}
+                      cardIndex={index}
+                    />
+                  ))}
+                </div>
+              )}
 
               {/* Continue Shopping */}
               <div className="mt-8">

@@ -10,6 +10,25 @@ export interface FreeGift {
   value: number;
 }
 
+// Gift option for user-selectable gifts
+export interface GiftOption {
+  id: string;
+  name: string;
+  price?: number;
+  imageUrl?: string;
+  quantity: number;
+  productId?: string;
+}
+
+// Pending gift selection for promotions with multiple options
+export interface PendingGiftSelection {
+  promotionId: string;
+  promotionName: string;
+  availableOptions: GiftOption[];
+  selectionsRemaining: number;
+  selectedOptionIds: string[];
+}
+
 export interface ComplimentaryGiftInfo {
   name: string;
   description: string;
@@ -58,6 +77,16 @@ interface CartState {
   setEligibleGifts: (gifts: FreeGift[]) => void;
   fetchEligibleGifts: () => Promise<void>;
 
+  // Gift selection actions (for promotions with multiple gift options)
+  giftSelections: Record<string, string[]>;  // promotionId -> selectedOptionIds[]
+  pendingGiftSelections: PendingGiftSelection[];
+  selectGift: (promotionId: string, optionId: string) => void;
+  deselectGift: (promotionId: string, optionId: string) => void;
+  setPendingGiftSelections: (selections: PendingGiftSelection[]) => void;
+  hasCompletedGiftSelections: () => boolean;
+  getGiftSelections: () => Record<string, string[]>;
+  clearGiftSelections: () => void;
+
   // Calculation methods
   getSubtotal: () => number;
   getDiscountAmount: () => number;
@@ -78,6 +107,8 @@ export const useCartStore = create<CartState>()(
       discountCode: undefined,
       discountAmount: 0,
       eligibleGifts: [],
+      giftSelections: {},
+      pendingGiftSelections: [],
 
       // Item management actions
       addItem: (newItem) => {
@@ -119,7 +150,9 @@ export const useCartStore = create<CartState>()(
         items: [],
         discountCode: undefined,
         discountAmount: 0,
-        eligibleGifts: []
+        eligibleGifts: [],
+        giftSelections: {},
+        pendingGiftSelections: [],
       }),
 
       // Discount actions
@@ -157,6 +190,56 @@ export const useCartStore = create<CartState>()(
           console.error('Failed to fetch eligible gifts:', error);
           // Don't throw - just log the error and keep existing gifts
         }
+      },
+
+      // Gift selection actions
+      selectGift: (promotionId, optionId) => {
+        set((state) => {
+          const currentSelections = state.giftSelections[promotionId] || [];
+          if (currentSelections.includes(optionId)) {
+            return state; // Already selected
+          }
+          return {
+            giftSelections: {
+              ...state.giftSelections,
+              [promotionId]: [...currentSelections, optionId],
+            },
+          };
+        });
+      },
+
+      deselectGift: (promotionId, optionId) => {
+        set((state) => {
+          const currentSelections = state.giftSelections[promotionId] || [];
+          return {
+            giftSelections: {
+              ...state.giftSelections,
+              [promotionId]: currentSelections.filter((id) => id !== optionId),
+            },
+          };
+        });
+      },
+
+      setPendingGiftSelections: (selections) => {
+        set({ pendingGiftSelections: selections });
+      },
+
+      hasCompletedGiftSelections: () => {
+        const state = get();
+        // Check if all pending selections are complete
+        return state.pendingGiftSelections.every((pending) => {
+          const selected = state.giftSelections[pending.promotionId] || [];
+          const totalRequired = selected.length + pending.selectionsRemaining;
+          return selected.length >= totalRequired;
+        });
+      },
+
+      getGiftSelections: () => {
+        return get().giftSelections;
+      },
+
+      clearGiftSelections: () => {
+        set({ giftSelections: {}, pendingGiftSelections: [] });
       },
 
       // Calculation methods
