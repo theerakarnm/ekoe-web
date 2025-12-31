@@ -147,7 +147,7 @@ export default function OrderDetailPage() {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-    }).format(amount);
+    }).format(amount / 100);
   };
 
   const formatDate = (dateString: string) => {
@@ -347,7 +347,7 @@ export default function OrderDetailPage() {
                             {getPaymentStatusBadge(payment.status)}
                           </div>
                           <p className="text-sm text-muted-foreground">
-                            Amount: {formatCurrency(payment.amount / 100)}
+                            Amount: {formatCurrency(payment.amount)}
                           </p>
                           {payment.transactionId && (
                             <p className="text-sm text-muted-foreground">
@@ -431,8 +431,8 @@ export default function OrderDetailPage() {
               <Form method="post" className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="status">Order Status</Label>
-                  <Select 
-                    name="status" 
+                  <Select
+                    name="status"
                     value={selectedStatus}
                     onValueChange={setSelectedStatus}
                   >
@@ -469,8 +469,8 @@ export default function OrderDetailPage() {
                   />
                 </div>
 
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="w-full"
                   disabled={selectedStatus === order.status}
                 >

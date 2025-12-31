@@ -58,7 +58,7 @@ export default function CustomerDetailPage() {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-    }).format(amount);
+    }).format(amount / 100);
   };
 
   const formatDate = (dateString: string) => {
