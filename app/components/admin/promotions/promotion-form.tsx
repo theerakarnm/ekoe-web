@@ -82,6 +82,17 @@ const ruleSchema = z.object({
   giftPrice: z.number().optional(),
   giftImageUrl: z.string().optional(),
   giftQuantity: z.number().int().positive().optional(),
+  // Multiple gift options support
+  giftOptions: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    price: z.number().optional(),
+    imageUrl: z.string().optional(),
+    quantity: z.number().int().positive(),
+    productId: z.string().optional(),
+  })).optional(),
+  giftSelectionType: z.enum(['single', 'options']).optional(),
+  maxGiftSelections: z.number().int().positive().optional(),
 });
 
 // Tier interface: groups a condition with its benefit
@@ -143,6 +154,10 @@ const rulesToTiers = (rules: RuleFormData[]): PromotionTier[] => {
         giftPrice: benefit?.giftPrice,
         giftImageUrl: benefit?.giftImageUrl,
         giftQuantity: benefit?.giftQuantity,
+        // Include gift options for multi-option gifts
+        giftOptions: benefit?.giftOptions,
+        giftSelectionType: benefit?.giftSelectionType,
+        maxGiftSelections: benefit?.maxGiftSelections,
       },
     });
   }

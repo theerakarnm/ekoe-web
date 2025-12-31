@@ -34,6 +34,15 @@ export interface Promotion {
   updatedAt: string;
 }
 
+export interface GiftOption {
+  id: string;
+  name: string;
+  price?: number;
+  imageUrl?: string;
+  quantity: number;
+  productId?: string;
+}
+
 export interface PromotionRule {
   id: string;
   promotionId: string;
@@ -54,6 +63,10 @@ export interface PromotionRule {
   giftPrice?: number;
   giftImageUrl?: string;
   giftQuantity?: number;
+  // Multiple gift options support
+  giftOptions?: GiftOption[];
+  giftSelectionType?: 'single' | 'options';
+  maxGiftSelections?: number;
   createdAt: string;
 }
 
@@ -143,6 +156,10 @@ export interface CreatePromotionRuleDto {
   giftPrice?: number;
   giftImageUrl?: string;
   giftQuantity?: number;
+  // Multiple gift options support
+  giftOptions?: GiftOption[];
+  giftSelectionType?: 'single' | 'options';
+  maxGiftSelections?: number;
 }
 
 export interface GetPromotionsParams {

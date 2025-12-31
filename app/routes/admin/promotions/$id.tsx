@@ -513,30 +513,65 @@ export default function PromotionDetail() {
                                   {/* Free Gift Benefits */}
                                   {rule.benefitType === 'free_gift' && (
                                     <div className="space-y-2">
-                                      {rule.giftName && (
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-sm text-muted-foreground">ชื่อของแถม:</span>
-                                          <span className="font-semibold text-slate-900">{rule.giftName}</span>
+                                      {/* Multiple Gift Options Mode */}
+                                      {rule.giftSelectionType === 'options' && rule.giftOptions && rule.giftOptions.length > 0 ? (
+                                        <div className="space-y-3">
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-sm text-muted-foreground">รูปแบบ:</span>
+                                            <Badge className="bg-amber-100 text-amber-800 border-amber-200">
+                                              ให้ลูกค้าเลือก ({rule.maxGiftSelections || 1} จาก {rule.giftOptions.length})
+                                            </Badge>
+                                          </div>
+                                          <div className="grid grid-cols-2 gap-2">
+                                            {rule.giftOptions.map((option: any, optIndex: number) => (
+                                              <div key={option.id || optIndex} className="flex items-center gap-2 p-2 bg-white border rounded-lg">
+                                                {option.imageUrl && (
+                                                  <img
+                                                    src={option.imageUrl}
+                                                    alt={option.name}
+                                                    className="w-10 h-10 object-cover rounded"
+                                                  />
+                                                )}
+                                                <div className="flex-1 min-w-0">
+                                                  <p className="text-sm font-medium truncate">{option.name}</p>
+                                                  <p className="text-xs text-muted-foreground">
+                                                    {option.quantity} ชิ้น
+                                                    {option.price ? ` • ฿${option.price.toLocaleString()}` : ''}
+                                                  </p>
+                                                </div>
+                                              </div>
+                                            ))}
+                                          </div>
                                         </div>
-                                      )}
-                                      {rule.giftQuantity && (
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-sm text-muted-foreground">จำนวน:</span>
-                                          <span className="font-medium">{rule.giftQuantity} ชิ้น</span>
-                                        </div>
-                                      )}
-                                      {rule.giftPrice !== undefined && rule.giftPrice !== null && (
-                                        <div className="flex items-center gap-2">
-                                          <span className="text-sm text-muted-foreground">มูลค่า:</span>
-                                          <span className="font-medium text-green-600">
-                                            ฿{rule.giftPrice.toLocaleString()}
-                                          </span>
-                                        </div>
-                                      )}
-                                      {!rule.giftName && !rule.giftImageUrl && (
-                                        <p className="text-sm text-muted-foreground italic">
-                                          ไม่มีรายละเอียดของแถม
-                                        </p>
+                                      ) : (
+                                        /* Single Gift Mode */
+                                        <>
+                                          {rule.giftName && (
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-sm text-muted-foreground">ชื่อของแถม:</span>
+                                              <span className="font-semibold text-slate-900">{rule.giftName}</span>
+                                            </div>
+                                          )}
+                                          {rule.giftQuantity && (
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-sm text-muted-foreground">จำนวน:</span>
+                                              <span className="font-medium">{rule.giftQuantity} ชิ้น</span>
+                                            </div>
+                                          )}
+                                          {rule.giftPrice !== undefined && rule.giftPrice !== null && (
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-sm text-muted-foreground">มูลค่า:</span>
+                                              <span className="font-medium text-green-600">
+                                                ฿{rule.giftPrice.toLocaleString()}
+                                              </span>
+                                            </div>
+                                          )}
+                                          {!rule.giftName && !rule.giftImageUrl && (
+                                            <p className="text-sm text-muted-foreground italic">
+                                              ไม่มีรายละเอียดของแถม
+                                            </p>
+                                          )}
+                                        </>
                                       )}
                                     </div>
                                   )}

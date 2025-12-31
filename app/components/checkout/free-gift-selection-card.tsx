@@ -134,7 +134,7 @@ export function FreeGiftSelectionCard({
 
                 {option.price && option.price > 0 && (
                   <span className="text-xs text-amber-600 font-medium mt-1">
-                    มูลค่า {formatCurrencyFromCents(option.price * 100, { symbol: '฿' })}
+                    มูลค่า {formatCurrencyFromCents(option.price, { symbol: '฿' })}
                   </span>
                 )}
               </button>
