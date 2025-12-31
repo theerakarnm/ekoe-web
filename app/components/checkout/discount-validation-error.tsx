@@ -59,6 +59,12 @@ export function DiscountValidationError({ validation }: DiscountValidationErrorP
           title: 'Not Yet Active',
           message: 'This discount code is not yet active. Please check the start date and try again later.',
         };
+      case 'LINKED_PRODUCTS_NOT_IN_CART':
+        return {
+          icon: AlertCircle,
+          title: 'Linked Products Not in Cart',
+          message: 'This discount code is linked to specific products that are not in your cart. Please add the required products to your cart to use this discount code.',
+        };
       default:
         return {
           icon: AlertCircle,
