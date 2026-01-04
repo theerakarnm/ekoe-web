@@ -38,6 +38,9 @@ export default [
 
     // Customer account
     route("account", "routes/account/index.tsx"),
+
+    // Marketing Campaign public page
+    route("campaign/:slug", "routes/campaign.$slug.tsx"),
   ]),
 
   // Date Picker Demo
@@ -85,5 +88,10 @@ export default [
     // Contacts routes
     route("admin/contacts", "routes/admin/contacts/index.tsx"),
     route("admin/contacts/:id", "routes/admin/contacts/$id.tsx"),
+
+    // Marketing Campaigns routes
+    route("admin/marketing-campaigns", "routes/admin/marketing-campaigns/index.tsx"),
+    route("admin/marketing-campaigns/new", "routes/admin/marketing-campaigns/new.tsx"),
+    route("admin/marketing-campaigns/:id", "routes/admin/marketing-campaigns/$id.tsx"),
   ]),
 ] satisfies RouteConfig;

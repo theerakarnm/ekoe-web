@@ -70,11 +70,12 @@ export function WelcomePopup({
             description: c.description || text
           });
 
+          // Only show popup if there's a featured coupon
+          setTimeout(() => setIsOpen(true), 500);
         }
       } catch (error) {
         console.error('Failed to fetch featured coupon', error);
-      } finally {
-        setTimeout(() => setIsOpen(true), 500);
+        // Don't show popup if there's no featured coupon or an error occurred
       }
     }
 
