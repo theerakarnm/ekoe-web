@@ -23,6 +23,13 @@ export interface MarketingCampaign {
   endsAt: string | null;
 }
 
+export interface CampaignRegistration {
+  id: string;
+  campaignId: string;
+  phoneNumber: string;
+  createdAt: string;
+}
+
 /**
  * Get active marketing campaign by slug
  */
@@ -35,6 +42,24 @@ export async function getMarketingCampaignBySlug(
     const response = await apiClient.get<SuccessResponseWrapper<MarketingCampaign>>(
       `/api/marketing-campaigns/${slug}`,
       config
+    );
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
+/**
+ * Register phone number for a campaign
+ */
+export async function registerPhoneForCampaign(
+  slug: string,
+  phoneNumber: string
+): Promise<CampaignRegistration> {
+  try {
+    const response = await apiClient.post<SuccessResponseWrapper<CampaignRegistration>>(
+      `/api/marketing-campaigns/${slug}/register`,
+      { phoneNumber }
     );
     return response.data.data;
   } catch (error) {

@@ -165,3 +165,49 @@ export async function deleteMarketingCampaign(
     throw handleApiError(error);
   }
 }
+
+// ============================================================
+// Registration Functions
+// ============================================================
+
+export interface CampaignRegistration {
+  id: string;
+  campaignId: string;
+  phoneNumber: string;
+  createdAt: string;
+}
+
+/**
+ * Get registrations for a campaign
+ */
+export async function getCampaignRegistrations(
+  campaignId: string,
+  headers?: HeadersInit
+): Promise<CampaignRegistration[]> {
+  try {
+    const response = await apiClient.get<SuccessResponseWrapper<CampaignRegistration[]>>(
+      `/api/marketing-campaigns/admin/${campaignId}/registrations`,
+      getAxiosConfig(headers)
+    );
+    return response.data.data;
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
+
+/**
+ * Delete a campaign registration
+ */
+export async function deleteCampaignRegistration(
+  registrationId: string,
+  headers?: HeadersInit
+): Promise<void> {
+  try {
+    await apiClient.delete(
+      `/api/marketing-campaigns/admin/registrations/${registrationId}`,
+      getAxiosConfig(headers)
+    );
+  } catch (error) {
+    throw handleApiError(error);
+  }
+}
