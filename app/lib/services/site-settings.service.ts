@@ -25,6 +25,15 @@ export interface HeroSlide {
 export interface FeatureSectionSetting {
   leftImage: string;
   rightImage: string;
+  // Left section text
+  leftTitle: string;
+  leftDescription: string;
+  leftButtonText: string;
+  // Right section text
+  rightTitle: string;
+  rightDescription: string;
+  rightHighlightText: string;
+  rightButtonText: string;
 }
 
 export interface OnlineExecutiveSetting {

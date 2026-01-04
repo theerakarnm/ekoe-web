@@ -307,20 +307,33 @@ interface FeatureSectionFormProps {
 }
 
 function FeatureSectionForm({ data: initialData, onSave, saving }: FeatureSectionFormProps) {
-  const [data, setData] = useState<FeatureSectionSetting>(initialData);
+  const [data, setData] = useState<FeatureSectionSetting>({
+    ...initialData,
+    // Ensure text fields have defaults if not present
+    leftTitle: initialData.leftTitle || "Glow That's Worth Obsessing Over",
+    leftDescription: initialData.leftDescription || '',
+    leftButtonText: initialData.leftButtonText || 'Keep Me Glowing',
+    rightTitle: initialData.rightTitle || 'ปรัชญาแห่งความเรียบง่าย เพื่อผิวที่ดีที่สุด',
+    rightDescription: initialData.rightDescription || '',
+    rightHighlightText: initialData.rightHighlightText || '"ผิวที่ดี เริ่มจากสิ่งที่ดีจริงๆ"',
+    rightButtonText: initialData.rightButtonText || 'Begin Your Glow',
+  });
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Feature Section Images</CardTitle>
+        <CardTitle>Feature Section</CardTitle>
         <CardDescription>
-          Manage the two images displayed in the feature section grid on the homepage
+          Manage the two feature blocks displayed on the homepage (images and text)
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid md:grid-cols-2 gap-6">
+      <CardContent className="space-y-8">
+        {/* Left Section */}
+        <div className="space-y-4 p-4 border rounded-lg">
+          <h3 className="font-semibold text-lg">Left Section</h3>
+
           <div className="space-y-2">
-            <Label>Left Image (Glow That's Worth Obsessing Over)</Label>
+            <Label>Image</Label>
             <SingleImageUploader
               value={data.leftImage}
               onChange={(url) => setData({ ...data, leftImage: url })}
@@ -329,11 +342,81 @@ function FeatureSectionForm({ data: initialData, onSave, saving }: FeatureSectio
           </div>
 
           <div className="space-y-2">
-            <Label>Right Image (ปรัชญาแห่งความเรียบง่าย)</Label>
+            <Label>Title</Label>
+            <Input
+              value={data.leftTitle}
+              onChange={(e) => setData({ ...data, leftTitle: e.target.value })}
+              placeholder="Enter title"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Description</Label>
+            <Textarea
+              value={data.leftDescription}
+              onChange={(e) => setData({ ...data, leftDescription: e.target.value })}
+              placeholder="Enter description"
+              rows={4}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Button Text</Label>
+            <Input
+              value={data.leftButtonText}
+              onChange={(e) => setData({ ...data, leftButtonText: e.target.value })}
+              placeholder="Enter button text"
+            />
+          </div>
+        </div>
+
+        {/* Right Section */}
+        <div className="space-y-4 p-4 border rounded-lg">
+          <h3 className="font-semibold text-lg">Right Section</h3>
+
+          <div className="space-y-2">
+            <Label>Image</Label>
             <SingleImageUploader
               value={data.rightImage}
               onChange={(url) => setData({ ...data, rightImage: url })}
               placeholder="Upload right section image"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Title</Label>
+            <Input
+              value={data.rightTitle}
+              onChange={(e) => setData({ ...data, rightTitle: e.target.value })}
+              placeholder="Enter title"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Description</Label>
+            <Textarea
+              value={data.rightDescription}
+              onChange={(e) => setData({ ...data, rightDescription: e.target.value })}
+              placeholder="Enter description"
+              rows={4}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Highlight Text</Label>
+            <Input
+              value={data.rightHighlightText}
+              onChange={(e) => setData({ ...data, rightHighlightText: e.target.value })}
+              placeholder="Enter highlight text (e.g., quote)"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Button Text</Label>
+            <Input
+              value={data.rightButtonText}
+              onChange={(e) => setData({ ...data, rightButtonText: e.target.value })}
+              placeholder="Enter button text"
             />
           </div>
         </div>
