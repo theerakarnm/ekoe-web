@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, FileText, Ticket, ShoppingCart, Menu, X, Tag, Mail, Settings } from 'lucide-react';
+import { LayoutDashboard, Package, FileText, Ticket, ShoppingCart, Menu, X, Tag, Mail, Settings, Megaphone } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router';
@@ -37,6 +37,11 @@ const navigationItems = [
     name: 'Promotions',
     href: '/admin/promotions',
     icon: Tag,
+  },
+  {
+    name: 'Marketing',
+    href: '/admin/marketing-campaigns',
+    icon: Megaphone,
   },
   {
     name: 'Contacts',
