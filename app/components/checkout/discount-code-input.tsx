@@ -83,9 +83,6 @@ export function DiscountCodeInput({ onDiscountApplied, onDiscountRemoved }: Disc
           <AlertDescription className="flex items-center justify-between">
             <div>
               <span className="font-medium text-green-900">ใช้โค้ด "{discountCode}" แล้ว</span>
-              <span className="text-green-700 ml-2">
-                (-฿{(discountAmount / 100).toFixed(2)})
-              </span>
             </div>
             <Button
               type="button"

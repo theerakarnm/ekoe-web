@@ -109,14 +109,24 @@ export function CartSummary({ promotionalResult, isLoading }: CartSummaryProps) 
           <span className="font-medium uppercase">ฟรี</span>
         </div>
 
-        {/* Discount display */}
-        {discount > 0 && (
+        {/* Promotional discount display */}
+        {(promotionalResult?.pricing.promotionalDiscount || 0) > 0 && (
           <div className="flex justify-between text-sm text-green-600">
             <span className="flex items-center gap-1">
               <Tag className="w-3 h-3" />
-              ส่วนลด
+              ส่วนลดโปรโมชั่น
             </span>
-            <span className="font-medium">-{formatCurrencyFromCents(discount, { symbol: '฿' })}</span>
+            <span className="font-medium">-{formatCurrencyFromCents(promotionalResult?.pricing.promotionalDiscount || 0, { symbol: '฿' })}</span>
+          </div>
+        )}
+        {/* Coupon discount display */}
+        {promotionalResult?.pricing.discount?.amount && promotionalResult.pricing.discount.amount > 0 && (
+          <div className="flex justify-between text-sm text-green-600">
+            <span className="flex items-center gap-1">
+              <Tag className="w-3 h-3" />
+              คูปอง ({promotionalResult.pricing.discount.code})
+            </span>
+            <span className="font-medium">-{formatCurrencyFromCents(promotionalResult.pricing.discount.amount, { symbol: '฿' })}</span>
           </div>
         )}
 
