@@ -6,13 +6,15 @@ import { Link } from "react-router";
 import { useState } from "react";
 import { validateDiscountCode } from "~/lib/services/cart.service";
 import { Loader2, Gift, Tag } from "lucide-react";
+import { Skeleton } from "~/components/ui/skeleton";
 import type { PromotionalCartResult } from "~/lib/services/promotional-cart.service";
 
 interface CartSummaryProps {
   promotionalResult?: PromotionalCartResult | null;
+  isLoading?: boolean;
 }
 
-export function CartSummary({ promotionalResult }: CartSummaryProps) {
+export function CartSummary({ promotionalResult, isLoading }: CartSummaryProps) {
   const getSubtotal = useCartStore((state) => state.getSubtotal);
   const storeDiscount = useCartStore((state) => state.discountAmount);
   const discountCode = useCartStore((state) => state.discountCode);
@@ -30,13 +32,13 @@ export function CartSummary({ promotionalResult }: CartSummaryProps) {
   const total = subtotal - discount;
 
   const [couponCode, setCouponCode] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isCouponLoading, setIsCouponLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
 
-    setIsLoading(true);
+    setIsCouponLoading(true);
     setMessage(null);
 
     try {
@@ -58,9 +60,40 @@ export function CartSummary({ promotionalResult }: CartSummaryProps) {
     } catch (err) {
       setMessage({ type: 'error', text: "Failed to apply coupon" });
     } finally {
-      setIsLoading(false);
+      setIsCouponLoading(false);
     }
   };
+
+  // Skeleton loading UI
+  if (isLoading) {
+    return (
+      <div className="border border-gray-200 p-8">
+        <Skeleton className="h-7 w-40 mb-8" />
+
+        <div className="space-y-4 mb-8">
+          <div className="flex justify-between">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+          <div className="flex justify-between">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-12" />
+          </div>
+          <div className="flex justify-between">
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-16" />
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center mb-8 pt-4 border-t border-gray-100">
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-6 w-24" />
+        </div>
+
+        <Skeleton className="h-12 w-full" />
+      </div>
+    );
+  }
 
   return (
     <div className="border border-gray-200 p-8">

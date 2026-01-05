@@ -227,7 +227,7 @@ export function PromotionForm({ promotion, onSuccess, onCancel }: PromotionFormP
     textValue: rule.textValue,
     benefitType: rule.benefitType,
     benefitValue: rule.benefitValue,
-    maxDiscountAmount: rule.maxDiscountAmount,
+    maxDiscountAmount: rule.maxDiscountAmount ? rule.maxDiscountAmount / 100 : undefined,
     giftProductIds: rule.giftProductIds || [],
     giftQuantities: rule.giftQuantities || [],
     giftName: rule.giftName,

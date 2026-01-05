@@ -167,7 +167,7 @@ export default function Cart() {
     }
 
     performValidationAndEvaluation();
-  }, [items.length, discountCode]); // Re-run when items or discount changes
+  }, [items, discountCode]); // Re-run when items (including quantities) or discount changes
 
   return (
     <div className="min-h-screen bg-white font-sans text-[#1a1a1a]">
@@ -185,13 +185,7 @@ export default function Cart() {
             </div>
           )}
 
-          {/* Loading State */}
-          {isValidating && (
-            <div className="mb-8 flex items-center justify-center gap-2 text-gray-600">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span className="text-sm">Validating cart items...</span>
-            </div>
-          )}
+
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Left Column - Cart Items */}
@@ -254,7 +248,7 @@ export default function Cart() {
 
             {/* Right Column - Summary & Recommendations */}
             <div className="lg:col-span-4 space-y-12">
-              <CartSummary promotionalResult={promotionalResult} />
+              <CartSummary promotionalResult={promotionalResult} isLoading={isValidating} />
 
               <div>
                 <h3 className="font-serif text-xl mb-6">You May Also Like</h3>

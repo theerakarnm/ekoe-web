@@ -561,36 +561,39 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
             {/* Search Results */}
             {searchResults.length > 0 && (
               <div className="border rounded-md shadow-md bg-popover max-h-[200px] overflow-y-auto mt-2 absolute z-10 w-full">
-                {searchResults.map((product) => (
-                  <div
-                    key={product.id}
-                    className="flex items-center justify-between p-3 hover:bg-accent cursor-pointer transition-colors"
-                    onClick={() => handleAddProduct(product)}
-                  >
-                    <div className="flex items-center gap-3">
-                      {product.images?.[0] ? (
-                        <img
-                          src={product.images[0].url}
-                          alt={product.name}
-                          className="h-8 w-8 rounded object-cover"
-                        />
-                      ) : (
-                        <div className="h-8 w-8 rounded bg-muted flex items-center justify-center">
-                          <Package className="h-4 w-4 text-muted-foreground" />
+                {searchResults.map((product) => {
+                  const previewImage = product.images?.find((image) => image.isPrimary);
+                  return (
+                    <div
+                      key={product.id}
+                      className="flex items-center justify-between p-3 hover:bg-accent cursor-pointer transition-colors"
+                      onClick={() => handleAddProduct(product)}
+                    >
+                      <div className="flex items-center gap-3">
+                        {previewImage ? (
+                          <img
+                            src={previewImage.url}
+                            alt={product.name}
+                            className="h-8 w-8 rounded object-cover"
+                          />
+                        ) : (
+                          <div className="h-8 w-8 rounded bg-muted flex items-center justify-center">
+                            <Package className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium">{product.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {product.basePrice ? `$${(product.basePrice / 100).toFixed(2)}` : 'No price'}
+                          </span>
                         </div>
-                      )}
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium">{product.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {product.basePrice ? `$${(product.basePrice / 100).toFixed(2)}` : 'No price'}
-                        </span>
                       </div>
+                      <Button size="sm" variant="ghost" type="button">
+                        <Plus className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <Button size="sm" variant="ghost" type="button">
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
@@ -613,37 +616,40 @@ export function CouponForm({ initialData, onSubmit, onCancel }: CouponFormProps)
                       </TableCell>
                     </TableRow>
                   ) : (
-                    linkedProductsDetail.map((product) => (
-                      <TableRow key={product.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            {product.images?.[0] ? (
-                              <img
-                                src={product.images[0].url}
-                                alt={product.name}
-                                className="h-8 w-8 rounded object-cover"
-                              />
-                            ) : (
-                              <div className="h-8 w-8 rounded bg-muted flex items-center justify-center">
-                                <Package className="h-4 w-4 text-muted-foreground" />
-                              </div>
-                            )}
-                            <span className="font-medium">{product.name}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveProduct(product.id)}
-                            className="text-destructive hover:text-destructive/90"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                    linkedProductsDetail.map((product) => {
+                      const previewImage = product.images?.find((image) => image.isPrimary);
+                      return (
+                        <TableRow key={product.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              {previewImage ? (
+                                <img
+                                  src={previewImage.url}
+                                  alt={product.name}
+                                  className="h-8 w-8 rounded object-cover"
+                                />
+                              ) : (
+                                <div className="h-8 w-8 rounded bg-muted flex items-center justify-center">
+                                  <Package className="h-4 w-4 text-muted-foreground" />
+                                </div>
+                              )}
+                              <span className="font-medium">{product.name}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveProduct(product.id)}
+                              className="text-destructive hover:text-destructive/90"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })
                   )}
                 </TableBody>
               </Table>

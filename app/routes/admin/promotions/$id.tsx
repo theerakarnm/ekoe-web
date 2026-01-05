@@ -503,7 +503,7 @@ export default function PromotionDetail() {
                                         <div className="flex items-center gap-2">
                                           <span className="text-sm text-muted-foreground">ลดสูงสุด:</span>
                                           <span className="text-sm font-medium text-amber-600">
-                                            ฿{rule.maxDiscountAmount.toLocaleString()}
+                                            {formatCurrency(rule.maxDiscountAmount)}
                                           </span>
                                         </div>
                                       )}
