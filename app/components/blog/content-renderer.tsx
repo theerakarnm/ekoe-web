@@ -1,5 +1,4 @@
 import type { ContentBlock, ProductBlock } from '~/interface/blog.interface';
-import { ProductCard } from '~/components/share/product-card';
 import { cn } from '~/lib/utils';
 import { useNavigate } from 'react-router';
 

@@ -56,7 +56,7 @@ function mapProductToIProduct(product: Product): IProduct {
   // Map variants to sizes
   const sizes = product.variants?.map(variant => ({
     label: variant.name,
-    value: variant.value,
+    value: variant.id,
     price: variant.price
   }));
 

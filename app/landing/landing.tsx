@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Header } from "~/components/share/header";
 import { HeroSection } from "./hero-section";
 import { BestSellerSection } from "./best-seller";
-import { NewArrivalsSection } from "./new-arrivals";
 import { FeatureSection } from "./feature-section";
 import BlogSection from "./blog-section";
 import { Footer } from "~/components/share/footer";
