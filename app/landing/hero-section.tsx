@@ -189,7 +189,7 @@ function HeroSection({ slides: propSlides }: HeroSectionProps) {
                     {slide.description}
                   </p>
                   <Link to="/shop" className="border-2 border-white text-white px-8 py-3 rounded-full font-serif hover:bg-white hover:text-gray-900 transition-all duration-300 text-sm sm:text-base uppercase tracking-wider backdrop-blur-sm">
-                    Shop Ekoe
+                    Begin with Balance
                   </Link>
                 </div>
               </CarouselItem>
