@@ -161,7 +161,7 @@ export function WelcomePopup({
                 className="text-lg md:text-xl font-medium mb-2"
                 style={{ fontFamily: "'Noto Serif Thai', serif" }}
               >
-                โค้ดพิเศษสำหรับคุณ
+                {popupSettings.description}
               </p>
               <p
                 className="text-xl md:text-2xl font-bold text-black mb-6"
