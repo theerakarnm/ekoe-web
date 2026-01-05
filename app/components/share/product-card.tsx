@@ -11,6 +11,9 @@ function ProductCard({ product }: { product: IProduct }) {
     e.stopPropagation(); // Prevent navigation if the card is clickable
     e.preventDefault();
 
+    console.log(product.sizes);
+
+
     addItem({
       productId: String(product.productId),
       productName: product.productName,
@@ -18,7 +21,8 @@ function ProductCard({ product }: { product: IProduct }) {
       price: product.quickCartPrice,
       quantity: 1,
       // Use variantName instead of size for display
-      variantName: product.sizes?.[0]?.value
+      variantName: product.sizes?.[0]?.label,
+      variantId: product.sizes?.[0]?.value
     });
 
     toast.success(`Added ${product.productName} to cart`);
@@ -49,7 +53,7 @@ function ProductCard({ product }: { product: IProduct }) {
         <div className="border-t border-gray-200 text-left">
           <h3 className="font-serif text-lg text-gray-900 mb-1 truncate px-4 pt-4">{product.productName}</h3>
           <p className="text-sm text-gray-400 mb-4 px-4">
-            {product.sizes?.map((s) => s.value).join(" / ") || "\u00A0"}
+            {product.sizes?.map((s) => s.label).join(" / ") || "\u00A0"}
           </p>
           <div className="relative h-8 overflow-hidden px-4">
             <p className="text-sm text-gray-900 font-serif transition-all duration-300 group-hover:-translate-y-full">

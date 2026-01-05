@@ -29,6 +29,8 @@ interface RecommendedProductType {
   name: string;
   image: string;
   price: number;
+  variantId?: string;
+  variantName?: string;
   originalPrice?: number;
 }
 
@@ -41,6 +43,8 @@ function transformToRecommendedProduct(product: Product): RecommendedProductType
     name: product.name,
     image: primaryImage?.url || '/placeholder-product.jpg',
     price: variant?.price || product.basePrice,
+    variantId: variant?.id || undefined,
+    variantName: variant?.name || undefined,
     originalPrice: variant?.compareAtPrice || product.compareAtPrice || undefined,
   };
 }

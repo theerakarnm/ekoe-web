@@ -9,6 +9,8 @@ interface RecommendedProductProps {
     name: string;
     image: string;
     price: number;
+    variantId?: string;
+    variantName?: string;
     originalPrice?: number;
   };
 }
@@ -22,6 +24,8 @@ export function RecommendedProduct({ product }: RecommendedProductProps) {
       productName: product.name,
       image: product.image,
       price: product.price,
+      variantId: product.variantId,
+      variantName: product.variantName,
       quantity: 1,
     });
     toast.success(`Added ${product.name} to cart`);

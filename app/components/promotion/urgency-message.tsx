@@ -1,10 +1,10 @@
 import { Badge } from "~/components/ui/badge";
 import { Card } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
-import { 
-  Clock, 
-  AlertTriangle, 
-  Zap, 
+import {
+  Clock,
+  AlertTriangle,
+  Zap,
   Timer,
   Gift,
   Percent,
@@ -140,7 +140,7 @@ export function UrgencyMessage({
 
   const getUrgencyText = () => {
     const { days, hours, minutes } = timeRemaining;
-    
+
     if (days > 0) {
       return `Ends in ${days} day${days > 1 ? 's' : ''}`;
     } else if (hours > 0) {
@@ -154,7 +154,7 @@ export function UrgencyMessage({
 
   const getMotivationalText = () => {
     const { days, hours, minutes } = timeRemaining;
-    
+
     if (urgencyLevel === 'high') {
       if (minutes <= 30) {
         return "⚡ Last chance! This offer expires in minutes!";
@@ -194,7 +194,7 @@ export function UrgencyMessage({
           )}>
             {config.icon}
           </div>
-          
+
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <Badge variant={config.badgeVariant} className="text-xs font-bold">
@@ -223,21 +223,21 @@ export function UrgencyMessage({
                 </div>
               </div>
             )}
-            
+
             <div className="text-center bg-white rounded-lg px-2 py-1 min-w-[50px]">
               <div className="text-lg font-bold text-gray-900">
                 {timeRemaining.hours.toString().padStart(2, '0')}
               </div>
               <div className="text-xs text-gray-500">Hours</div>
             </div>
-            
+
             <div className="text-center bg-white rounded-lg px-2 py-1 min-w-[50px]">
               <div className="text-lg font-bold text-gray-900">
                 {timeRemaining.minutes.toString().padStart(2, '0')}
               </div>
               <div className="text-xs text-gray-500">Mins</div>
             </div>
-            
+
             {urgencyLevel === 'high' && (
               <div className="text-center bg-white rounded-lg px-2 py-1 min-w-[50px]">
                 <div className="text-lg font-bold text-gray-900">
@@ -263,8 +263,8 @@ export function UrgencyMessage({
               onClick={onTakeAction}
               className={cn(
                 "font-semibold",
-                urgencyLevel === 'high' 
-                  ? "bg-red-600 hover:bg-red-700 text-white" 
+                urgencyLevel === 'high'
+                  ? "bg-red-600 hover:bg-red-700 text-white"
                   : urgencyLevel === 'medium'
                     ? "bg-orange-600 hover:bg-orange-700 text-white"
                     : "bg-yellow-600 hover:bg-yellow-700 text-white"
@@ -283,9 +283,9 @@ export function UrgencyMessage({
             {getPromotionIcon()}
             <p className={cn("text-xs text-center", config.textColor)}>
               Offer expires {new Date(promotion.endsAt).toLocaleDateString()} at{' '}
-              {new Date(promotion.endsAt).toLocaleTimeString([], { 
-                hour: '2-digit', 
-                minute: '2-digit' 
+              {new Date(promotion.endsAt).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
               })}
             </p>
           </div>

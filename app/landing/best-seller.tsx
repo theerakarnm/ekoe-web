@@ -38,7 +38,7 @@ function transformProduct(product: Product): IProduct {
 
   const sizes = variants.map(v => ({
     label: v.name,
-    value: v.value,
+    value: v.id,
     price: v.price
   }));
 

@@ -68,7 +68,7 @@ function FeatureSection({ settings: propSettings }: FeatureSectionProps) {
             {settings.rightDescription}
           </p>
           <p className="text-gray-900 mb-8 font-thai">
-            เพราะเรารู้ว่า <span className="font-medium text-lg">
+            <span className="font-medium text-lg">
               {settings.rightHighlightText}
             </span>
           </p>
