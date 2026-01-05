@@ -1,13 +1,22 @@
-import { useState } from "react";
+import { useState, useMemo, isValidElement } from "react";
 import type { Route } from "./+types/faq";
 import { Header } from "~/components/share/header";
 import { Footer } from "~/components/share/footer";
+import {
+  generateSEOMeta,
+  generateFAQSchema,
+  generateBreadcrumbSchema,
+  JsonLd
+} from "~/lib/seo";
 
 export function meta({ }: Route.MetaArgs) {
-  return [
-    { title: "FAQ - คำถามที่พบบ่อย - Ekoe" },
-    { name: "description", content: "คำถามที่พบบ่อยเกี่ยวกับการสั่งซื้อสินค้า การชำระเงิน และการจัดส่ง Ekoe" },
-  ];
+  return generateSEOMeta({
+    title: "FAQ - คำถามที่พบบ่อย",
+    description: "คำถามที่พบบ่อยเกี่ยวกับการสั่งซื้อสินค้า การชำระเงิน และการจัดส่ง Ekoe รวมถึงนโยบายการคืนสินค้าและข้อมูลที่เป็นประโยชน์",
+    pathname: "/faq",
+    ogType: "website",
+    keywords: ["FAQ", "คำถามที่พบบ่อย", "Ekoe", "สกินแคร์", "การสั่งซื้อ", "การชำระเงิน"],
+  });
 }
 
 interface FAQItem {
@@ -209,6 +218,19 @@ function FAQAccordion({ item, isOpen, onToggle }: { item: FAQItem; isOpen: boole
   );
 }
 
+// Helper function to extract plain text from React nodes for Schema
+function extractTextFromReactNode(node: React.ReactNode): string {
+  if (typeof node === 'string') return node;
+  if (typeof node === 'number') return String(node);
+  if (!node) return '';
+  if (Array.isArray(node)) return node.map(extractTextFromReactNode).join(' ');
+  if (isValidElement(node)) {
+    const element = node as React.ReactElement<{ children?: React.ReactNode }>;
+    return extractTextFromReactNode(element.props.children);
+  }
+  return '';
+}
+
 export default function FAQ() {
   const [openId, setOpenId] = useState<number | null>(null);
 
@@ -216,8 +238,27 @@ export default function FAQ() {
     setOpenId(openId === id ? null : id);
   };
 
+  // Generate FAQ Schema
+  const faqSchema = useMemo(() => {
+    const faqData = faqItems.map(item => ({
+      question: item.question,
+      answer: extractTextFromReactNode(item.answer),
+    }));
+    return generateFAQSchema(faqData);
+  }, []);
+
+  // Generate Breadcrumb Schema
+  const breadcrumbSchema = useMemo(() =>
+    generateBreadcrumbSchema([
+      { name: 'Home', path: '/' },
+      { name: 'FAQ', path: '/faq' },
+    ]),
+    []);
+
   return (
     <div className="min-h-screen bg-white font-sans">
+      <JsonLd data={faqSchema} />
+      <JsonLd data={breadcrumbSchema} />
       <Header />
 
       <main className="pt-8 sm:pt-8 pb-16">

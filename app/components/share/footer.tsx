@@ -86,7 +86,7 @@ function Footer() {
               <h4 className="font-medium mb-4 font-serif">Discover</h4>
               <ul className="space-y-2 text-sm text-gray-400 mb-4">
                 <li><a href="/about" className="hover:text-white transition-colors font-serif">About Us</a></li>
-                <li><a href="/blog" className="hover:text-white transition-colors font-serif">Blog</a></li>
+                <li><a href="/blogs" className="hover:text-white transition-colors font-serif">Blog</a></li>
               </ul>
               <h4 className="font-medium mb-4 font-serif">
                 <a href="/online-executive">Online Exclusive</a>

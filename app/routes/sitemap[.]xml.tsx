@@ -6,12 +6,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const baseUrl = `${url.protocol}//${url.host}`;
 
-  // 1. Define static routes
+  // 1. Define static routes with priorities
   const staticRoutes = [
-    "",
-    "/shop",
-    "/blogs",
-    "/online-executive",
+    { path: "", priority: "1.0", changefreq: "daily" },
+    { path: "/shop", priority: "0.9", changefreq: "daily" },
+    { path: "/blogs", priority: "0.8", changefreq: "daily" },
+    { path: "/about", priority: "0.7", changefreq: "monthly" },
+    { path: "/contact", priority: "0.7", changefreq: "monthly" },
+    { path: "/faq", priority: "0.7", changefreq: "weekly" },
+    { path: "/return-policy", priority: "0.5", changefreq: "monthly" },
+    { path: "/online-executive", priority: "0.6", changefreq: "weekly" },
   ];
 
   // 2. Fetch dynamic content
@@ -35,9 +39,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       .map((route) => {
         return `
   <url>
-    <loc>${baseUrl}${route}</loc>
-    <changefreq>daily</changefreq>
-    <priority>${route === "" ? "1.0" : "0.8"}</priority>
+    <loc>${baseUrl}${route.path}</loc>
+    <changefreq>${route.changefreq}</changefreq>
+    <priority>${route.priority}</priority>
   </url>`;
       })
       .join("")}

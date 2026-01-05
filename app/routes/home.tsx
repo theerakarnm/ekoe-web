@@ -4,12 +4,21 @@ import { getBestSellers, getNewArrivals, type Product } from "~/lib/services/pro
 import { blogService } from "~/lib/services/blog.service";
 import type { BlogPost } from "~/interface/blog.interface";
 import { getSiteSettings, type SiteSettings } from "~/lib/services/site-settings.service";
+import {
+  generateSEOMeta,
+  generateOrganizationSchema,
+  generateWebsiteSchema,
+  JsonLd
+} from "~/lib/seo";
 
 export function meta({ }: Route.MetaArgs) {
-  return [
-    { title: "Ekoe | Biological Beauty For Living Skin" },
-    { name: "description", content: "Discover our collection of natural skincare products" },
-  ];
+  return generateSEOMeta({
+    title: "Ekoe | Biological Beauty For Living Skin",
+    description: "แบรนด์สกินแคร์พรีเมียมสัญชาติไทย เน้นความงามที่เป็นธรรมชาติ ผลิตภัณฑ์คุณภาพสำหรับผิวที่มีชีวิต",
+    pathname: "/",
+    ogType: "website",
+    keywords: ["สกินแคร์ไทย", "premium skincare", "Ekoe", "biological beauty", "skincare 2026"],
+  });
 }
 
 export async function loader() {
@@ -44,30 +53,15 @@ export async function loader() {
 
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const organizationSchema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Ekoe",
-    "url": "https://ekoe.com", // Replace with actual production URL if known, or handle dynamically
-    "logo": "https://ekoe.com/ekoe-asset/Ekoe_Logo-01.png",
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "telephone": "+66-123-456-789", // Placeholder
-      "contactType": "Customer Service"
-    },
-    "sameAs": [
-      "https://www.facebook.com/ekoe",
-      "https://www.instagram.com/ekoe"
-    ]
-  };
+  const organizationSchema = generateOrganizationSchema();
+  const websiteSchema = generateWebsiteSchema();
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-      />
+      <JsonLd data={organizationSchema} />
+      <JsonLd data={websiteSchema} />
       <Landing loaderData={loaderData} />
     </>
   );
 }
+

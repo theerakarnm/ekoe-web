@@ -5,18 +5,35 @@ import { TableOfContents } from '~/components/blog/table-of-contents';
 import { useMemo } from 'react';
 import { Header } from '~/components/share/header';
 import { Footer } from '~/components/share/footer';
+import {
+  generateSEOMeta,
+  generateArticleSchema,
+  generateBreadcrumbSchema,
+  JsonLd,
+  SITE_CONFIG
+} from '~/lib/seo';
 
 export function meta({ data }: Route.MetaArgs) {
   if (!data?.post) {
-    return [
-      { title: 'Blog Post Not Found - Ekoe' },
-      { name: 'description', content: 'The requested blog post could not be found.' },
-    ];
+    return generateSEOMeta({
+      title: 'Blog Post Not Found',
+      description: 'The requested blog post could not be found.',
+      pathname: '/blogs',
+      noIndex: true,
+    });
   }
-  return [
-    { title: `${data.post.title} - Ekoe Blog` },
-    { name: 'description', content: data.post.metaDescription || data.post.excerpt || 'Read our latest article.' },
-  ];
+
+  return generateSEOMeta({
+    title: data.post.title,
+    description: data.post.metaDescription || data.post.excerpt || 'อ่านบทความล่าสุดจาก Ekoe',
+    pathname: `/blogs/${data.post.id}`,
+    ogType: 'article',
+    ogImage: data.post.featuredImageUrl || undefined,
+    publishedTime: data.post.createdAt,
+    modifiedTime: data.post.updatedAt || data.post.createdAt,
+    author: 'Ekoe',
+    keywords: ['skincare', 'Ekoe', 'บทความสกินแคร์', data.post.title],
+  });
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {
@@ -37,8 +54,32 @@ export default function BlogPostDetail({ loaderData }: Route.ComponentProps) {
   // Use backend TOC or generate if missing (fallback)
   const toc = post.tableOfContents || [];
 
+  // Generate Article Schema
+  const articleSchema = useMemo(() =>
+    generateArticleSchema({
+      title: post.title,
+      description: post.metaDescription || post.excerpt || '',
+      url: `/blogs/${post.id}`,
+      imageUrl: post.featuredImageUrl,
+      publishedTime: post.createdAt,
+      modifiedTime: post.updatedAt || post.createdAt,
+      author: 'Ekoe',
+    }),
+    [post]);
+
+  // Generate Breadcrumb Schema
+  const breadcrumbSchema = useMemo(() =>
+    generateBreadcrumbSchema([
+      { name: 'Home', path: '/' },
+      { name: 'Blog', path: '/blogs' },
+      { name: post.title, path: `/blogs/${post.id}` },
+    ]),
+    [post.id, post.title]);
+
   return (
     <div className="flex flex-col min-h-screen bg-white">
+      <JsonLd data={articleSchema} />
+      <JsonLd data={breadcrumbSchema} />
       <Header />
 
       <main className="grow">
@@ -70,6 +111,16 @@ export default function BlogPostDetail({ loaderData }: Route.ComponentProps) {
                       {post.subtitle}
                     </h2>
                   )}
+                  {/* Article metadata for SEO */}
+                  <div className="text-sm text-gray-500">
+                    <time dateTime={post.createdAt}>
+                      {new Date(post.createdAt).toLocaleDateString('th-TH', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </time>
+                  </div>
                 </header>
 
                 <div className="hidden lg:block pt-8 border-t border-gray-100">
@@ -85,15 +136,17 @@ export default function BlogPostDetail({ loaderData }: Route.ComponentProps) {
                 <TableOfContents items={toc} />
               </div>
 
-              {post.contentBlocks && post.contentBlocks.length > 0 ? (
-                <ContentRenderer blocks={post.contentBlocks} />
-              ) : (
-                // Legacy content fallback
-                <div
-                  className="prose prose-stone max-w-none prose-lg dark:prose-invert font-serif"
-                  dangerouslySetInnerHTML={{ __html: post.content || '' }}
-                />
-              )}
+              <article>
+                {post.contentBlocks && post.contentBlocks.length > 0 ? (
+                  <ContentRenderer blocks={post.contentBlocks} />
+                ) : (
+                  // Legacy content fallback
+                  <div
+                    className="prose prose-stone max-w-none prose-lg dark:prose-invert font-serif"
+                    dangerouslySetInnerHTML={{ __html: post.content || '' }}
+                  />
+                )}
+              </article>
             </div>
 
           </div>
@@ -104,3 +157,4 @@ export default function BlogPostDetail({ loaderData }: Route.ComponentProps) {
     </div>
   );
 }
+
