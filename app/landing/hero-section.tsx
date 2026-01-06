@@ -381,7 +381,7 @@ function HeroSection({ slides: propSlides }: HeroSectionProps) {
                         {products.map((product) => (
                           <Link
                             key={product.id}
-                            to={`/products/${product.id}`}
+                            to={`/product-detail/${product.id}`}
                             className="text-gray-300 text-base py-1 truncate"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >

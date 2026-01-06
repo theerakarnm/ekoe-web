@@ -134,6 +134,10 @@ export const productSchema = z.object({
   metaTitle: z.string().max(255, 'Meta title too long').optional(),
   metaDescription: z.string().max(500, 'Meta description too long').optional(),
 
+  // Rating & Reviews (admin adjustable)
+  rating: z.number().min(0, 'Rating must be at least 0').max(5, 'Rating must be at most 5').optional(),
+  reviewCount: z.number().int().min(0, 'Review count must be non-negative').optional(),
+
   // Inventory tracking
 
   // Relations (optional for creation)

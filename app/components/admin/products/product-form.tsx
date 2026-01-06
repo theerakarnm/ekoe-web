@@ -108,6 +108,8 @@ export function ProductForm({ product }: ProductFormProps) {
       metaTitle: product?.metaTitle || '',
       metaDescription: product?.metaDescription || '',
       trackInventory: product?.trackInventory ?? true,
+      rating: product?.rating ? parseFloat(product.rating) : undefined,
+      reviewCount: product?.reviewCount ?? undefined,
       variants: (product?.variants?.map((v) => ({
         id: v.id,
         variantType: (v.variantType || 'Size') as string,
@@ -356,6 +358,9 @@ export function ProductForm({ product }: ProductFormProps) {
             imageUrl: block.imageUrl || undefined,
           }))
           : undefined,
+        // Rating & Reviews - convert rating to string for API
+        rating: data.rating !== undefined ? String(data.rating) : undefined,
+        reviewCount: data.reviewCount,
       };
 
       let productId = product?.id;
@@ -1044,6 +1049,72 @@ export function ProductForm({ product }: ProductFormProps) {
                         </FormControl>
                         <FormDescription>
                           {field.value?.length || 0}/500 characters
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </Card>
+
+              {/* Rating & Reviews */}
+              <Card className="p-6">
+                <h2 className="text-xl font-semibold mb-4">Rating & Reviews</h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Manually adjust the displayed rating and review count for this product.
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="rating"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Rating (Stars)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            max="5"
+                            {...field}
+                            value={field.value ?? ''}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              field.onChange(value === '' ? undefined : parseFloat(value));
+                            }}
+                            placeholder="e.g. 4.5"
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Enter a value between 0 and 5
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="reviewCount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Review Count</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="0"
+                            step="1"
+                            {...field}
+                            value={field.value ?? ''}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              field.onChange(value === '' ? undefined : parseInt(value, 10));
+                            }}
+                            placeholder="e.g. 150"
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Number of reviews to display
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
