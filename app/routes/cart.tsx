@@ -67,6 +67,7 @@ export default function Cart() {
   const selectGift = useCartStore((state) => state.selectGift);
   const deselectGift = useCartStore((state) => state.deselectGift);
   const setPendingGiftSelections = useCartStore((state) => state.setPendingGiftSelections);
+  const clearGiftSelections = useCartStore((state) => state.clearGiftSelections);
 
   // State for recommended products from API
   const [recommendedProducts, setRecommendedProducts] = useState<RecommendedProductType[]>([]);
@@ -107,6 +108,10 @@ export default function Cart() {
         setPromotionalResult(null);
         return;
       }
+
+      // Clear previous gift selections when cart changes
+      // to prevent stale selections from showing incorrect counts
+      clearGiftSelections();
 
       try {
         setIsValidating(true);

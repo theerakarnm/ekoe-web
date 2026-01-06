@@ -1,60 +1,9 @@
 import { useState, useEffect } from "react";
 import { ProductCard } from "~/components/share/product-card";
 import { Skeleton } from "~/components/ui/skeleton";
-import type { IProduct } from "~/interface/product.interface";
 import type { Product } from "~/lib/services/product.service";
 import { getRelatedProducts } from "~/lib/services/product.service";
-import { formatCurrencyFromCents } from "~/lib/formatter";
-
-/**
- * Transform API Product to IProduct format for ProductCard
- */
-function transformProduct(product: Product): IProduct {
-  const primaryImage = product.images?.find(img => img.isPrimary) || product.images?.[0];
-  // Get secondary image (explicitly marked, or first non-primary image)
-  const secondaryImage = product.images?.find(img => img.isSecondary)
-    || product.images?.find(img => !img.isPrimary && img.url !== primaryImage?.url)
-    || (product.images && product.images.length > 1 ? product.images[1] : undefined);
-  const variants = product.variants || [];
-
-  // Calculate price range from variants or use base price
-  let priceTitle: string;
-  if (variants.length > 0) {
-    const prices = variants.map(v => (v.compareAtPrice || v.price));
-    const minPrice = Math.min(...prices);
-    const maxPrice = Math.max(...prices);
-
-    if (minPrice === maxPrice) {
-      priceTitle = formatCurrencyFromCents(minPrice);
-    } else {
-      priceTitle = `${formatCurrencyFromCents(minPrice)} - ${formatCurrencyFromCents(maxPrice)}`;
-    }
-  } else {
-    priceTitle = formatCurrencyFromCents(product.basePrice);
-  }
-
-  const sizes = variants.map(v => ({
-    label: v.name,
-    value: v.id,
-    price: v.price
-  }));
-
-  return {
-    productId: product.id,
-    image: {
-      description: primaryImage?.altText || primaryImage?.description || product.name,
-      url: primaryImage?.url || '/placeholder-product.jpg'
-    },
-    secondaryImage: secondaryImage ? {
-      description: secondaryImage.altText || secondaryImage.description || product.name,
-      url: secondaryImage.url,
-    } : undefined,
-    productName: product.name,
-    priceTitle,
-    quickCartPrice: variants[0]?.price || product.basePrice,
-    sizes
-  };
-}
+import { transformProductToIProduct } from "~/lib/product-utils";
 
 interface RelatedProductsProps {
   productId: string;
@@ -129,7 +78,7 @@ export function RelatedProducts({
   }
 
   // Transform products for display
-  const displayProducts = relatedProducts.map(transformProduct);
+  const displayProducts = relatedProducts.map(p => transformProductToIProduct(p));
 
   return (
     <div className="py-12">

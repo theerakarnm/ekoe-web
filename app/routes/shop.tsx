@@ -1,7 +1,7 @@
 import { useSearchParams, useNavigate, useNavigation, isRouteErrorResponse } from "react-router";
 import { useRef, useState } from "react";
 import type { Route } from "./+types/shop";
-import { ChevronDown, AlertCircle, RefreshCw, SlidersHorizontal } from "lucide-react";
+import { AlertCircle, RefreshCw, SlidersHorizontal } from "lucide-react";
 import { Header } from "~/components/share/header";
 import { Footer } from "~/components/share/footer";
 import { ProductGrid } from "~/components/shop/product-grid";
@@ -12,7 +12,6 @@ import { Pagination } from "~/components/shop/pagination";
 import { ResultCount } from "~/components/shop/result-count";
 import { Button } from "~/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "~/components/ui/sheet";
-import type { IProduct } from "~/interface/product.interface";
 import {
   getProducts,
   getCategories,
@@ -20,65 +19,7 @@ import {
   type ProductFilterParams,
   type Product
 } from "~/lib/services/product.service";
-import { formatCurrencyFromCents } from "~/lib/formatter";
-
-// Helper function to map API Product to IProduct interface
-function mapProductToIProduct(product: Product): IProduct {
-  // Get the primary image or first image
-  const primaryImage = product.images?.find(img => img.isPrimary) || product.images?.[0];
-  // Get secondary image (explicitly marked, or first non-primary image)
-  const secondaryImage = product.images?.find(img => img.isSecondary)
-    || product.images?.find(img => !img.isPrimary && img.url !== primaryImage?.url)
-    || (product.images && product.images.length > 1 ? product.images[1] : undefined);
-  const variants = product.variants || [];
-
-  // Calculate price range from variants or use base price
-  let priceTitle: string;
-  let quickCartPrice: number;
-
-  if (variants.length > 0) {
-    const prices = variants.map(v => v.price);
-    const minPrice = Math.min(...prices);
-    const maxPrice = Math.max(...prices);
-
-    if (minPrice === maxPrice) {
-      priceTitle = formatCurrencyFromCents(minPrice);
-    } else {
-      priceTitle = `${formatCurrencyFromCents(minPrice)} - ${formatCurrencyFromCents(maxPrice)}`;
-    }
-    // Use the minimum variant price for quick cart
-    quickCartPrice = minPrice;
-  } else {
-    priceTitle = formatCurrencyFromCents(product.basePrice);
-    quickCartPrice = product.basePrice;
-  }
-
-  // Map variants to sizes
-  const sizes = product.variants?.map(variant => ({
-    label: variant.name,
-    value: variant.id,
-    price: variant.price
-  }));
-
-  return {
-    productId: product.id,
-    image: {
-      description: primaryImage?.altText || product.name,
-      url: primaryImage?.url || 'https://images.unsplash.com/photo-1615397349754-cfa2066a298e?q=80&w=800&auto=format&fit=crop',
-    },
-    secondaryImage: secondaryImage ? {
-      description: secondaryImage.altText || product.name,
-      url: secondaryImage.url,
-    } : undefined,
-    productName: product.name,
-    priceTitle: priceTitle,
-    quickCartPrice: quickCartPrice,
-    sizes,
-    subtitle: product.subtitle ?? undefined,
-    rating: parseFloat(product.rating || '0') || 0,
-    reviewCount: product.reviewCount,
-  };
-}
+import { transformProductToIProduct } from "~/lib/product-utils";
 
 /**
  * Loader function that fetches products, categories, and price range
@@ -185,7 +126,10 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   // Map products to IProduct interface for ProductCard component
-  const mappedProducts = products.map(mapProductToIProduct);
+  const mappedProducts = products.map(p => transformProductToIProduct(p, {
+    priceStrategy: 'price',
+    includeExtendedInfo: true
+  }));
 
   // Check if we're loading (navigating)
   const isLoading = navigation.state === "loading";

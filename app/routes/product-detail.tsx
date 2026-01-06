@@ -150,6 +150,7 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & {
     },
     galleryImages: galleryImages?.length ? galleryImages : [],
     rating: parseFloat(apiProduct.rating || '0') || 0,
+    reviewCount: apiProduct.reviewCount || 0,
     description: apiProduct.description ? [apiProduct.description] : [],
     sizes: sizes?.length ? sizes : [],
     extendedSizes: extendedSizes.length ? extendedSizes : undefined,
