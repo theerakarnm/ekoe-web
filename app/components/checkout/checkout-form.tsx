@@ -451,6 +451,13 @@ export function CheckoutForm({ isValidating, validationResult }: CheckoutFormPro
           />
         </div>
 
+        {/* 2C2P Security Message */}
+        <div className="text-center text-sm text-gray-500 bg-gray-50 p-4 rounded-md border border-gray-100">
+          <p>
+            หลังคลิก "ชำระเงิน" ระบบจะเปลี่ยนเส้นทางคุณไปยัง 2C2P เพื่อให้คุณดำเนินการสั่งซื้อจนสำเร็จและปลอดภัย
+          </p>
+        </div>
+
         <Button
           type="submit"
           className="w-full h-14 bg-black text-white text-lg hover:bg-gray-800 uppercase tracking-widest"
