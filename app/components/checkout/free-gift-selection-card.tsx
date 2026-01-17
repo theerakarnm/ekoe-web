@@ -48,30 +48,30 @@ export function FreeGiftSelectionCard({
   };
 
   return (
-    <Card className="border-gray-700 bg-gradient-to-r from-gray-900 to-gray-800">
+    <Card className="border-gray-200 bg-linear-to-r from-gray-100 to-gray-50 mb-12">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-white text-base">
           <div className="relative">
-            <Gift className="w-5 h-5 text-gray-300" />
-            <Sparkles className="w-3 h-3 text-white absolute -top-1 -right-1" />
+            <Gift className="w-5 h-5 text-gray-800" />
+            <Sparkles className="w-3 h-3 text-black absolute -top-1 -right-1" />
           </div>
-          <span>
+          <span className='text-gray-800'>
             {cardIndex > 0 ? `ของแถมที่ ${cardIndex + 1}` : 'เลือกของแถมฟรี'}
           </span>
         </CardTitle>
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-gray-600">
           {promotionName} • เลือก {maxSelections} จาก {availableOptions.length} รายการ
         </p>
       </CardHeader>
 
       <CardContent className="pt-0">
         {/* Selection Status */}
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-700">
-          <span className="text-sm text-gray-300">
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-600">
+          <span className="text-sm text-gray-600">
             เลือกแล้ว {totalSelections} / {maxSelections}
           </span>
           {totalSelections === maxSelections && (
-            <span className="text-xs bg-green-900/50 text-green-400 px-2 py-1 rounded-full flex items-center gap-1">
+            <span className="text-xs bg-green-white text-green-400 px-2 py-1 rounded-full flex items-center gap-1">
               <Check className="w-3 h-3" />
               เลือกครบแล้ว
             </span>
@@ -91,12 +91,12 @@ export function FreeGiftSelectionCard({
                 onClick={() => handleToggle(option.id)}
                 disabled={isDisabled}
                 className={cn(
-                  "relative flex flex-col items-center p-3 rounded-lg border-2 transition-all text-left",
+                  "relative flex flex-col items-center p-3 rounded-xl border-2 transition-all text-left",
                   isSelected
-                    ? "border-white bg-gray-700"
+                    ? "border-white bg-gray-300"
                     : isDisabled
-                      ? "border-gray-700 bg-gray-800/50 opacity-50 cursor-not-allowed"
-                      : "border-gray-600 bg-gray-800 hover:border-gray-400 hover:bg-gray-700"
+                      ? "border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed"
+                      : "border-gray-200 bg-gray-50 hover:border-gray-200 hover:bg-gray-200"
                 )}
               >
                 {/* Selected Indicator */}
@@ -107,7 +107,7 @@ export function FreeGiftSelectionCard({
                 )}
 
                 {/* Gift Image */}
-                <div className="w-16 h-16 mb-2 rounded-lg overflow-hidden bg-gray-700 border border-gray-600">
+                <div className="w-16 h-16 mb-2 rounded-xl overflow-hidden bg-gray-700 border border-gray-200">
                   {option.imageUrl ? (
                     <img
                       src={option.imageUrl}
@@ -122,12 +122,12 @@ export function FreeGiftSelectionCard({
                 </div>
 
                 {/* Gift Info */}
-                <span className="text-sm font-medium text-white text-center line-clamp-2">
+                <span className="text-sm font-medium text-black text-center line-clamp-2">
                   {option.name}
                 </span>
 
                 {option.quantity > 1 && (
-                  <span className="text-xs text-gray-400 mt-0.5">
+                  <span className="text-xs text-gray-600 mt-0.5">
                     จำนวน {option.quantity} ชิ้น
                   </span>
                 )}
