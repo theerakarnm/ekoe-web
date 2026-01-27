@@ -13,10 +13,12 @@ import { Toaster } from "~/components/ui/sonner";
 import { GlobalLoading } from "~/components/global-loading";
 import { GoogleAnalytics } from "~/components/google-analytics";
 import { GoogleTagManagerHead, GoogleTagManagerBody } from "~/components/google-tag-manager";
+import { MetaPixel } from "~/components/meta-pixel";
 import "./app.css";
 
 const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || "";
 const GTM_ID = import.meta.env.VITE_GTM_ID || "";
+const FB_PIXEL_ID = import.meta.env.VITE_FB_PIXEL_ID || "";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -46,6 +48,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <GoogleTagManagerHead gtmId={GTM_ID} />
         <GoogleAnalytics measurementId={GA_MEASUREMENT_ID} />
+        <MetaPixel pixelId={FB_PIXEL_ID} />
         <Meta />
         <Links />
       </head>
