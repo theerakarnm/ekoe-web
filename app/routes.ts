@@ -13,7 +13,7 @@ export default [
     route("blogs/:id", "routes/blogs/$id.tsx"),
     route("online-executive", "routes/online-executive.tsx"),
     route("shop", "routes/shop.tsx"),
-    route("product-detail/:id", "routes/product-detail.tsx"),
+    route("p/:slug", "routes/product-detail.tsx"),
     route("cart", "routes/cart.tsx"),
     route("checkout", "routes/checkout.tsx"),
     route("about", "routes/about.tsx"),

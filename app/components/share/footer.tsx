@@ -74,7 +74,7 @@ function Footer() {
                 <li><a href="/shop?product_type=set" className="hover:text-white transition-colors font-serif">Set All</a></li>
                 {products.map((product) => (
                   <li key={product.id}>
-                    <a href={`/product-detail/${product.id}`} className="hover:text-white transition-colors font-serif">
+                    <a href={`/p/${product.slug}?allow_modal=F`} className="hover:text-white transition-colors font-serif">
                       {product.name}
                     </a>
                   </li>

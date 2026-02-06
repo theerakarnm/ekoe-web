@@ -49,7 +49,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       .map((product) => {
         return `
   <url>
-    <loc>${baseUrl}/product-detail/${product.id}</loc>
+    <loc>${baseUrl}/p/${product.slug}</loc>
     <lastmod>${new Date(product.updatedAt || product.createdAt).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

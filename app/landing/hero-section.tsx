@@ -240,7 +240,7 @@ function HeroSection({ slides: propSlides }: HeroSectionProps) {
                     </DropdownMenuItem> */}
                     {products.map((product) => (
                       <DropdownMenuItem key={product.id} asChild>
-                        <Link to={`/product-detail/${product.id}`} className="w-full cursor-pointer truncate">
+                        <Link to={`/p/${product.slug}`} className="w-full cursor-pointer truncate">
                           {product.name}
                         </Link>
                       </DropdownMenuItem>
@@ -381,7 +381,7 @@ function HeroSection({ slides: propSlides }: HeroSectionProps) {
                         {products.map((product) => (
                           <Link
                             key={product.id}
-                            to={`/product-detail/${product.id}`}
+                            to={`/p/${product.slug}?allow_modal=F`}
                             className="text-gray-300 text-base py-1 truncate"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
@@ -494,7 +494,7 @@ function HeroSection({ slides: propSlides }: HeroSectionProps) {
                   {filteredProducts.map((product) => (
                     <Link
                       key={product.id}
-                      to={`/product-detail/${product.id}`}
+                      to={`/p/${product.slug}`}
                       onClick={handleCloseSearch}
                       className="group flex items-center gap-4 p-3 rounded-lg border border-gray-100 hover:border-[#6E604D] hover:shadow-md transition-all duration-200"
                     >

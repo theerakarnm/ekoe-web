@@ -11,9 +11,6 @@ function ProductCard({ product }: { product: IProduct }) {
     e.stopPropagation(); // Prevent navigation if the card is clickable
     e.preventDefault();
 
-    console.log(product.sizes);
-
-
     addItem({
       productId: String(product.productId),
       productName: product.productName,
@@ -29,7 +26,7 @@ function ProductCard({ product }: { product: IProduct }) {
   };
 
   return (
-    <Link to={`/product-detail/${product.productId}`} className="block w-full">
+    <Link to={`/p/${product.slug}?allow_modal=F`} className="block w-full">
       <div className="w-full bg-white border border-gray-200 group cursor-pointer transition-all duration-300 hover:shadow-lg">
         <div className="w-full aspect-4/5 overflow-hidden relative">
           {/* Primary Image */}

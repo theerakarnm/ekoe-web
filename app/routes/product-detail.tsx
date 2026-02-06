@@ -25,18 +25,19 @@ import { StickyImageScroll } from "~/components/product/sticky-image-scroll";
 
 import { getProduct, getLinkedCoupons, type Product } from "~/lib/services/product.service";
 import { formatCurrencyFromCents } from "~/lib/formatter";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import * as fbq from "~/lib/fpixel";
+import { WelcomePopup } from "~/components/share/welcome-popup";
 
 export async function loader({ params }: Route.LoaderArgs) {
   try {
-    const { id } = params as { id: string };
-    if (!id) {
-      throw new Response("Product ID is required", { status: 400 });
+    const { slug } = params;
+    if (!slug) {
+      throw new Response("Product slug is required", { status: 400 });
     }
 
-    // Fetch product only - related products now handled by component
-    const product = await getProduct(id);
+    // Fetch product by slug - related products now handled by component
+    const product = await getProduct(slug);
 
     // Fetch linked coupons
     let linkedCoupons: any[] = [];
@@ -139,6 +140,7 @@ function mapApiProductToDetail(apiProduct: Product): IProduct & {
 
   return {
     productId: apiProduct.id,
+    slug: apiProduct.slug,
     productName: apiProduct.name,
     subtitle: apiProduct.subtitle || "",
     priceTitle: sizes && sizes.length > 0
@@ -199,6 +201,12 @@ export function meta({ data }: Route.MetaArgs) {
 
 export default function ProductDetail({ loaderData }: Route.ComponentProps) {
   const { product: apiProduct, linkedCoupons } = loaderData;
+
+  // Check if welcome modal should be shown (when allow_modal is not F)
+  const [searchParams] = useSearchParams();
+  const allowModal = searchParams.get('allow_modal');
+  const showWelcomePopup = allowModal !== 'F';
+
   const productData = useMemo(() => {
     const details = mapApiProductToDetail(apiProduct);
 
@@ -216,8 +224,6 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
 
     return details;
   }, [apiProduct, linkedCoupons]);
-
-  console.log(productData);
 
   // Use extended sizes if available, otherwise fall back to regular sizes
   const availableSizes = useMemo(() =>
@@ -376,7 +382,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
     "sku": productData.productId,
     "offers": {
       "@type": "Offer",
-      "url": `${baseUrl}/product-detail/${productData.productId}`,
+      "url": `${baseUrl}/p/${apiProduct.slug}`,
       "priceCurrency": "THB",
       "price": currentPrice / 100, // Assuming price is in cents
       "availability": isOutOfStock ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
@@ -406,7 +412,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
       "@type": "ListItem",
       "position": 3,
       "name": productData.productName,
-      "item": `${baseUrl}/product-detail/${productData.productId}`
+      "item": `${baseUrl}/p/${apiProduct.slug}`
     }]
   };
 
@@ -923,6 +929,9 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
       </main >
 
       <Footer />
+
+      {/* Welcome Popup - shows when allow_modal is not F */}
+      {showWelcomePopup && <WelcomePopup />}
     </div >
   );
 }

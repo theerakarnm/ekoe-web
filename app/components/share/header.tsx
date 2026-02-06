@@ -165,7 +165,7 @@ export default function Header({
                       </DropdownMenuItem>
                       {products.map((product) => (
                         <DropdownMenuItem key={product.id} asChild>
-                          <Link to={`/product-detail/${product.id}`} className="w-full cursor-pointer truncate">
+                          <Link to={`/p/${product.slug}?allow_modal=F`} className="w-full cursor-pointer truncate">
                             {product.name}
                           </Link>
                         </DropdownMenuItem>
@@ -318,7 +318,7 @@ export default function Header({
                           {products.map((product) => (
                             <Link
                               key={product.id}
-                              to={`/product-detail/${product.id}`}
+                              to={`/p/${product.slug}`}
                               className="text-gray-600 text-sm py-1 truncate"
                               onClick={() => setIsMobileMenuOpen(false)}
                             >
@@ -420,7 +420,7 @@ export default function Header({
                   {filteredProducts.map((product) => (
                     <Link
                       key={product.id}
-                      to={`/product-detail/${product.id}`}
+                      to={`/p/${product.slug}`}
                       onClick={handleCloseSearch}
                       className="group flex items-center gap-4 p-3 rounded-lg border border-gray-100 hover:border-[#6E604D] hover:shadow-md transition-all duration-200"
                     >

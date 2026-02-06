@@ -109,7 +109,7 @@ function ProductBlockRenderer({ block }: { block: ProductBlock }) {
 
   return (
     <div id={block.id} className="my-12">
-      <div role='button' onClick={() => navigate(`/product-detail/${block.productId}`)} className="border border-gray-200 bg-white flex flex-col md:flex-row overflow-hidden cursor-pointer">
+      <div role='button' onClick={() => navigate(`/p/${block.productSlug || block.productId}?allow_modal=F`)} className="border border-gray-200 bg-white flex flex-col md:flex-row overflow-hidden cursor-pointer">
         {/* Left Side: Image */}
         <div className="md:w-[35%] aspect-4/3 md:aspect-auto md:min-h-[100px] relative">
           <img

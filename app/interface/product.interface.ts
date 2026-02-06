@@ -1,5 +1,6 @@
 export interface IProduct {
   productId: string | number;
+  slug: string;
   image: {
     description: string;
     url: string;

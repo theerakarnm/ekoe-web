@@ -46,8 +46,6 @@ export async function loader({ request }: Route.LoaderArgs) {
     request.headers
   );
 
-  console.log(result);
-
   return result;
 }
 
