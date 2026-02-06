@@ -26,6 +26,7 @@ import { StickyImageScroll } from "~/components/product/sticky-image-scroll";
 import { getProduct, getLinkedCoupons, type Product } from "~/lib/services/product.service";
 import { formatCurrencyFromCents } from "~/lib/formatter";
 import { Link } from "react-router";
+import * as fbq from "~/lib/fpixel";
 
 export async function loader({ params }: Route.LoaderArgs) {
   try {
@@ -257,6 +258,18 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
     setSelectedImage(productData.image.url);
     setSelectedMediaType(productData.galleryImages?.[0]?.mediaType || 'image');
   }, [productData.image.url, productData.galleryImages]);
+
+  // 📊 Meta Pixel: Track ViewContent เมื่อดูหน้าสินค้า
+  useEffect(() => {
+    const eventId = fbq.generateEventId();
+    fbq.viewContent({
+      content_ids: [String(productData.productId)],
+      content_name: productData.productName,
+      content_type: 'product',
+      value: productData.quickCartPrice / 100,  // Convert from cents to THB
+      currency: 'THB'
+    }, eventId);
+  }, [productData.productId, productData.productName, productData.quickCartPrice]);
 
   // Derived state
   const isOutOfStock = Object.values(selectedOptions).some(opt => opt.stockQuantity === 0);

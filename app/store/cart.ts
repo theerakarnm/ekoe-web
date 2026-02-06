@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { getEligibleGifts } from '~/lib/services/cart.service';
+import * as fbq from '~/lib/fpixel';
 
 export interface FreeGift {
   id: string;
@@ -125,6 +126,17 @@ export const useCartStore = create<CartState>()(
 
           return { items: [...state.items, { ...newItem, quantity: newItem.quantity || 1 }] };
         });
+
+        // 📊 Meta Pixel: Track AddToCart เมื่อเพิ่มสินค้าลงตะกร้า
+        const eventId = fbq.generateEventId();
+        fbq.addToCart({
+          content_ids: [newItem.productId],
+          content_name: newItem.productName,
+          content_type: 'product',
+          value: newItem.price / 100,  // Convert from cents to THB
+          currency: 'THB',
+          num_items: newItem.quantity || 1,
+        }, eventId);
       },
 
       removeItem: (productId, variantId) => {

@@ -15,6 +15,8 @@ import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { ApiClientError } from "~/lib/api-client";
 import { promotionalCartService, type PromotionalCartResult } from "~/lib/services/promotional-cart.service";
+import * as fbq from "~/lib/fpixel";
+import { useRef } from "react";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -110,6 +112,23 @@ export default function Checkout() {
   const [shippingCost, setShippingCost] = useState(0);
 
   const discountCode = useCartStore((state) => state.discountCode);
+
+  // 📊 Meta Pixel: Track InitiateCheckout เมื่อเข้าหน้าชำระเงิน (ครั้งเดียว)
+  const hasTrackedCheckout = useRef(false);
+  useEffect(() => {
+    if (items.length === 0 || hasTrackedCheckout.current) return;
+
+    hasTrackedCheckout.current = true;
+    const eventId = fbq.generateEventId();
+    const totalValue = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    fbq.initiateCheckout({
+      content_ids: items.map(item => item.productId),
+      value: totalValue / 100,  // Convert from cents to THB
+      currency: 'THB',
+      num_items: items.reduce((sum, item) => sum + item.quantity, 0),
+    }, eventId);
+  }, [items]);
 
   // Validate and Evaluate Cart
   useEffect(() => {

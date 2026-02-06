@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link, redirect, useLoaderData } from "react-router";
 import { CheckCircle, Package, MapPin, CreditCard, Calendar } from "lucide-react";
 import { Button } from "~/components/ui/button";
@@ -9,6 +9,7 @@ import type { OrderDetail, OrderItemDetail } from "~/lib/services/order.service"
 import { formatCurrencyFromCents } from "~/lib/formatter";
 import { useCartStore } from "~/store/cart";
 import { OrderPromotionDisplay } from "~/components/promotion/order-promotion-display";
+import * as fbq from "~/lib/fpixel";
 
 export function meta() {
   return [
@@ -76,6 +77,25 @@ export default function OrderConfirmation() {
   useEffect(() => {
     clearCart();
   }, [clearCart]);
+
+  // 📊 Meta Pixel: Track Purchase เมื่อสั่งซื้อสำเร็จ (ใช้ order.id เป็น eventId เพื่อ dedup กับ server)
+  const hasTrackedPurchase = useRef(false);
+  useEffect(() => {
+    if (hasTrackedPurchase.current) return;
+
+    hasTrackedPurchase.current = true;
+    // Use order.id as eventId for deduplication with server-side CAPI
+    const eventId = `purchase-${order.id}`;
+
+    fbq.purchase({
+      content_ids: order.items.map((item: OrderItemDetail) => item.productId).filter((id): id is string => id !== null),
+      content_type: 'product',
+      value: order.totalAmount / 100,  // Convert from cents to THB
+      currency: 'THB',
+      num_items: order.items.reduce((sum: number, item: OrderItemDetail) => sum + item.quantity, 0),
+      order_id: order.orderNumber,
+    }, eventId);
+  }, [order.id, order.items, order.totalAmount, order.orderNumber]);
 
   const estimatedDays = getEstimatedDaysFromCost(order.shippingCost);
   const estimatedDelivery = calculateEstimatedDelivery(order.createdAt, estimatedDays);

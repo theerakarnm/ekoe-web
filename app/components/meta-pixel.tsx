@@ -1,12 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router";
-
-declare global {
-  interface Window {
-    fbq: (...args: unknown[]) => void;
-    _fbq: unknown;
-  }
-}
+import * as fbq from "../lib/fpixel";
 
 interface MetaPixelProps {
   pixelId: string;
@@ -17,11 +11,7 @@ export function MetaPixel({ pixelId }: MetaPixelProps) {
 
   useEffect(() => {
     if (!pixelId) return;
-
-    // Track page views on route change
-    if (typeof window.fbq === "function") {
-      window.fbq("track", "PageView");
-    }
+    fbq.pageview();
   }, [location, pixelId]);
 
   if (!pixelId) return null;
