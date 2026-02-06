@@ -254,15 +254,25 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
   }, [initialSelections]);
 
   const [quantity, setQuantity] = useState(1);
-  const [selectedImage, setSelectedImage] = useState(productData.image.url);
+  // Find the initial image URL (primary image or first gallery image)
+  const initialImageUrl = productData.image.url || productData.galleryImages?.[0]?.url || '';
+
+  // Find the media type for the initial image by matching URL in gallery
+  const getMediaTypeForUrl = (url: string) => {
+    const matchingImage = productData.galleryImages?.find(img => img.url === url);
+    return matchingImage?.mediaType || 'image';
+  };
+
+  const [selectedImage, setSelectedImage] = useState(initialImageUrl);
   const [selectedMediaType, setSelectedMediaType] = useState<'image' | 'video'>(
-    productData.galleryImages?.[0]?.mediaType || 'image'
+    getMediaTypeForUrl(initialImageUrl)
   );
 
-  // Sync image when product changes
+  // Sync image when product changes - also handle case where primary image URL is empty
   useEffect(() => {
-    setSelectedImage(productData.image.url);
-    setSelectedMediaType(productData.galleryImages?.[0]?.mediaType || 'image');
+    const imageUrl = productData.image.url || productData.galleryImages?.[0]?.url || '';
+    setSelectedImage(imageUrl);
+    setSelectedMediaType(getMediaTypeForUrl(imageUrl));
   }, [productData.image.url, productData.galleryImages]);
 
   // 📊 Meta Pixel: Track ViewContent เมื่อดูหน้าสินค้า
