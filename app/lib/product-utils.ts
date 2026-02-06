@@ -125,6 +125,7 @@ export function transformProductToIProduct(
     priceTitle,
     quickCartPrice: quickCartPrice || product.basePrice,
     sizes,
+    slug: product.slug,
   };
 
   // Add extended info if requested

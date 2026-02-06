@@ -17,9 +17,6 @@ interface BestSellerSectionProps {
 }
 
 function BestSellerSection({ products = [], isLoading = false, error = null }: BestSellerSectionProps) {
-  // Show loading skeleton
-  console.dir(products, { depth: null });
-
   if (isLoading) {
     return (
       <div className="mx-auto *:mt-16 sm:*:mt-20 md:*:mt-24 mb-8 sm:mb-12 md:mb-16 container px-4 sm:px-6">

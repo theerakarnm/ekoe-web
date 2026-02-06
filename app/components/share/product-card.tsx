@@ -5,6 +5,8 @@ import { useCartStore } from "~/store/cart"
 import { toast } from "sonner"
 
 function ProductCard({ product }: { product: IProduct }) {
+  console.log({ product, slug: product.slug });
+
   const addItem = useCartStore((state) => state.addItem);
 
   const handleAddToCart = (e: React.MouseEvent) => {
