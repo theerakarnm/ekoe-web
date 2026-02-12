@@ -10,7 +10,7 @@ export default [
     // Public routes
     index("routes/home.tsx"),
     route("blogs", "routes/blogs/index.tsx"),
-    route("blogs/:id", "routes/blogs/$id.tsx"),
+    route("blogs/:slug", "routes/blogs/$slug.tsx"),
     route("online-executive", "routes/online-executive.tsx"),
     route("shop", "routes/shop.tsx"),
     route("p/:slug", "routes/product-detail.tsx"),

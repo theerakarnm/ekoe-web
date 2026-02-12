@@ -1,4 +1,4 @@
-import type { Route } from './+types/$id';
+import type { Route } from './+types/$slug';
 import { blogService } from '~/lib/services/blog.service';
 import { ContentRenderer } from '~/components/blog/content-renderer';
 import { TableOfContents } from '~/components/blog/table-of-contents';
@@ -26,7 +26,7 @@ export function meta({ data }: Route.MetaArgs) {
   return generateSEOMeta({
     title: data.post.title,
     description: data.post.metaDescription || data.post.excerpt || 'อ่านบทความล่าสุดจาก Ekoe',
-    pathname: `/blogs/${data.post.id}`,
+    pathname: `/blogs/${data.post.slug}`,
     ogType: 'article',
     ogImage: data.post.featuredImageUrl || undefined,
     publishedTime: data.post.createdAt,
@@ -37,11 +37,11 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {
-  const { id } = params;
-  if (!id) throw new Response('Not Found', { status: 404 });
+  const { slug } = params;
+  if (!slug) throw new Response('Not Found', { status: 404 });
 
   try {
-    const post = await blogService.getBlogPost(id, request.headers);
+    const post = await blogService.getBlogPost(slug, request.headers);
     return { post };
   } catch (error) {
     throw new Response('Not Found', { status: 404 });
@@ -59,7 +59,7 @@ export default function BlogPostDetail({ loaderData }: Route.ComponentProps) {
     generateArticleSchema({
       title: post.title,
       description: post.metaDescription || post.excerpt || '',
-      url: `/blogs/${post.id}`,
+      url: `/blogs/${post.slug}`,
       imageUrl: post.featuredImageUrl,
       publishedTime: post.createdAt,
       modifiedTime: post.updatedAt || post.createdAt,
@@ -72,9 +72,9 @@ export default function BlogPostDetail({ loaderData }: Route.ComponentProps) {
     generateBreadcrumbSchema([
       { name: 'Home', path: '/' },
       { name: 'Blog', path: '/blogs' },
-      { name: post.title, path: `/blogs/${post.id}` },
+      { name: post.title, path: `/blogs/${post.slug}` },
     ]),
-    [post.id, post.title]);
+    [post.slug, post.title]);
 
   return (
     <div className="flex flex-col min-h-screen bg-white">

@@ -60,7 +60,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       .map((blog) => {
         return `
   <url>
-    <loc>${baseUrl}/blogs/${blog.id}</loc>
+    <loc>${baseUrl}/blogs/${blog.slug}</loc>
     <lastmod>${new Date(blog.updatedAt || blog.createdAt).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

@@ -75,7 +75,7 @@ export default function BlogIndex() {
           ) : (
             <div className="grid md:grid-cols-3 gap-8">
               {posts.map((post: BlogPost) => (
-                <Link to={`/blogs/${post.id}`} key={post.id} className="group cursor-pointer block">
+                <Link to={`/blogs/${post.slug}`} key={post.id} className="group cursor-pointer block">
                   <div className="aspect-4/3 bg-gray-100 mb-4 overflow-hidden rounded-sm">
                     {post.featuredImageUrl ? (
                       <img

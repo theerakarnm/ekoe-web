@@ -115,7 +115,7 @@ export function WelcomePopup({
 
       {/* Modal */}
       <div
-        className="relative bg-white w-[95vw] max-w-[1000px] max-h-[90vh] overflow-hidden rounded-lg shadow-2xl animate-in zoom-in-95 fade-in duration-300"
+        className="relative bg-white w-[95vw] max-w-[1000px] max-h-[90vh] overflow-y-auto rounded-lg shadow-2xl animate-in zoom-in-95 fade-in duration-300"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -129,7 +129,7 @@ export function WelcomePopup({
 
         <div className="flex flex-col md:flex-row w-full">
           {/* Left Side - Image */}
-          <div className="w-full md:w-[45%] h-64 md:h-auto md:min-h-[520px] relative overflow-hidden">
+          <div className="w-full md:w-[45%] max-h-[40vh] md:max-h-none md:h-auto md:min-h-[520px] relative overflow-hidden">
             <img
               src={popupSettings.image}
               alt="Welcome to Ekoe"
