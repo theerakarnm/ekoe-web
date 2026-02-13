@@ -143,11 +143,11 @@ export function WelcomePopup({
 
         <div className="flex flex-col md:flex-row w-full">
           {/* Left Side - Image (visible on mobile too) */}
-          <div className="w-full md:w-[45%] h-[28vh] md:h-auto md:min-h-[520px] relative overflow-hidden">
+          <div className="w-full md:w-[45%] md:h-auto md:min-h-[520px] relative overflow-hidden">
             <img
               src={popupSettings.image}
               alt="Welcome to Ekoe"
-              className="absolute inset-0 w-full h-full object-cover object-[50%_70%]"
+              className="w-full h-auto object-contain md:absolute md:inset-0 md:h-full md:object-cover md:object-[50%_70%]"
             />
           </div>
 
