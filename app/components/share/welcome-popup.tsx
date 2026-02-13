@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Copy, Check, X } from 'lucide-react';
+import { Copy, Check, X, Info } from 'lucide-react';
 import { apiClient, type SuccessResponseWrapper } from '~/lib/api-client';
 import type { WelcomePopupSetting } from '~/lib/services/site-settings.service';
 
@@ -36,6 +36,8 @@ export function WelcomePopup({
   const [isOpen, setIsOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showTermsTooltip, setShowTermsTooltip] = useState(false);
+  const tooltipRef = useRef<HTMLDivElement>(null);
 
   const [couponData, setCouponData] = useState({
     code: couponCode,
@@ -82,6 +84,18 @@ export function WelcomePopup({
     checkFeatured();
   }, [couponCode]);
 
+  // Close tooltip when tapping outside
+  useEffect(() => {
+    if (!showTermsTooltip) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (tooltipRef.current && !tooltipRef.current.contains(e.target as Node)) {
+        setShowTermsTooltip(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showTermsTooltip]);
+
   const handleClose = () => {
     sessionStorage.setItem(WELCOME_POPUP_KEY, 'true');
     setIsOpen(false);
@@ -121,15 +135,15 @@ export function WelcomePopup({
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/80 hover:bg-white transition-colors shadow-lg"
+          className="absolute top-2 right-2 md:top-4 md:right-4 z-10 p-1.5 md:p-2 rounded-full bg-white/80 hover:bg-white transition-colors shadow-lg"
           aria-label="Close popup"
         >
-          <X className="w-5 h-5 text-gray-700" />
+          <X className="w-4 h-4 md:w-5 md:h-5 text-gray-700" />
         </button>
 
         <div className="flex flex-col md:flex-row w-full">
-          {/* Left Side - Image */}
-          <div className="w-full md:w-[45%] max-h-[40vh] md:max-h-none md:h-auto md:min-h-[520px] relative overflow-hidden">
+          {/* Left Side - Image (visible on mobile too) */}
+          <div className="w-full md:w-[45%] h-[28vh] md:h-auto md:min-h-[520px] relative overflow-hidden">
             <img
               src={popupSettings.image}
               alt="Welcome to Ekoe"
@@ -138,10 +152,10 @@ export function WelcomePopup({
           </div>
 
           {/* Right Side - Content */}
-          <div className="w-full md:w-[55%] p-6 md:p-10 flex flex-col justify-center bg-white">
+          <div className="w-full md:w-[55%] p-4 md:p-10 flex flex-col justify-center bg-white">
             {/* Header */}
             <h2
-              className="text-2xl md:text-4xl font-serif mb-4"
+              className="text-lg sm:text-xl md:text-4xl font-serif mb-2 md:mb-4"
               style={{ fontFamily: "'Noto Serif Thai', serif" }}
             >
               {popupSettings.title.includes('Ekoe') ? (
@@ -151,38 +165,57 @@ export function WelcomePopup({
               )}
             </h2>
 
-            <p className="text-gray-600 text-sm md:text-base mb-8">
+            <p className="text-gray-600 text-xs md:text-base mb-4 md:mb-8">
               {popupSettings.subtitle}
             </p>
 
             {/* Promo Section */}
-            <div className="mb-8">
+            <div className="mb-4 md:mb-8">
               <p
-                className="text-lg md:text-xl font-medium mb-2"
+                className="text-sm sm:text-base md:text-xl font-medium mb-1 md:mb-2"
                 style={{ fontFamily: "'Noto Serif Thai', serif" }}
               >
                 {popupSettings.description}
               </p>
               <p
-                className="text-xl md:text-2xl font-bold text-black mb-6"
+                className="text-base sm:text-lg md:text-2xl font-bold text-black mb-3 md:mb-6"
                 style={{ fontFamily: "'Noto Serif Thai', serif" }}
               >
                 {couponData.text}
               </p>
               {couponData.description && couponData.description !== couponData.text && (
-                <p className="text-sm text-gray-600 mb-6 text-center md:text-left">{couponData.description}</p>
+                <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-6 text-center md:text-left">{couponData.description}</p>
               )}
 
               {/* Coupon Code Box and Buttons */}
-              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
-                <div className="border-2 border-black px-6 py-3 text-center w-full md:w-auto min-w-[180px]">
+              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-3">
+                {/* Mobile: tappable code container that copies */}
+                <button
+                  onClick={handleCopyCode}
+                  className="md:hidden border-2 border-black px-4 py-2.5 text-center w-full flex items-center justify-center gap-2 active:bg-gray-50 transition-colors"
+                >
+                  <span className="font-mono text-base font-semibold tracking-wider">
+                    {couponData.code}
+                  </span>
+                  {isCopied ? (
+                    <Check className="w-4 h-4 text-green-600 shrink-0" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+                  )}
+                </button>
+                {isCopied && (
+                  <p className="md:hidden text-xs text-green-600 text-center -mt-1">คัดลอกแล้ว!</p>
+                )}
+
+                {/* Desktop: original code box + copy button */}
+                <div className="hidden md:block border-2 border-black px-6 py-3 text-center min-w-[180px]">
                   <span className="font-mono text-lg font-semibold tracking-wider">
                     {couponData.code}
                   </span>
                 </div>
                 <button
                   onClick={handleCopyCode}
-                  className="bg-black text-white px-6 py-3 text-sm font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 w-full md:w-auto"
+                  className="hidden md:flex bg-black text-white px-6 py-3 text-sm font-medium hover:bg-gray-800 transition-colors items-center justify-center gap-2"
                 >
                   {isCopied ? (
                     <>
@@ -198,18 +231,38 @@ export function WelcomePopup({
                 </button>
                 <button
                   onClick={handleClose}
-                  className="border-2 border-black px-6 py-3 text-sm font-medium hover:bg-gray-100 transition-colors whitespace-nowrap w-full md:w-auto"
+                  className="border-2 border-black px-4 py-2.5 md:px-6 md:py-3 text-xs md:text-sm font-medium hover:bg-gray-100 transition-colors whitespace-nowrap w-full md:w-auto"
                 >
                   ยังไม่ใช่ตอนนี้
                 </button>
               </div>
             </div>
 
-            {/* Terms */}
-            <div className="text-xs text-gray-500 space-y-0.5">
+            {/* Terms - Desktop: visible list, Mobile: tooltip on tap */}
+            {/* Desktop terms */}
+            <div className="hidden md:block text-xs text-gray-500 space-y-0.5">
               {popupSettings.terms.map((term, index) => (
                 <p key={index}>{term}</p>
               ))}
+            </div>
+
+            {/* Mobile terms tooltip */}
+            <div className="md:hidden relative" ref={tooltipRef}>
+              <button
+                onClick={() => setShowTermsTooltip(!showTermsTooltip)}
+                className="flex items-center gap-1 text-[10px] text-gray-400"
+              >
+                <Info className="w-3 h-3" />
+                <span>เงื่อนไข</span>
+              </button>
+              {showTermsTooltip && (
+                <div className="absolute bottom-full left-0 mb-2 bg-gray-900 text-white text-[10px] rounded-lg px-3 py-2 shadow-lg w-[250px] z-10 space-y-0.5">
+                  {popupSettings.terms.map((term, index) => (
+                    <p key={index}>{term}</p>
+                  ))}
+                  <div className="absolute bottom-0 left-3 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900" />
+                </div>
+              )}
             </div>
           </div>
         </div>

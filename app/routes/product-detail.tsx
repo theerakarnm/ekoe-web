@@ -24,6 +24,7 @@ import { HowToUseMedia } from "~/components/product/how-to-use-media";
 import { StickyImageScroll } from "~/components/product/sticky-image-scroll";
 
 import { getProduct, getLinkedCoupons, type Product } from "~/lib/services/product.service";
+import { getSiteSettings } from "~/lib/services/site-settings.service";
 import { formatCurrencyFromCents } from "~/lib/formatter";
 import { Link, useSearchParams } from "react-router";
 import * as fbq from "~/lib/fpixel";
@@ -47,7 +48,9 @@ export async function loader({ params }: Route.LoaderArgs) {
       console.error("Failed to fetch linked coupons", error);
     }
 
-    return { product, linkedCoupons };
+    const siteSettings = await getSiteSettings().catch(() => null);
+
+    return { product, linkedCoupons, siteSettings };
   } catch (error: any) {
     // Handle 404 errors for non-existent products
     if (error?.statusCode === 404 || error?.response?.status === 404) {
@@ -200,7 +203,7 @@ export function meta({ data }: Route.MetaArgs) {
 }
 
 export default function ProductDetail({ loaderData }: Route.ComponentProps) {
-  const { product: apiProduct, linkedCoupons } = loaderData;
+  const { product: apiProduct, linkedCoupons, siteSettings } = loaderData;
 
   // Check if welcome modal should be shown (when allow_modal is not F)
   const [searchParams] = useSearchParams();
@@ -941,7 +944,7 @@ export default function ProductDetail({ loaderData }: Route.ComponentProps) {
       <Footer />
 
       {/* Welcome Popup - shows when allow_modal is not F */}
-      {showWelcomePopup && <WelcomePopup />}
+      {showWelcomePopup && <WelcomePopup settings={siteSettings?.welcome_popup} />}
     </div >
   );
 }
