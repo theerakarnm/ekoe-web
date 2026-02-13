@@ -80,6 +80,19 @@ export function LazyVideo({
     onLoad?.();
   }, [onLoad]);
 
+  // Check if video already loaded (handles SSR hydration race condition)
+  // When accessing a page directly via URL, the browser may fire `loadeddata`
+  // before React hydrates and attaches event handlers, leaving isLoaded as false.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    // readyState >= 2 (HAVE_CURRENT_DATA) means loadeddata already fired
+    if (video.readyState >= 2 && !isLoaded) {
+      setIsLoaded(true);
+      onLoad?.();
+    }
+  }, [isInView, isLoaded, onLoad]);
+
   // Start playback when in view and loaded
   useEffect(() => {
     const video = videoRef.current;
